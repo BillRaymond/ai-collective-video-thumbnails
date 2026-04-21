@@ -101,7 +101,7 @@ When you save the edited project JSON, the app preserves source event fields and
 
 ## Import Notes For The Included Sample JSON
 
-The root sample file, [ai_collective_events_enriched_with_ids_reordered.json](./ai_collective_events_enriched_with_ids_reordered.json), works as the baseline import source.
+The root sample file, [default-list.json](./default-list.json), works as the baseline import source.
 
 The app derives `thumbnail.people[]` automatically from:
 

@@ -9,7 +9,7 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import { tick } from 'svelte';
-	import sampleEvents from '../../ai_collective_events_enriched_with_ids_reordered.json';
+	import sampleEvents from '../../default-list.json';
 	import { cloneProject, createEmptyPerson, normalizeProject, projectToJson } from '$lib/project';
 	import { getTemplateById, thumbnailTemplates } from '$lib/templates';
 	import {
@@ -444,7 +444,7 @@
 	function loadSampleProject() {
 		const nextProject = cloneProject(sampleProject);
 		setProject(nextProject);
-		projectName = 'ai_collective_events_enriched_with_ids_reordered';
+		projectName = 'default-list';
 		selectedEventId = `${nextProject.events[0]?.id ?? ''}`;
 		openPersonId = nextProject.events[0]?.thumbnail.people[0]?.id ?? '';
 		openEditorSection = 'event';
