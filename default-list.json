@@ -63,7 +63,16 @@
         "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQFZpcRKXniPDw/profile-displayphoto-crop_800_800/B56ZmmD5LvHAAI-/0/1759427663036",
         "company_logo_url": "https://dataphoenix.info/content/images/2021/06/DataPhoenix_logo-1.png"
       }
-    ]
+    ],
+    "thumbnail": {
+      "templateId": "data-phoenix-neon-panel",
+      "variantLabel": "Signal Session",
+      "eyebrow": "Day 1 · Data Phoenix",
+      "eventLogoUrl": "https://dataphoenix.info/content/images/2021/06/DataPhoenix_logo-1.png",
+      "backgroundImageUrl": "/data-phoenix-background-clean.png",
+      "producerCredit": "KROK PRODUCTIONS x Data Phoenix",
+      "ctaText": "Watch Signal Replay"
+    }
   },
   {
     "id": 3,

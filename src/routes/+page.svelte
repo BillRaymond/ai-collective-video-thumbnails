@@ -33,6 +33,8 @@
 	const sampleProject = normalizeProject(sampleEvents);
 	const initialSelectedEventId = `${sampleProject.events[0]?.id ?? ''}`;
 	const initialOpenPersonId = sampleProject.events[0]?.thumbnail.people[0]?.id ?? '';
+	const initialTemplateId =
+		sampleProject.events[0]?.thumbnail.templateId ?? thumbnailTemplates[0]?.id ?? '';
 	const editorSections: Array<{ id: EditorSection; label: string }> = [
 		{ id: 'event', label: 'Event' },
 		{ id: 'branding', label: 'Branding' },
@@ -48,6 +50,7 @@
 
 	let project = $state<ThumbnailProject>(cloneProject(sampleProject));
 	let selectedEventId = $state<string>(initialSelectedEventId);
+	let selectedTemplateId = $state<string>(initialTemplateId);
 	let projectName = $state('ai-collective-events');
 	let openEditorSection = $state<EditorSection>('event');
 	let openPersonId = $state<string>(initialOpenPersonId);
@@ -76,7 +79,7 @@
 
 	let activeEvent = $derived(getActiveEvent());
 	let activeEventIndex = $derived(getActiveEventIndex());
-	let activeTemplate = $derived(activeEvent ? getTemplateById(activeEvent.thumbnail.templateId) : null);
+	let activeTemplate = $derived(selectedTemplateId ? getTemplateById(selectedTemplateId) : null);
 	let activePerson = $derived(
 		activeEvent?.thumbnail.people.find((person) => person.id === openPersonId) ??
 			activeEvent?.thumbnail.people[0] ??
@@ -174,6 +177,20 @@
 		setProject({
 			...project,
 			events: project.events.map((event) => (`${event.id}` === eventId ? updater(event) : event))
+		});
+	}
+
+	function updateProjectTemplate(templateId: string) {
+		selectedTemplateId = templateId;
+		setProject({
+			...project,
+			events: project.events.map((event) => ({
+				...event,
+				thumbnail: {
+					...event.thumbnail,
+					templateId
+				}
+			}))
 		});
 	}
 
@@ -432,6 +449,8 @@
 			setProject(normalized);
 			projectName = file.name.replace(/\.json$/i, '') || 'ai-collective-events';
 			selectedEventId = `${normalized.events[0]?.id ?? ''}`;
+			selectedTemplateId =
+				normalized.events[0]?.thumbnail.templateId ?? thumbnailTemplates[0]?.id ?? '';
 			openPersonId = normalized.events[0]?.thumbnail.people[0]?.id ?? '';
 			openEditorSection = 'event';
 		} catch (error) {
@@ -446,6 +465,8 @@
 		setProject(nextProject);
 		projectName = 'default-list';
 		selectedEventId = `${nextProject.events[0]?.id ?? ''}`;
+		selectedTemplateId =
+			nextProject.events[0]?.thumbnail.templateId ?? thumbnailTemplates[0]?.id ?? '';
 		openPersonId = nextProject.events[0]?.thumbnail.people[0]?.id ?? '';
 		openEditorSection = 'event';
 	}
@@ -567,6 +588,18 @@
 				</div>
 
 				<div class="editor-actions">
+					<label class="toolbar-field">
+						<span>Template</span>
+						<select
+							value={selectedTemplateId}
+							onchange={(changeEvent) =>
+								updateProjectTemplate((changeEvent.currentTarget as HTMLSelectElement).value)}
+						>
+							{#each thumbnailTemplates as template}
+								<option value={template.id}>{template.name}</option>
+							{/each}
+						</select>
+					</label>
 					<label class="file-button compact-button">
 						<input type="file" accept=".json,application/json" onchange={importJsonFile} />
 						<span>Upload JSON</span>
@@ -710,22 +743,6 @@
 												(inputEvent.currentTarget as HTMLInputElement).value
 											)}
 									/>
-								</label>
-
-								<label class="field-block field-block-full">
-									<span>Template</span>
-									<select
-										value={activeEvent.thumbnail.templateId}
-										onchange={(changeEvent) =>
-											updateActiveThumbnailField(
-												'templateId',
-												(changeEvent.currentTarget as HTMLSelectElement).value
-											)}
-									>
-										{#each thumbnailTemplates as template}
-											<option value={template.id}>{template.name}</option>
-										{/each}
-									</select>
 								</label>
 
 								<label class="field-block">
