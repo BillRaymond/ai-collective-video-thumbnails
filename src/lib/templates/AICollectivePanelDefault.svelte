@@ -5,7 +5,8 @@
 	const FALLBACK_LOGO = '/AIC-Logo-White-cropped.png';
 	const FALLBACK_WORDMARK = '/Wordmark-White.png';
 	const TITLE_MAX_FONT_SIZE = 84;
-	const TITLE_MIN_FONT_SIZE = 38;
+	const TITLE_MIN_FONT_SIZE = 24;
+	const TITLE_FIT_HEIGHT_RATIO = 0.98;
 
 	let { event }: { event: ThumbnailEvent } = $props();
 	let titleBox: HTMLDivElement | null = null;
@@ -42,7 +43,7 @@
 	}
 
 	function splitTitleAccent(title: string) {
-		const match = title.match(/^(.*?:\s+)(\S[\s\S]*)$/);
+		const match = title.match(/^(.*?[?:]\s+)(\S[\s\S]*)$/);
 
 		if (!match) {
 			return {
@@ -67,7 +68,7 @@
 		}
 
 		const availableWidth = Math.floor(titleBox.clientWidth);
-		const availableHeight = Math.floor(titleBox.clientHeight);
+		const availableHeight = Math.floor(titleBox.clientHeight * TITLE_FIT_HEIGHT_RATIO);
 
 		if (availableWidth <= 0 || availableHeight <= 0) {
 			return;
@@ -82,7 +83,8 @@
 			applyTitleSize(mid);
 
 			const fits =
-				titleElement.scrollWidth <= availableWidth && titleElement.scrollHeight <= availableHeight;
+				titleElement.scrollWidth <= availableWidth + 1 &&
+				titleElement.scrollHeight <= availableHeight;
 
 			if (fits) {
 				best = mid;

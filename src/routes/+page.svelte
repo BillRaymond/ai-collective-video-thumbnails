@@ -28,11 +28,16 @@
 		ThumbnailProject
 	} from '$lib/types';
 
-	type EditorSection = 'event' | 'branding' | 'people' | '';
+	type EditorSection = 'event' | 'branding' | 'people';
 
 	const sampleProject = normalizeProject(sampleEvents);
 	const initialSelectedEventId = `${sampleProject.events[0]?.id ?? ''}`;
 	const initialOpenPersonId = sampleProject.events[0]?.thumbnail.people[0]?.id ?? '';
+	const editorSections: Array<{ id: EditorSection; label: string }> = [
+		{ id: 'event', label: 'Event' },
+		{ id: 'branding', label: 'Branding' },
+		{ id: 'people', label: 'People' }
+	];
 
 	const statusLabel: Record<ImageStatus, string> = {
 		idle: 'Not checked',
@@ -65,7 +70,12 @@
 		return project.events.find((event) => `${event.id}` === selectedEventId) ?? project.events[0] ?? null;
 	}
 
+	function getActiveEventIndex() {
+		return project.events.findIndex((event) => `${event.id}` === selectedEventId);
+	}
+
 	let activeEvent = $derived(getActiveEvent());
+	let activeEventIndex = $derived(getActiveEventIndex());
 	let activeTemplate = $derived(activeEvent ? getTemplateById(activeEvent.thumbnail.templateId) : null);
 	let activePerson = $derived(
 		activeEvent?.thumbnail.people.find((person) => person.id === openPersonId) ??
@@ -310,16 +320,23 @@
 		selectedEventId = eventId;
 		const nextEvent = project.events.find((event) => `${event.id}` === eventId);
 		openPersonId = nextEvent?.thumbnail.people[0]?.id ?? '';
-		openEditorSection = 'event';
 	}
 
-	function toggleSection(section: EditorSection) {
-		openEditorSection = openEditorSection === section ? '' : section;
+	function setEditorSection(section: EditorSection) {
+		openEditorSection = section;
 	}
 
-	function togglePersonEditor(personId: string) {
-		openPersonId = openPersonId === personId ? '' : personId;
-		openEditorSection = 'people';
+	function navigateEvent(direction: -1 | 1) {
+		if (activeEventIndex < 0) {
+			return;
+		}
+
+		const nextIndex = activeEventIndex + direction;
+		if (nextIndex < 0 || nextIndex >= project.events.length) {
+			return;
+		}
+
+		selectEvent(`${project.events[nextIndex]?.id ?? ''}`);
 	}
 
 	function addPerson() {
@@ -538,416 +555,453 @@
 </script>
 
 <div class="studio-shell">
-	<aside class="left-rail">
-		<div class="rail-head">
-			<p class="sidebar-kicker">AI Collective Design System</p>
-			<h1>Thumbnail Studio</h1>
-			<p class="sidebar-copy">
-				Select an event, edit it inline, and let shared people or company details sync across the
-				project automatically.
-			</p>
-		</div>
-
-		<section class="panel-surface rail-actions">
-			<div class="rail-actions-grid">
-				<label class="file-button compact-button">
-					<input type="file" accept=".json,application/json" onchange={importJsonFile} />
-					<span>Upload JSON</span>
-				</label>
-				<button class="secondary-button compact-button" type="button" onclick={loadSampleProject}>
-					Load sample
-				</button>
-				<button class="secondary-button compact-button" type="button" onclick={saveProjectJson}>
-					Save JSON
-				</button>
-				<button
-					class="secondary-button compact-button"
-					type="button"
-					onclick={() => exportCurrent('png')}
-					disabled={isExporting || !activeEvent}
-				>
-					Save PNG
-				</button>
-				<button
-					class="secondary-button compact-button"
-					type="button"
-					onclick={() => exportCurrent('jpg')}
-					disabled={isExporting || !activeEvent}
-				>
-					Save JPG
-				</button>
-				<button
-					class="primary-button compact-button"
-					type="button"
-					onclick={() => exportAll('png')}
-					disabled={isExporting || project.events.length === 0}
-				>
-					Save all PNGs
-				</button>
-			</div>
-
-			{#if importError}
-				<p class="error-text">{importError}</p>
-			{/if}
-			{#if exportMessage}
-				<p class="panel-caption">{exportMessage}</p>
-			{/if}
-			{#if exportError}
-				<p class="error-text">{exportError}</p>
-			{/if}
-		</section>
-
-		<section class="panel-surface rail-events">
-			<div class="panel-heading panel-heading-compact">
-				<div>
-					<p class="panel-label">Events</p>
-					<h2>{project.events.length} loaded</h2>
+	<aside class="editor-pane">
+		<section class="panel-surface editor-panel">
+			<div class="editor-head">
+				<div class="editor-title-block">
+					<p class="sidebar-kicker">AI Collective Design System</p>
+					<h1>Thumbnail Studio</h1>
+					<p class="sidebar-copy">
+						Edit one slice at a time while the preview stays on screen.
+					</p>
 				</div>
-				<p class="panel-caption">Click any event to open its editing accordion.</p>
+
+				<div class="editor-actions">
+					<label class="file-button compact-button">
+						<input type="file" accept=".json,application/json" onchange={importJsonFile} />
+						<span>Upload JSON</span>
+					</label>
+					<button class="secondary-button compact-button" type="button" onclick={loadSampleProject}>
+						Load sample
+					</button>
+					<button class="secondary-button compact-button" type="button" onclick={saveProjectJson}>
+						Save JSON
+					</button>
+					<button
+						class="secondary-button compact-button"
+						type="button"
+						onclick={() => exportCurrent('png')}
+						disabled={isExporting || !activeEvent}
+					>
+						Save PNG
+					</button>
+					<button
+						class="secondary-button compact-button"
+						type="button"
+						onclick={() => exportCurrent('jpg')}
+						disabled={isExporting || !activeEvent}
+					>
+						Save JPG
+					</button>
+					<button
+						class="primary-button compact-button"
+						type="button"
+						onclick={() => exportAll('png')}
+						disabled={isExporting || project.events.length === 0}
+					>
+						Save all PNGs
+					</button>
+				</div>
+
+				{#if importError}
+					<p class="error-text">{importError}</p>
+				{/if}
+				{#if exportMessage}
+					<p class="panel-caption">{exportMessage}</p>
+				{/if}
+				{#if exportError}
+					<p class="error-text">{exportError}</p>
+				{/if}
 			</div>
 
-			<div class="event-list">
-				{#each project.events as event}
-					<article class:active={selectedEventId === `${event.id}`} class="event-card">
+			<div class="editor-toolbar">
+				<div class="event-navigation">
+					<button
+						class="nav-icon-button"
+						type="button"
+						onclick={() => navigateEvent(-1)}
+						disabled={activeEventIndex <= 0}
+						aria-label="Previous event"
+					>
+						<span aria-hidden="true">←</span>
+					</button>
+
+					<label class="toolbar-field event-picker">
+						<span>Editing</span>
+						<select
+							value={selectedEventId}
+							onchange={(changeEvent) =>
+								selectEvent((changeEvent.currentTarget as HTMLSelectElement).value)}
+						>
+							{#each project.events as event}
+								<option value={`${event.id}`}>
+									#{event.id} {event.title}
+								</option>
+							{/each}
+						</select>
+					</label>
+
+					<button
+						class="nav-icon-button"
+						type="button"
+						onclick={() => navigateEvent(1)}
+						disabled={activeEventIndex < 0 || activeEventIndex >= project.events.length - 1}
+						aria-label="Next event"
+					>
+						<span aria-hidden="true">→</span>
+					</button>
+				</div>
+
+				<div class="section-tabs" role="tablist" aria-label="Editor sections">
+					{#each editorSections as section}
 						<button
 							type="button"
-							class="event-card-toggle"
-							onclick={() => selectEvent(`${event.id}`)}
+							class:active={openEditorSection === section.id}
+							class="section-tab"
+							role="tab"
+							aria-selected={openEditorSection === section.id}
+							onclick={() => setEditorSection(section.id)}
 						>
-							<div class="event-item-meta">
-								<span>#{event.id}</span>
-								{#if event.day !== undefined && event.day !== null && `${event.day}`.trim() !== ''}
-									<span>Day {event.day}</span>
-								{/if}
-							</div>
-							<div class="event-item-title">{event.title}</div>
-							<div class="event-item-subtitle">
-								{event.thumbnail.people.length} people · {getTemplateById(event.thumbnail.templateId).name}
-							</div>
+							{section.label}
 						</button>
+					{/each}
+				</div>
+			</div>
 
-						{#if selectedEventId === `${event.id}`}
-							<div class="event-card-body">
-								<div class="accordion-stack">
-									<section class="accordion-card">
-										<button
-											type="button"
-											class:open={openEditorSection === 'event'}
-											class="accordion-toggle"
-											onclick={() => toggleSection('event')}
-										>
-											<span>Event</span>
-											<small>Title and template</small>
-										</button>
+			<div class="event-summary">
+				<div>
+					<p class="panel-label">Current Event</p>
+					<h2>{activeEvent?.title ?? 'Select an event'}</h2>
+				</div>
+				<div class="event-summary-meta">
+					<span>#{activeEvent?.id ?? '–'}</span>
+					{#if activeEvent?.day !== undefined && activeEvent?.day !== null && `${activeEvent.day}`.trim() !== ''}
+						<span>Day {activeEvent.day}</span>
+					{/if}
+					{#if activeTemplate}
+						<span>{activeTemplate.name}</span>
+					{/if}
+					{#if activeEvent}
+						<span>{activeEvent.thumbnail.people.length} people</span>
+					{/if}
+				</div>
+			</div>
 
-										{#if openEditorSection === 'event'}
-											<div class="accordion-body form-grid compact-form-grid">
-												<label class="field-block field-block-full">
-													<span>Event title</span>
-													<input
-														type="text"
-														value={event.title}
-														oninput={(inputEvent) =>
-															updateActiveEventField(
-																'title',
-																(inputEvent.currentTarget as HTMLInputElement).value
-															)}
-													/>
-												</label>
-
-												<label class="field-block field-block-full">
-													<span>Template</span>
-													<select
-														value={event.thumbnail.templateId}
-														onchange={(changeEvent) =>
-															updateActiveThumbnailField(
-																'templateId',
-																(changeEvent.currentTarget as HTMLSelectElement).value
-															)}
-													>
-														{#each thumbnailTemplates as template}
-															<option value={template.id}>{template.name}</option>
-														{/each}
-													</select>
-												</label>
-
-												<label class="field-block">
-													<span>Variant label</span>
-													<input
-														type="text"
-														value={event.thumbnail.variantLabel}
-														oninput={(inputEvent) =>
-															updateActiveThumbnailField(
-																'variantLabel',
-																(inputEvent.currentTarget as HTMLInputElement).value
-															)}
-													/>
-												</label>
-
-												<label class="field-block">
-													<span>Eyebrow</span>
-													<input
-														type="text"
-														value={event.thumbnail.eyebrow}
-														oninput={(inputEvent) =>
-															updateActiveThumbnailField(
-																'eyebrow',
-																(inputEvent.currentTarget as HTMLInputElement).value
-															)}
-													/>
-												</label>
-											</div>
-										{/if}
-									</section>
-
-									<section class="accordion-card">
-										<button
-											type="button"
-											class:open={openEditorSection === 'branding'}
-											class="accordion-toggle"
-											onclick={() => toggleSection('branding')}
-										>
-											<span>Branding</span>
-											<small>Background, logos, CTA</small>
-										</button>
-
-										{#if openEditorSection === 'branding'}
-											<div class="accordion-body form-grid compact-form-grid">
-												<label class="field-block field-block-full">
-													<span>Background image URL</span>
-													<input
-														type="url"
-														value={event.thumbnail.backgroundImageUrl}
-														oninput={(inputEvent) =>
-															updateActiveThumbnailField(
-																'backgroundImageUrl',
-																(inputEvent.currentTarget as HTMLInputElement).value
-															)}
-													/>
-													<small>{statusLabel[getUrlStatus(event.thumbnail.backgroundImageUrl)]}</small>
-												</label>
-
-												<label class="field-block field-block-full">
-													<span>Event logo URL</span>
-													<input
-														type="url"
-														value={event.thumbnail.eventLogoUrl}
-														oninput={(inputEvent) =>
-															updateActiveThumbnailField(
-																'eventLogoUrl',
-																(inputEvent.currentTarget as HTMLInputElement).value
-															)}
-													/>
-													<small>{statusLabel[getUrlStatus(event.thumbnail.eventLogoUrl)]}</small>
-												</label>
-
-												<label class="field-block">
-													<span>Producer credit</span>
-													<input
-														type="text"
-														value={event.thumbnail.producerCredit}
-														oninput={(inputEvent) =>
-															updateActiveThumbnailField(
-																'producerCredit',
-																(inputEvent.currentTarget as HTMLInputElement).value
-															)}
-													/>
-												</label>
-
-												<label class="field-block">
-													<span>CTA text</span>
-													<input
-														type="text"
-														value={event.thumbnail.ctaText}
-														oninput={(inputEvent) =>
-															updateActiveThumbnailField(
-																'ctaText',
-																(inputEvent.currentTarget as HTMLInputElement).value
-															)}
-													/>
-												</label>
-											</div>
-										{/if}
-									</section>
-
-									<section class="accordion-card">
-										<button
-											type="button"
-											class:open={openEditorSection === 'people'}
-											class="accordion-toggle"
-											onclick={() => toggleSection('people')}
-										>
-											<span>People</span>
-											<small>Name, photo, company, logo sync</small>
-										</button>
-
-										{#if openEditorSection === 'people'}
-											<div class="accordion-body people-accordion-body">
-												<div class="inline-actions people-tools">
-													<p class="panel-caption">
-														Shared edits sync automatically by exact name or company match.
-													</p>
-													<button class="secondary-button compact-button" type="button" onclick={addPerson}>
-														Add person
-													</button>
-												</div>
-
-												<div class="people-list">
-													{#each event.thumbnail.people as person}
-														<section class="person-card">
-															<div class="person-card-head">
-																<button
-																	type="button"
-																	class:open={openPersonId === person.id}
-																	class="person-card-toggle"
-																	onclick={() => togglePersonEditor(person.id)}
-																>
-																	<span>{person.name || 'New person'}</span>
-																	<small>{person.role || 'Panelist'} · {person.company || 'No company yet'}</small>
-																</button>
-																<button
-																	class="ghost-button compact-button"
-																	type="button"
-																	onclick={() => removePerson(person.id)}
-																>
-																	Remove
-																</button>
-															</div>
-
-															{#if openPersonId === person.id}
-																<div class="person-card-body form-grid compact-form-grid">
-																	<label class="field-block">
-																		<span>Role</span>
-																		<input
-																			type="text"
-																			value={person.role}
-																			oninput={(inputEvent) =>
-																				updatePersonField(
-																					person.id,
-																					'role',
-																					(inputEvent.currentTarget as HTMLInputElement).value
-																				)}
-																		/>
-																	</label>
-
-																	<label class="field-block">
-																		<span>Name</span>
-																		<input
-																			type="text"
-																			value={person.name}
-																			oninput={(inputEvent) =>
-																				updatePersonField(
-																					person.id,
-																					'name',
-																					(inputEvent.currentTarget as HTMLInputElement).value
-																				)}
-																		/>
-																	</label>
-
-																	<label class="field-block field-block-full">
-																		<span>Company</span>
-																		<input
-																			type="text"
-																			value={person.company}
-																			oninput={(inputEvent) =>
-																				updatePersonField(
-																					person.id,
-																					'company',
-																					(inputEvent.currentTarget as HTMLInputElement).value
-																				)}
-																		/>
-																	</label>
-
-																	<label class="field-block field-block-full">
-																		<span>Photo URL</span>
-																		<input
-																			type="url"
-																			value={person.photoUrl}
-																			oninput={(inputEvent) =>
-																				updatePersonField(
-																					person.id,
-																					'photoUrl',
-																					(inputEvent.currentTarget as HTMLInputElement).value
-																				)}
-																		/>
-																		<small>{statusLabel[getUrlStatus(person.photoUrl)]}</small>
-																	</label>
-
-																	<label class="field-block field-block-full">
-																		<span>Company logo URL</span>
-																		<input
-																			type="url"
-																			value={person.companyLogoUrl}
-																			oninput={(inputEvent) =>
-																				updatePersonField(
-																					person.id,
-																					'companyLogoUrl',
-																					(inputEvent.currentTarget as HTMLInputElement).value
-																				)}
-																		/>
-																		<small>{statusLabel[getUrlStatus(person.companyLogoUrl)]}</small>
-																	</label>
-
-																	<label class="field-block">
-																		<span>Photo X</span>
-																		<input
-																			type="range"
-																			min="0"
-																			max="100"
-																			value={person.photoPositionX}
-																			oninput={(inputEvent) =>
-																				updatePersonField(
-																					person.id,
-																					'photoPositionX',
-																					Number((inputEvent.currentTarget as HTMLInputElement).value)
-																				)}
-																		/>
-																	</label>
-
-																	<label class="field-block">
-																		<span>Photo Y</span>
-																		<input
-																			type="range"
-																			min="0"
-																			max="100"
-																			value={person.photoPositionY}
-																			oninput={(inputEvent) =>
-																				updatePersonField(
-																					person.id,
-																					'photoPositionY',
-																					Number((inputEvent.currentTarget as HTMLInputElement).value)
-																				)}
-																		/>
-																	</label>
-
-																	<label class="field-block field-block-full">
-																		<span>Logo scale</span>
-																		<input
-																			type="range"
-																			min="50"
-																			max="150"
-																			value={person.logoScale}
-																			oninput={(inputEvent) =>
-																				updatePersonField(
-																					person.id,
-																					'logoScale',
-																					Number((inputEvent.currentTarget as HTMLInputElement).value)
-																				)}
-																		/>
-																	</label>
-																</div>
-															{/if}
-														</section>
-													{/each}
-												</div>
-											</div>
-										{/if}
-									</section>
+			<div class="editor-body">
+				{#if activeEvent}
+					{#if openEditorSection === 'event'}
+						<section class="editor-section">
+							<div class="editor-section-head">
+								<div>
+									<p class="panel-label">Event</p>
+									<h3>Title and structure</h3>
 								</div>
 							</div>
-						{/if}
-					</article>
-				{/each}
+
+							<div class="form-grid compact-form-grid">
+								<label class="field-block field-block-full">
+									<span>Event title</span>
+									<input
+										type="text"
+										value={activeEvent.title}
+										oninput={(inputEvent) =>
+											updateActiveEventField(
+												'title',
+												(inputEvent.currentTarget as HTMLInputElement).value
+											)}
+									/>
+								</label>
+
+								<label class="field-block field-block-full">
+									<span>Template</span>
+									<select
+										value={activeEvent.thumbnail.templateId}
+										onchange={(changeEvent) =>
+											updateActiveThumbnailField(
+												'templateId',
+												(changeEvent.currentTarget as HTMLSelectElement).value
+											)}
+									>
+										{#each thumbnailTemplates as template}
+											<option value={template.id}>{template.name}</option>
+										{/each}
+									</select>
+								</label>
+
+								<label class="field-block">
+									<span>Variant label</span>
+									<input
+										type="text"
+										value={activeEvent.thumbnail.variantLabel}
+										oninput={(inputEvent) =>
+											updateActiveThumbnailField(
+												'variantLabel',
+												(inputEvent.currentTarget as HTMLInputElement).value
+											)}
+									/>
+								</label>
+
+								<label class="field-block">
+									<span>Eyebrow</span>
+									<input
+										type="text"
+										value={activeEvent.thumbnail.eyebrow}
+										oninput={(inputEvent) =>
+											updateActiveThumbnailField(
+												'eyebrow',
+												(inputEvent.currentTarget as HTMLInputElement).value
+											)}
+									/>
+								</label>
+							</div>
+						</section>
+					{:else if openEditorSection === 'branding'}
+						<section class="editor-section">
+							<div class="editor-section-head">
+								<div>
+									<p class="panel-label">Branding</p>
+									<h3>Background, logo, and CTA</h3>
+								</div>
+							</div>
+
+							<div class="form-grid compact-form-grid">
+								<label class="field-block field-block-full">
+									<span>Background image URL</span>
+									<input
+										type="url"
+										value={activeEvent.thumbnail.backgroundImageUrl}
+										oninput={(inputEvent) =>
+											updateActiveThumbnailField(
+												'backgroundImageUrl',
+												(inputEvent.currentTarget as HTMLInputElement).value
+											)}
+									/>
+									<small>{statusLabel[getUrlStatus(activeEvent.thumbnail.backgroundImageUrl)]}</small>
+								</label>
+
+								<label class="field-block field-block-full">
+									<span>Event logo URL</span>
+									<input
+										type="url"
+										value={activeEvent.thumbnail.eventLogoUrl}
+										oninput={(inputEvent) =>
+											updateActiveThumbnailField(
+												'eventLogoUrl',
+												(inputEvent.currentTarget as HTMLInputElement).value
+											)}
+									/>
+									<small>{statusLabel[getUrlStatus(activeEvent.thumbnail.eventLogoUrl)]}</small>
+								</label>
+
+								<label class="field-block">
+									<span>Producer credit</span>
+									<input
+										type="text"
+										value={activeEvent.thumbnail.producerCredit}
+										oninput={(inputEvent) =>
+											updateActiveThumbnailField(
+												'producerCredit',
+												(inputEvent.currentTarget as HTMLInputElement).value
+											)}
+									/>
+								</label>
+
+								<label class="field-block">
+									<span>CTA text</span>
+									<input
+										type="text"
+										value={activeEvent.thumbnail.ctaText}
+										oninput={(inputEvent) =>
+											updateActiveThumbnailField(
+												'ctaText',
+												(inputEvent.currentTarget as HTMLInputElement).value
+											)}
+									/>
+								</label>
+							</div>
+						</section>
+					{:else}
+						<section class="editor-section">
+							<div class="editor-section-head">
+								<div>
+									<p class="panel-label">People</p>
+									<h3>Focused person editor</h3>
+								</div>
+								<p class="panel-caption">
+									Shared edits still sync automatically by exact name or company match.
+								</p>
+							</div>
+
+							<div class="people-toolbar">
+								<label class="toolbar-field person-picker">
+									<span>Person</span>
+									<select
+										value={openPersonId}
+										onchange={(changeEvent) => {
+											openPersonId = (changeEvent.currentTarget as HTMLSelectElement).value;
+										}}
+										disabled={activeEvent.thumbnail.people.length === 0}
+									>
+										{#each activeEvent.thumbnail.people as person}
+											<option value={person.id}>
+												{person.name || 'New person'} · {person.role || 'Panelist'}
+											</option>
+										{/each}
+									</select>
+								</label>
+
+								<div class="people-toolbar-actions">
+									<button class="secondary-button compact-button" type="button" onclick={addPerson}>
+										Add person
+									</button>
+									<button
+										class="ghost-button compact-button"
+										type="button"
+										onclick={() => activePerson && removePerson(activePerson.id)}
+										disabled={!activePerson}
+									>
+										Remove
+									</button>
+								</div>
+							</div>
+
+							{#if activePerson}
+								<div class="form-grid compact-form-grid">
+									<label class="field-block">
+										<span>Role</span>
+										<input
+											type="text"
+											value={activePerson.role}
+											oninput={(inputEvent) =>
+												updatePersonField(
+													activePerson.id,
+													'role',
+													(inputEvent.currentTarget as HTMLInputElement).value
+												)}
+										/>
+									</label>
+
+									<label class="field-block">
+										<span>Name</span>
+										<input
+											type="text"
+											value={activePerson.name}
+											oninput={(inputEvent) =>
+												updatePersonField(
+													activePerson.id,
+													'name',
+													(inputEvent.currentTarget as HTMLInputElement).value
+												)}
+										/>
+									</label>
+
+									<label class="field-block field-block-full">
+										<span>Company</span>
+										<input
+											type="text"
+											value={activePerson.company}
+											oninput={(inputEvent) =>
+												updatePersonField(
+													activePerson.id,
+													'company',
+													(inputEvent.currentTarget as HTMLInputElement).value
+												)}
+										/>
+									</label>
+
+									<label class="field-block field-block-full">
+										<span>Photo URL</span>
+										<input
+											type="url"
+											value={activePerson.photoUrl}
+											oninput={(inputEvent) =>
+												updatePersonField(
+													activePerson.id,
+													'photoUrl',
+													(inputEvent.currentTarget as HTMLInputElement).value
+												)}
+										/>
+										<small>{statusLabel[getUrlStatus(activePerson.photoUrl)]}</small>
+									</label>
+
+									<label class="field-block field-block-full">
+										<span>Company logo URL</span>
+										<input
+											type="url"
+											value={activePerson.companyLogoUrl}
+											oninput={(inputEvent) =>
+												updatePersonField(
+													activePerson.id,
+													'companyLogoUrl',
+													(inputEvent.currentTarget as HTMLInputElement).value
+												)}
+										/>
+										<small>{statusLabel[getUrlStatus(activePerson.companyLogoUrl)]}</small>
+									</label>
+
+									<label class="field-block">
+										<span>Photo X</span>
+										<input
+											type="range"
+											min="0"
+											max="100"
+											value={activePerson.photoPositionX}
+											oninput={(inputEvent) =>
+												updatePersonField(
+													activePerson.id,
+													'photoPositionX',
+													Number((inputEvent.currentTarget as HTMLInputElement).value)
+												)}
+										/>
+									</label>
+
+									<label class="field-block">
+										<span>Photo Y</span>
+										<input
+											type="range"
+											min="0"
+											max="100"
+											value={activePerson.photoPositionY}
+											oninput={(inputEvent) =>
+												updatePersonField(
+													activePerson.id,
+													'photoPositionY',
+													Number((inputEvent.currentTarget as HTMLInputElement).value)
+												)}
+										/>
+									</label>
+
+									<label class="field-block field-block-full">
+										<span>Logo scale</span>
+										<input
+											type="range"
+											min="50"
+											max="150"
+											value={activePerson.logoScale}
+											oninput={(inputEvent) =>
+												updatePersonField(
+													activePerson.id,
+													'logoScale',
+													Number((inputEvent.currentTarget as HTMLInputElement).value)
+												)}
+										/>
+									</label>
+								</div>
+							{:else}
+								<div class="editor-empty-state">
+									<p>No people on this event yet.</p>
+									<button class="secondary-button compact-button" type="button" onclick={addPerson}>
+										Add first person
+									</button>
+								</div>
+							{/if}
+						</section>
+					{/if}
+				{:else}
+					<div class="editor-empty-state">
+						<p>Upload or load JSON to begin.</p>
+					</div>
+				{/if}
 			</div>
 		</section>
 	</aside>
@@ -959,8 +1013,8 @@
 					<p class="workspace-kicker">Preview</p>
 					<h2>{activeEvent?.title ?? 'Select an event'}</h2>
 					<p>
-						Click the preview to open the rendered image. Exports use
-						`{activeEvent ? buildThumbnailFilename(activeEvent, 'png') : 'id-event-name.png'}`.
+						The preview stays visible while you edit. Click it any time to open the rendered
+						image.
 					</p>
 				</div>
 				<div class="preview-toolbar">
@@ -992,6 +1046,10 @@
 			</div>
 
 			<div class="preview-footnotes">
+				<p class="panel-caption">
+					Exports use
+					`{activeEvent ? buildThumbnailFilename(activeEvent, 'png') : 'id-event-name.png'}`.
+				</p>
 				<p class="panel-caption">
 					Remote image URLs can preview successfully but still fail during browser export if the host
 					disallows cross-origin rendering.
