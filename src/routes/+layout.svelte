@@ -6,19 +6,16 @@
 </script>
 
 <svelte:head>
-	<title>SvelteKit Tailwind Pages Template</title>
+	<title>AI Collective Thumbnail Studio</title>
 	<meta
 		name="description"
-		content="A reusable SvelteKit, Tailwind CSS, and GitHub Pages starter template for static sites."
+		content="Upload event JSON, preview AI Collective video thumbnails, and export PNG or JPG renders."
 	/>
-	<meta
-		name="keywords"
-		content="SvelteKit, Tailwind CSS, GitHub Pages, static site template"
-	/>
-	<meta property="og:title" content="SvelteKit Tailwind Pages Template" />
+	<meta name="keywords" content="AI Collective, thumbnails, SvelteKit, static app, JSON editor" />
+	<meta property="og:title" content="AI Collective Thumbnail Studio" />
 	<meta
 		property="og:description"
-		content="A reusable SvelteKit, Tailwind CSS, and GitHub Pages starter template for static sites."
+		content="A static editor for AI Collective event thumbnails with upload, preview, and export tooling."
 	/>
 	<meta property="og:type" content="website" />
 	<link rel="icon" href={favicon} />

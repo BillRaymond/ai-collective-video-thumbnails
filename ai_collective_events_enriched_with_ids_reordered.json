@@ -1,0 +1,605 @@
+[
+  {
+    "id": 1,
+    "day": 1,
+    "title": "Building the AI-Powered Enterprise",
+    "moderators": [
+      {
+        "name": "Catherine McMillan",
+        "company": "The AI Collective",
+        "photo_url": "",
+        "company_logo_url": "https://ro.am/card-images/2ea72e79-a7ba-4afb-bb24-49e94d8d575d"
+      }
+    ],
+    "confirmed_speakers": [
+      {
+        "name": "Wolf Ruzicka",
+        "company": "Unlimit",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/unlimit.com"
+      },
+      {
+        "name": "Josh Haas",
+        "company": "Bubble",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/bubble.io"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "day": 1,
+    "title": "SaaS Pocalypse: Is AI About to Eat Enterprise Software Whole?",
+    "moderators": [
+      {
+        "name": "Adelina Martiniuc",
+        "company": "RoryPlans",
+        "photo_url": "https://images.lumacdn.com/cdn-cgi/image/format%3Dauto%2Cfit%3Dcover%2Cdpr%3D2%2Cquality%3D75%2Cwidth%3D800%2Cheight%3D800/editor-images/be/1fac1dea-0a86-4adb-856a-cfa1c0c2bd1c.jpg",
+        "company_logo_url": "https://logo.clearbit.com/roryplans.ai"
+      }
+    ],
+    "confirmed_speakers": [
+      {
+        "name": "Sam Liang",
+        "company": "Otter.ai",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/otter.ai"
+      },
+      {
+        "name": "Josh Haas",
+        "company": "Bubble",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/bubble.io"
+      },
+      {
+        "name": "Adelina Martiniuc",
+        "company": "RoryPlans",
+        "photo_url": "https://images.lumacdn.com/cdn-cgi/image/format%3Dauto%2Cfit%3Dcover%2Cdpr%3D2%2Cquality%3D75%2Cwidth%3D800%2Cheight%3D800/editor-images/be/1fac1dea-0a86-4adb-856a-cfa1c0c2bd1c.jpg",
+        "company_logo_url": "https://logo.clearbit.com/roryplans.ai"
+      },
+      {
+        "name": "Dmytro Spodarets",
+        "company": "Data Phoenix",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/dataphoenix.info"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "day": 1,
+    "title": "AI & the Economy: Pricing, Value, and the Era of Abundant Intelligence",
+    "moderators": [
+      {
+        "name": "Zhenbo Yan",
+        "company": "Software Developer",
+        "photo_url": "https://ro.am/card-images/a0735f43-a889-46c1-a0c6-b8c6051c2e02",
+        "company_logo_url": ""
+      }
+    ],
+    "confirmed_speakers": [
+      {
+        "name": "Esra Kucukciftci",
+        "company": "Pricing Innovations",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/pricinginnovations.com"
+      },
+      {
+        "name": "Manmit Shrimali",
+        "company": "Turing Labs",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/turingsaas.com"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "day": 1,
+    "title": "Defensible Moats: Do You Actually Have One?",
+    "moderators": [
+      {
+        "name": "Daniel Green",
+        "company": "The AI Collective",
+        "photo_url": "https://ro.am/card-images/acad24a7-9db9-415a-9481-ec7f23db83eb",
+        "company_logo_url": "https://ro.am/card-images/2ea72e79-a7ba-4afb-bb24-49e94d8d575d"
+      }
+    ],
+    "confirmed_speakers": [
+      {
+        "name": "Homer Wang",
+        "company": "TinyFish",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/tinyfish.co"
+      },
+      {
+        "name": "Swati Deo",
+        "company": "Salesforce",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/salesforce.com"
+      },
+      {
+        "name": "Nathalie Criou",
+        "company": "Vapi",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/vapi.ai"
+      },
+      {
+        "name": "Dan Pechi",
+        "company": "",
+        "photo_url": "",
+        "company_logo_url": ""
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "day": 1,
+    "title": "Building Future-Proof: Product Roadmaps in a World That Won't Stop Shifting",
+    "moderators": [
+      {
+        "name": "Adelina Martiniuc",
+        "company": "RoryPlans",
+        "photo_url": "https://images.lumacdn.com/cdn-cgi/image/format%3Dauto%2Cfit%3Dcover%2Cdpr%3D2%2Cquality%3D75%2Cwidth%3D800%2Cheight%3D800/editor-images/be/1fac1dea-0a86-4adb-856a-cfa1c0c2bd1c.jpg",
+        "company_logo_url": "https://logo.clearbit.com/roryplans.ai"
+      }
+    ],
+    "confirmed_speakers": [
+      {
+        "name": "Faraz Yaghouti",
+        "company": "Drata",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/drata.com"
+      },
+      {
+        "name": "Adelina Martiniuc",
+        "company": "RoryPlans",
+        "photo_url": "https://images.lumacdn.com/cdn-cgi/image/format%3Dauto%2Cfit%3Dcover%2Cdpr%3D2%2Cquality%3D75%2Cwidth%3D800%2Cheight%3D800/editor-images/be/1fac1dea-0a86-4adb-856a-cfa1c0c2bd1c.jpg",
+        "company_logo_url": "https://logo.clearbit.com/roryplans.ai"
+      },
+      {
+        "name": "Vidhya Bhat",
+        "company": "Snowflake",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/snowflake.com"
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "day": 1,
+    "title": "Claude CoWork & the .md Revolution",
+    "moderators": [
+      {
+        "name": "Catherine McMillan",
+        "company": "The AI Collective",
+        "photo_url": "",
+        "company_logo_url": "https://ro.am/card-images/2ea72e79-a7ba-4afb-bb24-49e94d8d575d"
+      },
+      {
+        "name": "AJ Green",
+        "company": "The AI Collective",
+        "photo_url": "https://images.lumacdn.com/cdn-cgi/image/format%3Dauto%2Cfit%3Dcover%2Cdpr%3D2%2Canim%3Dfalse%2Cbackground%3Dwhite%2Cquality%3D75%2Cwidth%3D112%2Cheight%3D112/avatars/cq/91f4d7f7-fe76-4203-8399-1ba9dea2612d.jpg",
+        "company_logo_url": "https://ro.am/card-images/2ea72e79-a7ba-4afb-bb24-49e94d8d575d"
+      }
+    ],
+    "confirmed_speakers": []
+  },
+  {
+    "id": 7,
+    "day": 1,
+    "title": "Office Hours: Investor AMA",
+    "moderators": [
+      {
+        "name": "Bill Raymond",
+        "company": "Cambermast",
+        "photo_url": "https://www.cambermast.com/images/bill.jpg",
+        "company_logo_url": "https://logo.clearbit.com/cambermast.com"
+      }
+    ],
+    "confirmed_speakers": [
+      {
+        "name": "Carl Fritjofsson",
+        "company": "Creandum",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/creandum.com"
+      },
+      {
+        "name": "Ghazwa Khalatbari",
+        "company": "Creandum",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/creandum.com"
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "day": 2,
+    "title": "Findings from the Field: Deploying Voice AI at Enterprise Scale",
+    "moderators": [
+      {
+        "name": "AJ Green",
+        "company": "The AI Collective",
+        "photo_url": "https://images.lumacdn.com/cdn-cgi/image/format%3Dauto%2Cfit%3Dcover%2Cdpr%3D2%2Canim%3Dfalse%2Cbackground%3Dwhite%2Cquality%3D75%2Cwidth%3D112%2Cheight%3D112/avatars/cq/91f4d7f7-fe76-4203-8399-1ba9dea2612d.jpg",
+        "company_logo_url": "https://ro.am/card-images/2ea72e79-a7ba-4afb-bb24-49e94d8d575d"
+      }
+    ],
+    "confirmed_speakers": [
+      {
+        "name": "Roshan Manjaly",
+        "company": "Vapi",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/vapi.ai"
+      },
+      {
+        "name": "Dhruva Reddy",
+        "company": "Vapi",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/vapi.ai"
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "day": 2,
+    "title": "Code-Gen: Claude Code, Codex, Cursor - For the Devs",
+    "moderators": [
+      {
+        "name": "Zhenbo Yan",
+        "company": "Software Developer",
+        "photo_url": "https://ro.am/card-images/a0735f43-a889-46c1-a0c6-b8c6051c2e02",
+        "company_logo_url": ""
+      }
+    ],
+    "confirmed_speakers": [
+      {
+        "name": "Craig Mcluckie",
+        "company": "Stacklok",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/stacklok.com"
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "day": 2,
+    "title": "From Prompt to Production: MicroSaaS to Scalable Product",
+    "moderators": [
+      {
+        "name": "AJ Green",
+        "company": "The AI Collective",
+        "photo_url": "https://images.lumacdn.com/cdn-cgi/image/format%3Dauto%2Cfit%3Dcover%2Cdpr%3D2%2Canim%3Dfalse%2Cbackground%3Dwhite%2Cquality%3D75%2Cwidth%3D112%2Cheight%3D112/avatars/cq/91f4d7f7-fe76-4203-8399-1ba9dea2612d.jpg",
+        "company_logo_url": "https://ro.am/card-images/2ea72e79-a7ba-4afb-bb24-49e94d8d575d"
+      }
+    ],
+    "confirmed_speakers": [
+      {
+        "name": "AJ Green",
+        "company": "The AI Collective",
+        "photo_url": "https://images.lumacdn.com/cdn-cgi/image/format%3Dauto%2Cfit%3Dcover%2Cdpr%3D2%2Canim%3Dfalse%2Cbackground%3Dwhite%2Cquality%3D75%2Cwidth%3D112%2Cheight%3D112/avatars/cq/91f4d7f7-fe76-4203-8399-1ba9dea2612d.jpg",
+        "company_logo_url": "https://ro.am/card-images/2ea72e79-a7ba-4afb-bb24-49e94d8d575d"
+      },
+      {
+        "name": "Shekhar Natajaran",
+        "company": "Orchestra.ai",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/orchestra-ai.com"
+      },
+      {
+        "name": "Matthew Zeiler",
+        "company": "Clarifai",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/clarifai.com"
+      }
+    ]
+  },
+  {
+    "id": 11,
+    "day": 2,
+    "title": "Technical Deep Dive",
+    "moderators": [
+      {
+        "name": "Daniel Green",
+        "company": "The AI Collective",
+        "photo_url": "https://ro.am/card-images/acad24a7-9db9-415a-9481-ec7f23db83eb",
+        "company_logo_url": "https://ro.am/card-images/2ea72e79-a7ba-4afb-bb24-49e94d8d575d"
+      },
+      {
+        "name": "AJ Green",
+        "company": "The AI Collective",
+        "photo_url": "https://images.lumacdn.com/cdn-cgi/image/format%3Dauto%2Cfit%3Dcover%2Cdpr%3D2%2Canim%3Dfalse%2Cbackground%3Dwhite%2Cquality%3D75%2Cwidth%3D112%2Cheight%3D112/avatars/cq/91f4d7f7-fe76-4203-8399-1ba9dea2612d.jpg",
+        "company_logo_url": "https://ro.am/card-images/2ea72e79-a7ba-4afb-bb24-49e94d8d575d"
+      }
+    ],
+    "confirmed_speakers": []
+  },
+  {
+    "id": 12,
+    "day": 2,
+    "title": "Investor 101: Early-Growth Stage Playbook",
+    "moderators": [
+      {
+        "name": "Adelina Martiniuc",
+        "company": "RoryPlans",
+        "photo_url": "https://images.lumacdn.com/cdn-cgi/image/format%3Dauto%2Cfit%3Dcover%2Cdpr%3D2%2Cquality%3D75%2Cwidth%3D800%2Cheight%3D800/editor-images/be/1fac1dea-0a86-4adb-856a-cfa1c0c2bd1c.jpg",
+        "company_logo_url": "https://logo.clearbit.com/roryplans.ai"
+      }
+    ],
+    "confirmed_speakers": [
+      {
+        "name": "Rie Yano",
+        "company": "Coral Capital",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/coralcap.co"
+      },
+      {
+        "name": "Murray Newlands",
+        "company": "IA Seed Capital",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/iaseedcapital.com"
+      },
+      {
+        "name": "Vaibhav Agrawal",
+        "company": "Odd Bird VC",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/oddbird.vc"
+      },
+      {
+        "name": "Vik Ghai",
+        "company": "G2C Ventures",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/g2c.vc"
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "day": 2,
+    "title": "Investor 101: How to Tell the Winners from the Losers in AI",
+    "moderators": [
+      {
+        "name": "Bhola Chhetri",
+        "company": "Broadcom",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/broadcom.com"
+      }
+    ],
+    "confirmed_speakers": [
+      {
+        "name": "Mohammad Islam",
+        "company": "Threshold VC",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/threshold.vc"
+      },
+      {
+        "name": "Nikhil Choudhary",
+        "company": "Nirman Ventures",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/nirman.vc"
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "day": 2,
+    "title": "AI Security & Trust: What Builders Can't Ignore",
+    "moderators": [
+      {
+        "name": "Adelina Martiniuc",
+        "company": "RoryPlans",
+        "photo_url": "https://images.lumacdn.com/cdn-cgi/image/format%3Dauto%2Cfit%3Dcover%2Cdpr%3D2%2Cquality%3D75%2Cwidth%3D800%2Cheight%3D800/editor-images/be/1fac1dea-0a86-4adb-856a-cfa1c0c2bd1c.jpg",
+        "company_logo_url": "https://logo.clearbit.com/roryplans.ai"
+      }
+    ],
+    "confirmed_speakers": [
+      {
+        "name": "Paulina Xu",
+        "company": "Agentic Fabriq",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/agenticfabriq.com"
+      },
+      {
+        "name": "Gunjan Patel",
+        "company": "Palo Alto Networks",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/paloaltonetworks.com"
+      },
+      {
+        "name": "Adelina Martiniuc",
+        "company": "RoryPlans",
+        "photo_url": "https://images.lumacdn.com/cdn-cgi/image/format%3Dauto%2Cfit%3Dcover%2Cdpr%3D2%2Cquality%3D75%2Cwidth%3D800%2Cheight%3D800/editor-images/be/1fac1dea-0a86-4adb-856a-cfa1c0c2bd1c.jpg",
+        "company_logo_url": "https://logo.clearbit.com/roryplans.ai"
+      },
+      {
+        "name": "Felicia Popa",
+        "company": "Visa",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/visa.com"
+      }
+    ]
+  },
+  {
+    "id": 15,
+    "day": 3,
+    "title": "Human in the Loop: What Stays Human When AI Does Everything Else?",
+    "moderators": [
+      {
+        "name": "Daniel Green",
+        "company": "The AI Collective",
+        "photo_url": "https://ro.am/card-images/acad24a7-9db9-415a-9481-ec7f23db83eb",
+        "company_logo_url": "https://ro.am/card-images/2ea72e79-a7ba-4afb-bb24-49e94d8d575d"
+      }
+    ],
+    "confirmed_speakers": [
+      {
+        "name": "Wolf Ruzicka",
+        "company": "Unlimit",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/unlimit.com"
+      },
+      {
+        "name": "Tony Loehr",
+        "company": "Cline",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/cline.bot"
+      },
+      {
+        "name": "Tyrone Ross",
+        "company": "Cisco",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/cisco.com"
+      },
+      {
+        "name": "Vivek Ravisankar",
+        "company": "HackerRank",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/hackerrank.com"
+      }
+    ]
+  },
+  {
+    "id": 16,
+    "day": 3,
+    "title": "What Can You Do TODAY to Future-Proof Yourself?",
+    "moderators": [
+      {
+        "name": "Ash Kumra",
+        "company": "The AI Collective",
+        "photo_url": "https://opthpnxhzznsfjqovbes.supabase.co/storage/v1/object/public/speaker-images/440f358f-a863-4cd6-9a24-fb690b6c80d4/ash_kumra_s29srtap27.webp",
+        "company_logo_url": "https://ro.am/card-images/2ea72e79-a7ba-4afb-bb24-49e94d8d575d"
+      }
+    ],
+    "confirmed_speakers": [
+      {
+        "name": "Wallis Mills",
+        "company": "Modern Enterprise",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/modernenterprise.io"
+      },
+      {
+        "name": "Maju Kuruvilla",
+        "company": "Spangle AI",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/spangle.ai"
+      },
+      {
+        "name": "Lloyd Spencer",
+        "company": "Workforce Mentor",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/workforcementor.com"
+      }
+    ]
+  },
+  {
+    "id": 17,
+    "day": 3,
+    "title": "Will You Feel the AGI? Market Reactions and the Moment Everything Changes",
+    "moderators": [
+      {
+        "name": "Zhenbo Yan",
+        "company": "Software Developer",
+        "photo_url": "https://ro.am/card-images/a0735f43-a889-46c1-a0c6-b8c6051c2e02",
+        "company_logo_url": ""
+      }
+    ],
+    "confirmed_speakers": [
+      {
+        "name": "Henry Zhang",
+        "company": "Hermitage Capital",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/hermitagecapital.com"
+      },
+      {
+        "name": "Anubhav Maheshwari",
+        "company": "Nebius",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/nebius.com"
+      }
+    ]
+  },
+  {
+    "id": 18,
+    "day": 3,
+    "title": "Closing the Loop: What Happens When We Hit AGI?",
+    "moderators": [
+      {
+        "name": "Bhola Chhetri",
+        "company": "Broadcom",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/broadcom.com"
+      }
+    ],
+    "confirmed_speakers": []
+  },
+  {
+    "id": 19,
+    "day": 3,
+    "title": "AI 2027: Hot Takes Only",
+    "moderators": [
+      {
+        "name": "Ash Kumra",
+        "company": "The AI Collective",
+        "photo_url": "https://opthpnxhzznsfjqovbes.supabase.co/storage/v1/object/public/speaker-images/440f358f-a863-4cd6-9a24-fb690b6c80d4/ash_kumra_s29srtap27.webp",
+        "company_logo_url": "https://ro.am/card-images/2ea72e79-a7ba-4afb-bb24-49e94d8d575d"
+      }
+    ],
+    "confirmed_speakers": [
+      {
+        "name": "Clarey Zhu",
+        "company": "Headline",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/headline.com"
+      },
+      {
+        "name": "Sanchit Garg",
+        "company": "Zime.ai",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/zime.ai"
+      },
+      {
+        "name": "Nikhil Gupta",
+        "company": "Vapi",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/vapi.ai"
+      }
+    ]
+  },
+  {
+    "id": 20,
+    "day": 3,
+    "title": "The Long View: What Are We Actually Building?",
+    "moderators": [
+      {
+        "name": "Adelina Martiniuc",
+        "company": "RoryPlans",
+        "photo_url": "https://images.lumacdn.com/cdn-cgi/image/format%3Dauto%2Cfit%3Dcover%2Cdpr%3D2%2Cquality%3D75%2Cwidth%3D800%2Cheight%3D800/editor-images/be/1fac1dea-0a86-4adb-856a-cfa1c0c2bd1c.jpg",
+        "company_logo_url": "https://logo.clearbit.com/roryplans.ai"
+      }
+    ],
+    "confirmed_speakers": [
+      {
+        "name": "Ewa Lewandowska",
+        "company": "",
+        "photo_url": "",
+        "company_logo_url": ""
+      },
+      {
+        "name": "Philip Rathle",
+        "company": "Neo4j",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/neo4j.com"
+      },
+      {
+        "name": "Adelina Martiniuc",
+        "company": "RoryPlans",
+        "photo_url": "https://images.lumacdn.com/cdn-cgi/image/format%3Dauto%2Cfit%3Dcover%2Cdpr%3D2%2Cquality%3D75%2Cwidth%3D800%2Cheight%3D800/editor-images/be/1fac1dea-0a86-4adb-856a-cfa1c0c2bd1c.jpg",
+        "company_logo_url": "https://logo.clearbit.com/roryplans.ai"
+      },
+      {
+        "name": "Florent De Goriainoff",
+        "company": "Fluents",
+        "photo_url": "",
+        "company_logo_url": "https://logo.clearbit.com/fluentshq.com"
+      }
+    ]
+  }
+]
