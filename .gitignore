@@ -1,0 +1,52 @@
+node_modules/
+
+# Build output
+build/
+dist/
+.output/
+.svelte-kit/
+.vercel/
+.netlify/
+.wrangler/
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment
+.env
+.env.*
+!.env.example
+!.env.test
+
+# Caches
+.cache/
+.eslintcache
+.vite/
+
+# Dev Container runtime state
+.devcontainer/.state/
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# OS files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.Spotlight-V100/
+.Trashes/
+._*
+
+# Editor settings
+.idea/
+
+# Claude Code local settings (machine-specific, not for sharing)
+.claude/settings.local.json

@@ -1,0 +1,26 @@
+{
+	"GSAP Svelte onMount": {
+		"scope": "svelte",
+		"prefix": "gsap-svelte",
+		"body": [
+			"import { onMount } from 'svelte';",
+			"import { withGsapContext } from '$lib';",
+			"",
+			"let scope: HTMLElement | undefined;",
+			"",
+			"onMount(() => {",
+			"\tif (!scope) return;",
+			"",
+			"\treturn withGsapContext(scope, (gsap) => {",
+			"\t\tgsap.from('${1:.target}', {",
+			"\t\t\ty: ${2:24},",
+			"\t\t\topacity: 0,",
+			"\t\t\tduration: ${3:0.6},",
+			"\t\t\tease: '${4:power2.out}'",
+			"\t\t});",
+			"\t});",
+			"});"
+		],
+		"description": "Create a Svelte onMount GSAP animation using the shared $lib helper"
+	}
+}

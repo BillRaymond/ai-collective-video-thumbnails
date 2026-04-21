@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git push *)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path // .tool_response.filePath // \"\"' | grep -qE '\\.(svelte|ts|js|css)$|svelte\\.config\\.|vite\\.config\\.|package\\.json|tsconfig\\.json' && echo '{\"systemMessage\":\"Reminder: if this change affects project structure, tooling, or conventions, update CLAUDE.md to reflect it.\"}' || true"
+          }
+        ]
+      }
+    ]
+  }
+}

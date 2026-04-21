@@ -1,0 +1,7 @@
+.git
+.gitignore
+.devcontainer/.state
+.svelte-kit
+node_modules
+npm-debug.log*
+README.md

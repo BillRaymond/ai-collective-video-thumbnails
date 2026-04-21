@@ -1,0 +1,38 @@
+{
+  "name": "SvelteKit Template Dev Container",
+  "build": {
+    "dockerfile": "../Dockerfile",
+    "target": "dev"
+  },
+  "remoteUser": "node",
+  "remoteEnv": {
+    "HOST_OS": "${localEnv:OS}"
+  },
+  "updateContentCommand": "npm install",
+  "postStartCommand": "bash .devcontainer/scripts/start-dev-server.sh",
+  "postAttachCommand": "bash .devcontainer/scripts/start-dev-server.sh",
+  "waitFor": "postStartCommand",
+  "forwardPorts": [5173],
+  "portsAttributes": {
+    "5173": {
+      "label": "SvelteKit dev server",
+      "onAutoForward": "openBrowser",
+      "requireLocalPort": false
+    },
+    "5174-5190": {
+      "label": "SvelteKit dev server",
+      "onAutoForward": "openBrowser",
+      "requireLocalPort": false
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "svelte.svelte-vscode",
+        "bradlc.vscode-tailwindcss",
+        "anthropic.claude-code",
+        "openai.chatgpt"
+      ]
+    }
+  }
+}
