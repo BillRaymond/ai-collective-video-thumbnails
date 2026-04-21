@@ -686,6 +686,10 @@ button {
 	max-width: 100%;
 }
 
+.thumbnail-title-accent {
+	color: #ff7a1a;
+}
+
 .people-column {
 	display: flex;
 	flex-direction: column;

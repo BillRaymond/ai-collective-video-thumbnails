@@ -12,6 +12,7 @@
 	let titleElement: HTMLHeadingElement | null = null;
 	let resizeObserver: ResizeObserver | null = null;
 	let fitRequest = 0;
+	let titleParts = $derived(splitTitleAccent(event.title));
 
 	function getInitials(name: string) {
 		const letters = name
@@ -38,6 +39,22 @@
 
 	function hasImageUrl(value: string) {
 		return value.trim().length > 0;
+	}
+
+	function splitTitleAccent(title: string) {
+		const match = title.match(/^(.*?:\s+)(\S[\s\S]*)$/);
+
+		if (!match) {
+			return {
+				prefix: title,
+				accent: ''
+			};
+		}
+
+		return {
+			prefix: match[1],
+			accent: match[2]
+		};
 	}
 
 	function applyTitleSize(size: number) {
@@ -138,7 +155,12 @@
 			<div class="title-column">
 				<p class="thumbnail-eyebrow">{event.thumbnail.eyebrow}</p>
 				<div class="thumbnail-title-box" bind:this={titleBox}>
-					<h1 class="thumbnail-title" bind:this={titleElement}>{event.title}</h1>
+					<h1 class="thumbnail-title" bind:this={titleElement}>
+						{titleParts.prefix}
+						{#if titleParts.accent}
+							<span class="thumbnail-title-accent">{titleParts.accent}</span>
+						{/if}
+					</h1>
 				</div>
 			</div>
 
