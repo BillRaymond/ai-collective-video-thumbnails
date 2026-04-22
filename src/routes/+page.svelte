@@ -68,6 +68,7 @@
 	let previewImageUrl = $state('');
 	let previewImageKind = $state<PreviewRenderResult['kind']>('raster');
 	let previewImageLoaded = $state(false);
+	let previewModalEventId = $state('');
 
 	function getActiveEvent() {
 		return project.events.find((event) => `${event.id}` === selectedEventId) ?? project.events[0] ?? null;
@@ -138,6 +139,16 @@
 		const handleKeydown = (event: KeyboardEvent) => {
 			if (event.key === 'Escape') {
 				closePreviewModal();
+				return;
+			}
+
+			if (event.key === 'ArrowLeft') {
+				navigatePreviewModal(-1);
+				return;
+			}
+
+			if (event.key === 'ArrowRight') {
+				navigatePreviewModal(1);
 			}
 		};
 
@@ -549,8 +560,17 @@
 		}
 
 		isPreviewModalOpen = true;
+	}
+
+	async function renderPreviewModalImage() {
+		if (!activeEvent || !exportRenderNode) {
+			return;
+		}
+
+		previewModalEventId = `${activeEvent.id}`;
 		isPreviewModalLoading = true;
 		previewModalError = '';
+		previewImageLoaded = false;
 
 		try {
 			await tick();
@@ -566,11 +586,28 @@
 		}
 	}
 
+	$effect(() => {
+		if (!isPreviewModalOpen || !activeEvent || previewModalEventId === `${activeEvent.id}`) {
+			return;
+		}
+
+		void renderPreviewModalImage();
+	});
+
+	function navigatePreviewModal(direction: -1 | 1) {
+		if (isPreviewModalLoading) {
+			return;
+		}
+
+		navigateEvent(direction);
+	}
+
 	function closePreviewModal() {
 		isPreviewModalOpen = false;
 		isPreviewModalLoading = false;
 		previewModalError = '';
 		previewImageLoaded = false;
+		previewModalEventId = '';
 		setPreviewImageUrl('');
 	}
 </script>
@@ -1104,9 +1141,36 @@
 					<p class="panel-label">Rendered Image</p>
 					<h3>{activeEvent?.title ?? 'Thumbnail preview'}</h3>
 				</div>
-				<button class="ghost-button compact-button" type="button" onclick={closePreviewModal}>
-					Close
-				</button>
+				<div class="modal-head-actions">
+					<div class="modal-navigation" aria-label="Rendered image navigation">
+						<button
+							class="nav-icon-button"
+							type="button"
+							onclick={() => navigatePreviewModal(-1)}
+							disabled={isPreviewModalLoading || activeEventIndex <= 0}
+							aria-label="Previous slide"
+						>
+							<span aria-hidden="true">←</span>
+						</button>
+						<span class="modal-count">
+							{activeEventIndex >= 0 ? activeEventIndex + 1 : 0} / {project.events.length}
+						</span>
+						<button
+							class="nav-icon-button"
+							type="button"
+							onclick={() => navigatePreviewModal(1)}
+							disabled={
+								isPreviewModalLoading || activeEventIndex < 0 || activeEventIndex >= project.events.length - 1
+							}
+							aria-label="Next slide"
+						>
+							<span aria-hidden="true">→</span>
+						</button>
+					</div>
+					<button class="ghost-button compact-button" type="button" onclick={closePreviewModal}>
+						Close
+					</button>
+				</div>
 			</div>
 
 			<div class="modal-body">

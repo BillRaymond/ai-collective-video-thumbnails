@@ -564,6 +564,27 @@ optgroup {
 	margin-bottom: 0.9rem;
 }
 
+.modal-head-actions {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 0.75rem;
+	flex-wrap: wrap;
+}
+
+.modal-navigation {
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+}
+
+.modal-count {
+	min-width: 4.5rem;
+	text-align: center;
+	font-size: 0.9rem;
+	color: rgba(255, 255, 255, 0.78);
+}
+
 .modal-body {
 	display: flex;
 	align-items: center;
@@ -977,13 +998,18 @@ optgroup {
 	.people-toolbar,
 	.event-summary,
 	.workspace-top,
-	.editor-section-head {
+	.editor-section-head,
+	.modal-head {
 		flex-direction: column;
 		align-items: stretch;
 	}
 
 	.event-summary-meta {
 		justify-content: start;
+	}
+
+	.modal-head-actions {
+		justify-content: space-between;
 	}
 
 	.form-grid {
