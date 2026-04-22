@@ -292,8 +292,11 @@
 			return;
 		}
 
-		const { width } = previewViewport.getBoundingClientRect();
-		previewScale = Math.min(Math.max((width - 24) / 1280, 0.2), 1);
+		const styles = window.getComputedStyle(previewViewport);
+		const horizontalPadding =
+			Number.parseFloat(styles.paddingLeft || '0') + Number.parseFloat(styles.paddingRight || '0');
+		const availableWidth = Math.max(previewViewport.clientWidth - horizontalPadding, 0);
+		previewScale = Math.min(Math.max(availableWidth / 1280, 0.2), 1);
 	}
 
 	$effect(() => {
@@ -737,11 +740,14 @@
 </script>
 
 <div class="studio-shell">
-	<main class="preview-workspace">
-		<section class="panel-surface preview-panel-large">
-			<div class="workspace-top">
-				<div class="workspace-copy">
-					<p class="workspace-kicker">Preview</p>
+	<aside class="editor-pane">
+		<section class="panel-surface editor-panel">
+			<div class="editor-head compact-editor-head">
+				<div class="editor-slide-strip">
+					<div class="editor-slide-copy">
+						<p class="sidebar-kicker">Editing slide</p>
+						<p class="panel-caption">Pick a slide first, then make compact edits without leaving the top of the page.</p>
+					</div>
 					<div class="menu-shell event-launcher-shell">
 						<button
 							class="event-launcher"
@@ -775,82 +781,8 @@
 							</div>
 						{/if}
 					</div>
-					<p>Live 1280×720 canvas that stays visible while you edit.</p>
 				</div>
-				<div class="preview-toolbar">
-					<div class="modal-navigation preview-navigation" aria-label="Slide navigation">
-						<button
-							class="nav-icon-button"
-							type="button"
-							onclick={() => navigateEvent(-1)}
-							disabled={activeEventIndex <= 0}
-							aria-label="Previous event"
-						>
-							<span aria-hidden="true">←</span>
-						</button>
-						<span class="modal-count">
-							{activeEventIndex >= 0 ? activeEventIndex + 1 : 0} / {project.events.length}
-						</span>
-						<button
-							class="nav-icon-button"
-							type="button"
-							onclick={() => navigateEvent(1)}
-							disabled={activeEventIndex < 0 || activeEventIndex >= project.events.length - 1}
-							aria-label="Next event"
-						>
-							<span aria-hidden="true">→</span>
-						</button>
-					</div>
-					<button
-						class="secondary-button compact-button"
-						type="button"
-						onclick={openPreviewModal}
-						disabled={!activeEvent}
-					>
-						Open image
-					</button>
-				</div>
-			</div>
 
-			<div class="preview-stage preview-stage-large" bind:this={previewViewport}>
-				{#if activeEvent && activeTheme}
-					<button
-						type="button"
-						class="preview-click-target"
-						onclick={openPreviewModal}
-						aria-label="Open rendered preview image"
-					>
-						<div class="preview-stage-inner" style={`height: ${720 * previewScale}px;`}>
-							<div
-								class="thumbnail-export-root"
-								style={`transform: scale(${previewScale}); transform-origin: top left;`}
-							>
-								<activeTheme.component event={activeEvent} />
-							</div>
-						</div>
-						<span class="preview-click-hint">Click preview to inspect the rendered image</span>
-					</button>
-				{:else}
-					<div class="preview-empty">Upload or load JSON to begin.</div>
-				{/if}
-			</div>
-
-			<div class="preview-footnotes">
-				<p class="panel-caption">
-					Exports use
-					`{activeEvent ? buildThumbnailFilename(activeEvent, 'png') : 'id-event-name.png'}`.
-				</p>
-				<p class="panel-caption">
-					Remote image URLs can preview successfully but still fail during browser export if the host
-					disallows cross-origin rendering.
-				</p>
-			</div>
-		</section>
-	</main>
-
-	<aside class="editor-pane">
-		<section class="panel-surface editor-panel">
-			<div class="editor-head compact-editor-head">
 				<div class="editor-appbar">
 					<div class="editor-appbar-copy">
 						<p class="sidebar-kicker">AI Collective Design System</p>
@@ -1381,6 +1313,85 @@
 			</div>
 		</section>
 	</aside>
+
+	<main class="preview-workspace">
+		<section class="panel-surface preview-panel-large">
+			<div class="workspace-top">
+				<div class="workspace-copy">
+					<p class="workspace-kicker">Preview</p>
+					<h2>{activeEvent?.title ?? 'Select an event'}</h2>
+					<p>Live 1280×720 canvas that stays visible while you edit.</p>
+				</div>
+				<div class="preview-toolbar">
+					<div class="modal-navigation preview-navigation" aria-label="Slide navigation">
+						<button
+							class="nav-icon-button"
+							type="button"
+							onclick={() => navigateEvent(-1)}
+							disabled={activeEventIndex <= 0}
+							aria-label="Previous event"
+						>
+							<span aria-hidden="true">←</span>
+						</button>
+						<span class="modal-count">
+							{activeEventIndex >= 0 ? activeEventIndex + 1 : 0} / {project.events.length}
+						</span>
+						<button
+							class="nav-icon-button"
+							type="button"
+							onclick={() => navigateEvent(1)}
+							disabled={activeEventIndex < 0 || activeEventIndex >= project.events.length - 1}
+							aria-label="Next event"
+						>
+							<span aria-hidden="true">→</span>
+						</button>
+					</div>
+					<button
+						class="secondary-button compact-button"
+						type="button"
+						onclick={openPreviewModal}
+						disabled={!activeEvent}
+					>
+						Open image
+					</button>
+				</div>
+			</div>
+
+			<div class="preview-stage preview-stage-large" bind:this={previewViewport}>
+				{#if activeEvent && activeTheme}
+					<button
+						type="button"
+						class="preview-click-target"
+						onclick={openPreviewModal}
+						aria-label="Open rendered preview image"
+					>
+						<div class="preview-stage-inner" style={`height: ${720 * previewScale}px;`}>
+							<div
+								class="thumbnail-export-root"
+								style={`transform: scale(${previewScale}); transform-origin: top left;`}
+							>
+								<activeTheme.component event={activeEvent} />
+							</div>
+						</div>
+						<span class="preview-click-hint">Click preview to inspect the rendered image</span>
+					</button>
+				{:else}
+					<div class="preview-empty">Upload or load JSON to begin.</div>
+				{/if}
+			</div>
+
+			<div class="preview-footnotes">
+				<p class="panel-caption">
+					Exports use
+					`{activeEvent ? buildThumbnailFilename(activeEvent, 'png') : 'id-event-name.png'}`.
+				</p>
+				<p class="panel-caption">
+					Remote image URLs can preview successfully but still fail during browser export if the host
+					disallows cross-origin rendering.
+				</p>
+			</div>
+		</section>
+	</main>
 </div>
 
 {#if activeEvent && activeTheme}

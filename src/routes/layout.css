@@ -76,6 +76,14 @@ button {
 	min-height: 0;
 }
 
+.preview-workspace {
+	grid-column: 1;
+}
+
+.editor-pane {
+	grid-column: 2;
+}
+
 .panel-surface {
 	background: var(--gradient-panel);
 	border: 1px solid rgba(255, 255, 255, 0.08);
@@ -118,6 +126,22 @@ button {
 	gap: 0.75rem;
 	padding-bottom: 0.85rem;
 	border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.editor-slide-strip {
+	display: flex;
+	flex-direction: column;
+	gap: 0.55rem;
+	padding: 0.8rem;
+	border-radius: 1rem;
+	background: rgba(255, 255, 255, 0.03);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.editor-slide-copy {
+	display: flex;
+	flex-direction: column;
+	gap: 0.18rem;
 }
 
 .editor-appbar {
@@ -219,6 +243,10 @@ button {
 	left: 0;
 	right: auto;
 	min-width: min(24rem, 82vw);
+}
+
+.event-launcher-shell {
+	width: 100%;
 }
 
 .action-menu {
@@ -532,7 +560,7 @@ button {
 		radial-gradient(circle at top, rgba(0, 118, 219, 0.12), transparent 35%);
 	padding: 0.75rem;
 	border: 1px solid rgba(255, 255, 255, 0.06);
-	overflow: auto;
+	overflow: hidden;
 }
 
 .preview-stage-large {
@@ -747,11 +775,13 @@ optgroup {
 	}
 
 	.preview-workspace {
-		order: 1;
+		grid-column: auto;
+		order: 2;
 	}
 
 	.editor-pane {
-		order: 2;
+		grid-column: auto;
+		order: 1;
 	}
 
 	.editor-panel,
@@ -763,7 +793,8 @@ optgroup {
 		position: static;
 	}
 
-	.editor-body {
+	.editor-body,
+	.compact-editor-body {
 		overflow: visible;
 	}
 }
@@ -779,6 +810,11 @@ optgroup {
 		padding: 0.85rem;
 	}
 
+	.editor-slide-strip {
+		padding: 0.72rem;
+		gap: 0.45rem;
+	}
+
 	.editor-appbar,
 	.workspace-top,
 	.preview-toolbar,
@@ -791,6 +827,7 @@ optgroup {
 
 	.editor-appbar-controls {
 		width: 100%;
+		gap: 0.45rem;
 	}
 
 	.theme-field {
@@ -805,6 +842,33 @@ optgroup {
 	.menu-shell > button,
 	.menu-shell > label {
 		width: 100%;
+	}
+
+	.section-tabs,
+	.subsection-tabs {
+		gap: 0.45rem;
+	}
+
+	.section-tab,
+	.subsection-tab {
+		min-height: 1.9rem;
+		padding: 0.42rem 0.62rem;
+		border-radius: 999px;
+		font-size: 0.76rem;
+	}
+
+	.event-summary-card {
+		gap: 0.55rem;
+		padding-top: 0.75rem;
+	}
+
+	.people-toolbar,
+	.focused-person-summary {
+		padding: 0.68rem;
+	}
+
+	.preview-panel-large {
+		padding-top: 0.78rem;
 	}
 
 	.preview-toolbar {
@@ -825,6 +889,72 @@ optgroup {
 }
 
 @media (max-width: 640px) {
+	.studio-shell {
+		padding: 0.6rem;
+		gap: 0.65rem;
+	}
+
+	.panel-surface {
+		border-radius: 1rem;
+	}
+
+	.editor-panel,
+	.preview-panel-large {
+		padding: 0.72rem;
+	}
+
+	.compact-editor-head {
+		gap: 0.6rem;
+		padding-bottom: 0.72rem;
+	}
+
+	.editor-slide-strip {
+		padding: 0.62rem;
+	}
+
+	.editor-appbar-copy h1 {
+		font-size: 1.12rem;
+	}
+
+	.workspace-copy h2 {
+		font-size: 1.05rem;
+		line-height: 1.1;
+	}
+
+	.workspace-copy p,
+	.panel-caption,
+	.field-block small {
+		font-size: 0.82rem;
+	}
+
+	.toolbar-field select,
+	.field-block input,
+	.field-block select {
+		padding: 0.62rem 0.72rem;
+		border-radius: 0.72rem;
+	}
+
+	.event-launcher {
+		min-height: 2.8rem;
+		padding: 0.62rem 0.75rem;
+	}
+
+	.editor-toolbar {
+		gap: 0.55rem;
+		padding: 0.72rem 0;
+	}
+
+	.preview-stage {
+		padding: 0.45rem;
+		border-radius: 0.95rem;
+	}
+
+	.preview-click-hint {
+		margin-top: 0.55rem;
+		padding: 0.38rem 0.6rem;
+		font-size: 0.74rem;
+	}
+
 	.floating-menu,
 	.event-picker-menu {
 		left: 0;
