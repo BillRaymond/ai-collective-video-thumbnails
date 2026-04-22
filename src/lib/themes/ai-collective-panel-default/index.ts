@@ -1,7 +1,6 @@
 import Theme from './Theme.svelte';
 import backgroundImageUrl from './assets/default-thumbnail-bg.png';
 import eventLogoUrl from './assets/HumanX-white-logo-cropped.png';
-import fallbackLogoUrl from './assets/AIC-Logo-White-cropped.png';
 import wordmarkUrl from './assets/Wordmark-White.png';
 import { buildAiCollectiveDefaults, DEFAULT_BACKGROUND_URL_LEGACY, DEFAULT_EVENT_LOGO_URL_LEGACY } from './defaults';
 import type { ThumbnailThemeDefinition } from '$lib/types';
@@ -10,7 +9,6 @@ import './theme.css';
 export const assets = {
 	backgroundImageUrl,
 	eventLogoUrl,
-	fallbackLogoUrl,
 	wordmarkUrl
 };
 
@@ -22,11 +20,40 @@ export const theme: ThumbnailThemeDefinition = {
 		order: 10
 	},
 	component: Theme,
-	defaults: (event) => ({
-		...buildAiCollectiveDefaults(event),
-		backgroundImageUrl,
-		eventLogoUrl
-	}),
+	defaults: (event) => {
+		const base = buildAiCollectiveDefaults(event);
+		const createId = (role: string, i: number) => `${event.id}-${role}-${i + 1}`;
+
+		return {
+			...base,
+			backgroundImageUrl,
+			eventLogoUrl,
+			people: [
+				...event.moderators.map((m, i) => ({
+					id: createId('moderator', i),
+					role: 'Moderator',
+					name: m.name.toUpperCase(),
+					company: m.company,
+					photoUrl: m.photo_url,
+					companyLogoUrl: m.company_logo_url || '',
+					photoPositionX: 50,
+					photoPositionY: 50,
+					logoScale: 100
+				})),
+				...event.confirmed_speakers.map((s, i) => ({
+					id: createId('panelist', i),
+					role: 'Panelist',
+					name: s.name.toUpperCase(),
+					company: s.company,
+					photoUrl: s.photo_url,
+					companyLogoUrl: s.company_logo_url || '',
+					photoPositionX: 50,
+					photoPositionY: 50,
+					logoScale: 100
+				}))
+			]
+		};
+	},
 	editor: {
 		eventFields: ['variantLabel', 'eyebrow'],
 		brandingFields: ['backgroundImageUrl', 'eventLogoUrl', 'producerCredit', 'ctaText'],

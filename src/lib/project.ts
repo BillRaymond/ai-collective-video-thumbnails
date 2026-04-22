@@ -84,7 +84,8 @@ function buildThemeBackedThumbnailDefaults(event: EventSource, themeId: string) 
 			withFallback(themeDefaults.backgroundImageUrl, baseDefaults.backgroundImageUrl)
 		),
 		producerCredit: withFallback(themeDefaults.producerCredit, baseDefaults.producerCredit),
-		ctaText: withFallback(themeDefaults.ctaText, baseDefaults.ctaText)
+		ctaText: withFallback(themeDefaults.ctaText, baseDefaults.ctaText),
+		people: themeDefaults.people as ThumbnailPerson[] | undefined
 	};
 }
 
@@ -178,7 +179,7 @@ function normalizeThumbnail(event: EventSource, thumbnailValue: unknown): Thumbn
 				event,
 				safeThumbnail.people.map((person, index) => normalizePerson(event.id, person, index))
 			)
-		: buildPeopleFromSource(event);
+		: (themeDefaults.people ?? buildPeopleFromSource(event));
 
 	return {
 		templateId: themeDefaults.themeId,
@@ -255,7 +256,15 @@ export function applyThemeToThumbnail(event: EventSource, thumbnail: ThumbnailCo
 			withFallback(thumbnail.backgroundImageUrl, themeDefaults.backgroundImageUrl)
 		),
 		producerCredit: withFallback(thumbnail.producerCredit, themeDefaults.producerCredit),
-		ctaText: withFallback(thumbnail.ctaText, themeDefaults.ctaText)
+		ctaText: withFallback(thumbnail.ctaText, themeDefaults.ctaText),
+		people: thumbnail.people.map((p, i) => {
+			const themePerson = themeDefaults.people?.[i];
+			return {
+				...p,
+				name: themePerson?.name ?? p.name,
+				companyLogoUrl: themePerson ? themePerson.companyLogoUrl : p.companyLogoUrl
+			};
+		})
 	} satisfies ThumbnailConfig;
 }
 

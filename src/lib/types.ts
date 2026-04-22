@@ -91,7 +91,7 @@ export interface ThumbnailThemeAssets {
 export interface ThumbnailThemeDefinition {
 	meta: ThumbnailThemeMeta;
 	component: Component<ThumbnailThemeProps>;
-	defaults: (event: EventSource) => Partial<Omit<ThumbnailConfig, 'templateId' | 'people'>>;
+	defaults: (event: EventSource) => Partial<Omit<ThumbnailConfig, 'templateId'>>;
 	editor: ThumbnailThemeEditorCapabilities;
 	assets?: ThumbnailThemeAssets;
 	legacyAssetUrls?: Record<string, string>;

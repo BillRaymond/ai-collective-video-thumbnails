@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
-	import fallbackLogoUrl from './assets/AIC-Logo-White-cropped.png';
 	import wordmarkUrl from './assets/Wordmark-White.png';
 	import { resolveRenderableImageUrl } from '$lib/image';
 	import type { ThumbnailEvent, ThumbnailPerson } from '$lib/types';
@@ -268,22 +267,18 @@
 								<div class="speaker-company">{person.company || 'Company name'}</div>
 							</div>
 
-							{#if shouldRenderCompanyLogo(person) || !hasImageUrl(person.companyLogoUrl)}
+							{#if shouldRenderCompanyLogo(person)}
 								<div class="speaker-logo-wrap">
-									{#if shouldRenderCompanyLogo(person)}
-										<img
-											class="speaker-logo"
-											src={getImageSrc(person.companyLogoUrl)}
-											alt={person.company || 'Company logo'}
-											crossorigin="anonymous"
-											data-load-failed={isPersonCompanyLogoFailed(person) ? 'true' : undefined}
-											style={`transform: scale(${person.logoScale / 100});`}
-											onload={() => clearPersonCompanyLogoFailed(person)}
-											onerror={() => markPersonCompanyLogoFailed(person)}
-										/>
-									{:else}
-										<img class="speaker-logo speaker-logo-fallback" src={fallbackLogoUrl} alt="" />
-									{/if}
+									<img
+										class="speaker-logo"
+										src={getImageSrc(person.companyLogoUrl)}
+										alt={person.company || 'Company logo'}
+										crossorigin="anonymous"
+										data-load-failed={isPersonCompanyLogoFailed(person) ? 'true' : undefined}
+										style={`transform: scale(${person.logoScale / 100});`}
+										onload={() => clearPersonCompanyLogoFailed(person)}
+										onerror={() => markPersonCompanyLogoFailed(person)}
+									/>
 								</div>
 							{/if}
 						</div>
