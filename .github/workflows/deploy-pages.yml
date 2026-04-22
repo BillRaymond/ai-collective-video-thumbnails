@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: GitHub Pages
 
 on:
   push:
@@ -17,6 +17,7 @@ concurrency:
 
 jobs:
   build:
+    name: Build
     runs-on: ubuntu-latest
     env:
       BASE_PATH: ${{ github.event.repository.name == format('{0}.github.io', github.repository_owner) && '' || format('/{0}', github.event.repository.name) }}
@@ -45,6 +46,7 @@ jobs:
           path: build
 
   deploy:
+    name: Deploy
     needs: build
     runs-on: ubuntu-latest
     environment:
