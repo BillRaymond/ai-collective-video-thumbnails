@@ -11,7 +11,7 @@
 	import { tick } from 'svelte';
 	import sampleEvents from '../../default-list.json';
 	import { CANVAS_HEIGHT, CANVAS_WIDTH } from '$lib/constants';
-	import { resolveRenderableImageUrl } from '$lib/image';
+	import { isAppLocalImagePath, resolveAppImageUrl, resolveRenderableImageUrl } from '$lib/image';
 	import {
 		applyThemeToProject,
 		cloneProject,
@@ -522,15 +522,22 @@
 	}
 
 	function getRenderableUrl(url: string) {
+		const resolvedUrl = resolveAppImageUrl(url);
+
 		if (!activeTheme) {
-			return url;
+			return resolvedUrl;
 		}
 
-		return resolveRenderableImageUrl(url, activeTheme.meta.id);
+		return resolveRenderableImageUrl(resolvedUrl, activeTheme.meta.id);
 	}
 
 	function ensureUrlStatus(url: string) {
 		if (!browser || !url || urlStatuses[url] === 'valid' || urlStatuses[url] === 'loading') {
+			return;
+		}
+
+		if (isAppLocalImagePath(url)) {
+			markUrl(url, 'valid');
 			return;
 		}
 

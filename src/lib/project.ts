@@ -1,4 +1,5 @@
 import Ajv, { type ErrorObject } from 'ajv';
+import { resolveAppImageUrl } from '$lib/image';
 import { DEFAULT_THEME_ID, getThemeById, getThemeLegacyAssetUrlMap } from '$lib/themes';
 import type { EventPersonSource, EventSource, ThumbnailConfig, ThumbnailEvent, ThumbnailPerson, ThumbnailProject } from './types';
 import sourceEventsSchema from './schemas/source-events.schema.json';
@@ -38,7 +39,7 @@ function withFallback(value: unknown, fallback = '') {
 }
 
 function resolveLegacyAssetUrl(value: string) {
-	return LEGACY_ASSET_URLS[value] ?? value;
+	return resolveAppImageUrl(LEGACY_ASSET_URLS[value] ?? value);
 }
 
 function asPeople(value: unknown): EventPersonSource[] {
@@ -52,8 +53,8 @@ function asPeople(value: unknown): EventPersonSource[] {
 		return {
 			name: asString(safePerson.name),
 			company: asString(safePerson.company),
-			photo_url: asString(safePerson.photo_url),
-			company_logo_url: asString(safePerson.company_logo_url)
+			photo_url: resolveAppImageUrl(asString(safePerson.photo_url)),
+			company_logo_url: resolveAppImageUrl(asString(safePerson.company_logo_url))
 		};
 	});
 }
@@ -139,8 +140,8 @@ function normalizePerson(eventId: EventSource['id'], value: unknown, index: numb
 		role: asString(safePerson.role, 'Panelist'),
 		name: asString(safePerson.name),
 		company: asString(safePerson.company),
-		photoUrl: asString(safePerson.photoUrl),
-		companyLogoUrl: asString(safePerson.companyLogoUrl),
+		photoUrl: resolveAppImageUrl(asString(safePerson.photoUrl)),
+		companyLogoUrl: resolveAppImageUrl(asString(safePerson.companyLogoUrl)),
 		photoPositionX:
 			typeof safePerson.photoPositionX === 'number' ? safePerson.photoPositionX : 50,
 		photoPositionY:
@@ -365,7 +366,9 @@ export function applyThemeToThumbnail(event: EventSource, thumbnail: ThumbnailCo
 			return {
 				...p,
 				name: themePerson?.name ?? p.name,
-				companyLogoUrl: themePerson ? themePerson.companyLogoUrl : p.companyLogoUrl
+				companyLogoUrl: resolveAppImageUrl(
+					themePerson ? themePerson.companyLogoUrl : p.companyLogoUrl
+				)
 			};
 		})
 	} satisfies ThumbnailConfig;

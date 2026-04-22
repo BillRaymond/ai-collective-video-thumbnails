@@ -217,7 +217,7 @@
 				<div class="phoenix-footer-logo-lockup">
 					<div class="phoenix-footer-logo">
 						{#if hasImageUrl(event.thumbnail.eventLogoUrl)}
-							<img src={event.thumbnail.eventLogoUrl} alt="Event logo" crossorigin="anonymous" />
+							<img src={getImageSrc(event.thumbnail.eventLogoUrl)} alt="Event logo" crossorigin="anonymous" />
 						{:else}
 							<div class="phoenix-footer-mark">Add event logo</div>
 						{/if}
