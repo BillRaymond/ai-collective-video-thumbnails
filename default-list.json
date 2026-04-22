@@ -57,12 +57,7 @@
         "photo_url": "/images/speakers/photos/dmytro-spodarets.jpg",
         "company_logo_url": "/images/speakers/logos/data-phoenix.png"
       }
-    ],
-    "thumbnail": {
-      "eventLogoUrl": "",
-      "backgroundImageUrl": "/data-phoenix-background.png",
-      "producerCredit": "KROK PRODUCTIONS x Data Phoenix"
-    }
+    ]
   },
   {
     "id": 3,

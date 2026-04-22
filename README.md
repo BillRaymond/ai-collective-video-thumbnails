@@ -27,6 +27,13 @@ The app accepts either:
 1. A raw event array
 2. A previously exported thumbnail project object
 
+Both formats are validated against strict JSON Schemas before import:
+
+- [src/lib/schemas/source-events.schema.json](./src/lib/schemas/source-events.schema.json)
+- [src/lib/schemas/thumbnail-project.schema.json](./src/lib/schemas/thumbnail-project.schema.json)
+
+Unexpected fields are rejected. For example, adding a `thumbnail` block to a raw source event array now raises an import error instead of being silently accepted.
+
 ### Raw event array
 
 ```json

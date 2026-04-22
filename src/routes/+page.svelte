@@ -15,7 +15,8 @@
 		applyThemeToProject,
 		cloneProject,
 		createEmptyPerson,
-		normalizeProject,
+		ProjectImportError,
+		parseProjectImport,
 		projectToJson
 	} from '$lib/project';
 	import { getThemeById, thumbnailThemes } from '$lib/themes';
@@ -47,7 +48,7 @@
 		| 'details';
 	type AppMenu = 'none' | 'actions' | 'export' | 'events';
 
-	const sampleProject = normalizeProject(sampleEvents);
+	const sampleProject = parseProjectImport(sampleEvents);
 	const initialSelectedEventId = `${sampleProject.events[0]?.id ?? ''}`;
 	const initialOpenPersonId = sampleProject.events[0]?.thumbnail.people[0]?.id ?? '';
 	const initialThemeId = thumbnailThemes[0]?.meta.id ?? '';
@@ -74,6 +75,7 @@
 	let isEventSummaryExpanded = $state(false);
 	let openAppMenu = $state<AppMenu>('none');
 	let importError = $state('');
+	let importErrorDetails = $state<string[]>([]);
 	let exportError = $state('');
 	let exportMessage = $state('');
 	let isExporting = $state(false);
@@ -575,7 +577,7 @@
 		try {
 			const text = await file.text();
 			const parsed = JSON.parse(text);
-			const normalized = normalizeProject(parsed);
+			const normalized = parseProjectImport(parsed);
 			setProject(normalized);
 			projectName = file.name.replace(/\.json$/i, '') || 'ai-collective-events';
 			selectedEventId = `${normalized.events[0]?.id ?? ''}`;
@@ -584,7 +586,13 @@
 			openEditorSection = 'content';
 			openEditorSubsection = 'title';
 		} catch (error) {
-			importError = error instanceof Error ? error.message : 'The JSON file could not be parsed.';
+			if (error instanceof ProjectImportError) {
+				importError = error.headline;
+				importErrorDetails = error.details;
+			} else {
+				importError = error instanceof Error ? error.message : 'The JSON file could not be parsed.';
+				importErrorDetails = [];
+			}
 		} finally {
 			input.value = '';
 		}
@@ -944,7 +952,16 @@
 				{/if}
 
 				{#if importError}
-					<p class="error-text">{importError}</p>
+					<div class="error-panel" role="alert" aria-live="polite">
+						<p class="error-text">{importError}</p>
+						{#if importErrorDetails.length > 0}
+							<ul class="error-list">
+								{#each importErrorDetails as detail}
+									<li>{detail}</li>
+								{/each}
+							</ul>
+						{/if}
+					</div>
 				{/if}
 				{#if exportMessage}
 					<p class="panel-caption">{exportMessage}</p>

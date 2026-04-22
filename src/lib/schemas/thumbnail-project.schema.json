@@ -1,0 +1,122 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ai-collective.dev/schemas/thumbnail-project.schema.json",
+  "title": "Thumbnail Project",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "generatedBy", "exportedAt", "events"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "generatedBy": {
+      "type": "string",
+      "const": "ai-collective-thumbnail-studio"
+    },
+    "exportedAt": {
+      "type": "string"
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/thumbnailEvent"
+      }
+    }
+  },
+  "definitions": {
+    "eventPersonSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "company": { "type": "string" },
+        "photo_url": { "type": "string" },
+        "company_logo_url": { "type": "string" }
+      }
+    },
+    "thumbnailPerson": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "role",
+        "name",
+        "company",
+        "photoUrl",
+        "companyLogoUrl",
+        "photoPositionX",
+        "photoPositionY",
+        "logoScale"
+      ],
+      "properties": {
+        "id": { "type": "string" },
+        "role": { "type": "string" },
+        "name": { "type": "string" },
+        "company": { "type": "string" },
+        "photoUrl": { "type": "string" },
+        "companyLogoUrl": { "type": "string" },
+        "photoPositionX": { "type": "number" },
+        "photoPositionY": { "type": "number" },
+        "logoScale": { "type": "number" }
+      }
+    },
+    "thumbnailConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "eventLogoUrl",
+        "backgroundImageUrl",
+        "producerCredit",
+        "ctaText",
+        "people"
+      ],
+      "properties": {
+        "eventLogoUrl": { "type": "string" },
+        "backgroundImageUrl": { "type": "string" },
+        "producerCredit": { "type": "string" },
+        "ctaText": { "type": "string" },
+        "people": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/thumbnailPerson" }
+        }
+      }
+    },
+    "thumbnailEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "moderators",
+        "confirmed_speakers",
+        "thumbnail"
+      ],
+      "properties": {
+        "id": {
+          "anyOf": [
+            { "type": "string" },
+            { "type": "number" }
+          ]
+        },
+        "day": {
+          "anyOf": [
+            { "type": "string" },
+            { "type": "number" },
+            { "type": "null" }
+          ]
+        },
+        "title": { "type": "string" },
+        "moderators": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/eventPersonSource" }
+        },
+        "confirmed_speakers": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/eventPersonSource" }
+        },
+        "thumbnail": { "$ref": "#/definitions/thumbnailConfig" }
+      }
+    }
+  }
+}

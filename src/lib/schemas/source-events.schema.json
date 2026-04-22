@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ai-collective.dev/schemas/source-events.schema.json",
+  "title": "Raw Source Events",
+  "type": "array",
+  "items": {
+    "$ref": "#/definitions/sourceEvent"
+  },
+  "definitions": {
+    "eventPersonSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "company": { "type": "string" },
+        "photo_url": { "type": "string" },
+        "company_logo_url": { "type": "string" }
+      }
+    },
+    "sourceEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title"],
+      "properties": {
+        "id": {
+          "anyOf": [
+            { "type": "string" },
+            { "type": "number" }
+          ]
+        },
+        "day": {
+          "anyOf": [
+            { "type": "string" },
+            { "type": "number" },
+            { "type": "null" }
+          ]
+        },
+        "title": { "type": "string" },
+        "moderators": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/eventPersonSource" }
+        },
+        "confirmed_speakers": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/eventPersonSource" }
+        }
+      }
+    }
+  }
+}

@@ -1,7 +1,25 @@
+import Ajv, { type ErrorObject } from 'ajv';
 import { DEFAULT_THEME_ID, getThemeById, getThemeLegacyAssetUrlMap } from '$lib/themes';
 import type { EventPersonSource, EventSource, ThumbnailConfig, ThumbnailEvent, ThumbnailPerson, ThumbnailProject } from './types';
+import sourceEventsSchema from './schemas/source-events.schema.json';
+import thumbnailProjectSchema from './schemas/thumbnail-project.schema.json';
 
 const LEGACY_ASSET_URLS = getThemeLegacyAssetUrlMap();
+const ajv = new Ajv({ allErrors: true, strict: false });
+const validateSourceEventsSchema = ajv.compile(sourceEventsSchema);
+const validateThumbnailProjectSchema = ajv.compile(thumbnailProjectSchema);
+
+export class ProjectImportError extends Error {
+	headline: string;
+	details: string[];
+
+	constructor(headline: string, details: string[] = []) {
+		super([headline, ...details].join('\n'));
+		this.name = 'ProjectImportError';
+		this.headline = headline;
+		this.details = details;
+	}
+}
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
 	typeof value === 'object' && value !== null;
@@ -192,6 +210,85 @@ function normalizeThumbnail(event: EventSource, thumbnailValue: unknown): Thumbn
 	};
 }
 
+function formatErrorPath(instancePath: string, missingProperty?: string) {
+	const basePath = instancePath ? instancePath.replace(/\//g, '.') : 'root';
+	return missingProperty ? `${basePath}.${missingProperty}` : basePath;
+}
+
+function describeSchemaError(error: ErrorObject) {
+	if (error.keyword === 'additionalProperties') {
+		const propertyName =
+			typeof error.params.additionalProperty === 'string' ? error.params.additionalProperty : 'unknown';
+		return `${formatErrorPath(error.instancePath, propertyName)} is not allowed`;
+	}
+
+	if (error.keyword === 'required') {
+		const propertyName =
+			typeof error.params.missingProperty === 'string' ? error.params.missingProperty : 'unknown';
+		return `${formatErrorPath(error.instancePath, propertyName)} is required`;
+	}
+
+	return `${formatErrorPath(error.instancePath)} ${error.message ?? 'is invalid'}`;
+}
+
+function humanizeSchemaPath(path: string) {
+	const trimmed = path.replace(/^root\.?/, '');
+	if (!trimmed) {
+		return 'Top level';
+	}
+
+	const segments = trimmed.split('.').filter(Boolean);
+	const parts: string[] = [];
+
+	for (const segment of segments) {
+		if (/^\d+$/.test(segment)) {
+			parts.push(`Event ${Number(segment) + 1}`);
+			continue;
+		}
+
+		parts.push(segment);
+	}
+
+	return parts.join(' -> ');
+}
+
+function formatSchemaErrorDetails(errors: ErrorObject[] | null | undefined) {
+	if (!errors?.length) {
+		return ['Unknown schema validation error.'];
+	}
+
+	return errors.slice(0, 5).map((error) => {
+		const description = describeSchemaError(error);
+		const [path, ...rest] = description.split(' ');
+		return `${humanizeSchemaPath(path)}: ${rest.join(' ')}`;
+	});
+}
+
+function ensureValidSourceEvents(value: unknown) {
+	if (validateSourceEventsSchema(value)) {
+		return;
+	}
+
+	throw new ProjectImportError(
+		'Upload blocked: the file is not valid raw event JSON.',
+		[
+			'Only source-event fields are allowed in raw uploads.',
+			...formatSchemaErrorDetails(validateSourceEventsSchema.errors)
+		]
+	);
+}
+
+function ensureValidThumbnailProject(value: unknown) {
+	if (validateThumbnailProjectSchema(value)) {
+		return;
+	}
+
+	throw new ProjectImportError(
+		'Upload blocked: the file is not a valid thumbnail project export.',
+		formatSchemaErrorDetails(validateThumbnailProjectSchema.errors)
+	);
+}
+
 export function normalizeThumbnailEvent(value: unknown): ThumbnailEvent {
 	const event = normalizeEventSource(value);
 	const safeEvent = isObject(value) ? value : {};
@@ -229,6 +326,23 @@ export function normalizeProject(value: unknown): ThumbnailProject {
 		exportedAt: now,
 		events: []
 	};
+}
+
+export function parseProjectImport(value: unknown): ThumbnailProject {
+	if (Array.isArray(value)) {
+		ensureValidSourceEvents(value);
+		return normalizeProject(value);
+	}
+
+	if (isObject(value) && Array.isArray(value.events)) {
+		ensureValidThumbnailProject(value);
+		return normalizeProject(value);
+	}
+
+	throw new ProjectImportError(
+		'Upload blocked: unsupported JSON format.',
+		['Expected either a raw event array or an exported thumbnail project object.']
+	);
 }
 
 export function cloneProject(project: ThumbnailProject): ThumbnailProject {
