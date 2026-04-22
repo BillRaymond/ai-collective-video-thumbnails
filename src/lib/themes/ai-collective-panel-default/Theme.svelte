@@ -264,7 +264,7 @@
 							<div class="speaker-copy">
 								<div class="speaker-role">{person.role || 'Panelist'}</div>
 								<div class="speaker-name">{person.name || 'Unnamed speaker'}</div>
-								<div class="speaker-company">{person.company || 'Company name'}</div>
+								<div class="speaker-company">{person.company || ' '}</div>
 							</div>
 
 							{#if shouldRenderCompanyLogo(person)}

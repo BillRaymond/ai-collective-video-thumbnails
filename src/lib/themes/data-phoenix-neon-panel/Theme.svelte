@@ -202,7 +202,7 @@
 
 												<div class="phoenix-person-copy">
 													<div class="phoenix-name">{person.name || 'Unnamed speaker'}</div>
-													<div class="phoenix-company">{person.company || 'Company name'}</div>
+													<div class="phoenix-company">{person.company || ' '}</div>
 												</div>
 											</div>
 										{/each}
