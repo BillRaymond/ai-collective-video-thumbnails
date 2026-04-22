@@ -7,22 +7,22 @@
       {
         "name": "Catherine McMillan",
         "company": "The AI Collective",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D4E03AQH8QAv6LCIHQA/profile-displayphoto-crop_800_800/B4EZ15FdtKJsAI-/0/1775852971151?e=1778716800&v=beta&t=HqWxobSY-aPdYdJ6R0q-7k0JVceFA3LcmYJxFDtxHdQ",
-        "company_logo_url": "https://platform.aicollective.com/_next/image?url=%2Flogo.png&w=256&q=75"
+        "photo_url": "/images/speakers/photos/catherine-mcmillan.png",
+        "company_logo_url": "/images/speakers/logos/the-ai-collective.png"
       }
     ],
     "confirmed_speakers": [
       {
         "name": "Wolf Ruzicka",
         "company": "Unlimit",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D4E03AQENUIKCh0KoEQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1718328691862?e=1778716800&v=beta&t=WoCHAX8ktGWBeDWI5WDmdsiSfQbG-6VYeknL0RCyXIY",
-        "company_logo_url": "https://www.unlimit.com/wp-content/themes/unlimint/assets/images/page-about/about-logo-v2.svg"
+        "photo_url": "/images/speakers/photos/wolf-ruzicka.jpg",
+        "company_logo_url": "/images/speakers/logos/unlimit.svg"
       },
       {
         "name": "Josh Haas",
         "company": "Bubble",
-        "photo_url": "https://media.licdn.com/dms/image/v2/C5603AQFTR6JTD_oolg/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1627573427955?e=1778716800&v=beta&t=MSwRf_otveKwZo6UNWU3B_c4FtaAxJMMFQi1Ke2nuto",
-        "company_logo_url": "https://upload.wikimedia.org/wikipedia/commons/5/53/Bubble_Logo_no_code.svg"
+        "photo_url": "/images/speakers/photos/josh-haas.jpg",
+        "company_logo_url": "/images/speakers/logos/bubble.svg"
       }
     ]
   },
@@ -34,28 +34,28 @@
       {
         "name": "Adelina Martiniuc",
         "company": "RoryPlans",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQFsDq4SEyKN4Q/profile-displayphoto-crop_800_800/B56ZisBL3JG4AI-/0/1755232649479?e=1778716800&v=beta&t=yTf5R-GB2M8YO2kFhSdtYV76dcABNk1KV0NOb2sxmr8",
-        "company_logo_url": "https://www.roryplans.ai/_next/image?url=%2Fimages%2Frory-logo.png&w=3840&q=75"
+        "photo_url": "/images/speakers/photos/adelina-martiniuc.png",
+        "company_logo_url": "/images/speakers/logos/roryplans.png"
       }
     ],
     "confirmed_speakers": [
       {
         "name": "Sam Liang",
         "company": "Otter.ai",
-        "photo_url": "https://media.licdn.com/dms/image/v2/C4E03AQFPDkiwFrT70g/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1566351898259?e=1778716800&v=beta&t=ZowS1hbQlqG5m6gdAUGGuKKAeQ2axX8-eBK3GA2WJQk",
-        "company_logo_url": "https://images.saasworthy.com/otterai_6696_logo_1714983342_9r7tw.png"
+        "photo_url": "/images/speakers/photos/sam-liang.jpg",
+        "company_logo_url": "/images/speakers/logos/otter-ai.png"
       },
       {
         "name": "Josh Haas",
         "company": "Bubble",
-        "photo_url": "https://media.licdn.com/dms/image/v2/C5603AQFTR6JTD_oolg/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1627573427955?e=1778716800&v=beta&t=MSwRf_otveKwZo6UNWU3B_c4FtaAxJMMFQi1Ke2nuto",
-        "company_logo_url": "https://upload.wikimedia.org/wikipedia/commons/5/53/Bubble_Logo_no_code.svg"
+        "photo_url": "/images/speakers/photos/josh-haas.jpg",
+        "company_logo_url": "/images/speakers/logos/bubble.svg"
       },
       {
         "name": "Dmytro Spodarets",
         "company": "Data Phoenix",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQFZpcRKXniPDw/profile-displayphoto-crop_800_800/B56ZmmD5LvHAAI-/0/1759427663036?e=1778716800&v=beta&t=iavGvPci-9Zq-2tu7aa5eux4XJK2MH40moxWgNEyDl8",
-        "company_logo_url": "https://dataphoenix.info/content/images/2021/06/DataPhoenix_logo-1.png"
+        "photo_url": "/images/speakers/photos/dmytro-spodarets.jpg",
+        "company_logo_url": "/images/speakers/logos/data-phoenix.png"
       }
     ],
     "thumbnail": {
@@ -76,22 +76,22 @@
       {
         "name": "Zhenbo Yan",
         "company": "The AI Collective",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D4E03AQGgExYzwTqcFA/profile-displayphoto-crop_800_800/B4EZ10tR1bG4AI-/0/1775779520768?e=1778716800&v=beta&t=CZ0bhPMgbz6UamSjAvST60uwrba6UQwEnF28EzcvXwU",
-        "company_logo_url": "https://platform.aicollective.com/_next/image?url=%2Flogo.png&w=256&q=75"
+        "photo_url": "/images/speakers/photos/zhenbo-yan.png",
+        "company_logo_url": "/images/speakers/logos/the-ai-collective.png"
       }
     ],
     "confirmed_speakers": [
       {
         "name": "Esra Kucukciftci",
         "company": "Pricing Innovations",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQFBGQM-EDsSZA/profile-displayphoto-crop_800_800/B56Z1pb8jZIUAQ-/0/1775590428770?e=1778716800&v=beta&t=ivj67IJhiOQxAngxuDcNZB4zZKuiUdKIXfrXNfB8lbw",
-        "company_logo_url": "https://media.licdn.com/dms/image/v2/C4E0BAQFBRoHyJl1cqg/company-logo_100_100/company-logo_100_100/0/1630627837783/pricing_innovations_logo?e=1778716800&v=beta&t=Ol6RZKVTAVf5vGtqcrg3IVAATT13ZE54ih-GMpAfxCk"
+        "photo_url": "/images/speakers/photos/esra-kucukciftci.png",
+        "company_logo_url": "/images/speakers/logos/pricing-innovations.jpg"
       },
       {
         "name": "Manmit Shrimali",
         "company": "Turing Labs",
-        "photo_url": "https://media.licdn.com/dms/image/v2/C4E03AQHZCqK6F8EGEQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1547135215737?e=1778716800&v=beta&t=PvVE5LzjkiMN9z9IODR3fZaXgpQ0AXDW-IR_JHucxGY",
-        "company_logo_url": "https://www.insightpartners.com/wp-content/uploads/2022/01/Turing.png"
+        "photo_url": "/images/speakers/photos/manmit-shrimali.jpg",
+        "company_logo_url": "/images/speakers/logos/turing-labs.png"
       }
     ]
   },
@@ -103,34 +103,34 @@
       {
         "name": "Daniel Green",
         "company": "The AI Collective",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQHQJs6G2_oHiw/profile-displayphoto-shrink_800_800/B56ZTXuE7OHEAk-/0/1738785968215?e=1778716800&v=beta&t=KvBGEc2wkMjwWOYXeTe_82otRNmTEx2Vc5yUWvdP78Q",
-        "company_logo_url": "https://platform.aicollective.com/_next/image?url=%2Flogo.png&w=256&q=75"
+        "photo_url": "/images/speakers/photos/daniel-green.jpg",
+        "company_logo_url": "/images/speakers/logos/the-ai-collective.png"
       }
     ],
     "confirmed_speakers": [
       {
         "name": "Homer Wang",
         "company": "TinyFish",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQGNrq1qcIqSmA/profile-displayphoto-crop_800_800/B56Z0TG3pcKIAI-/0/1774142062194?e=1778716800&v=beta&t=rEIETdmIRzlOka6UmcY9CtpR5YUZxb2LnUw9FrJyj7g",
-        "company_logo_url": "https://avatars.githubusercontent.com/u/119996419?s=200&v=4"
+        "photo_url": "/images/speakers/photos/homer-wang.png",
+        "company_logo_url": "/images/speakers/logos/tinyfish.png"
       },
       {
         "name": "Swati Deo",
         "company": "Salesforce",
-        "photo_url": "https://media.licdn.com/dms/image/v2/C4D03AQHLNlutOzKdrQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1516256480132?e=1778716800&v=beta&t=ItCYxZuX9k3pWZQXtRrJUnUcGcbOOlLzFE_D0J5ww3k",
-        "company_logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Salesforce.com_logo.svg/1280px-Salesforce.com_logo.svg.png"
+        "photo_url": "/images/speakers/photos/swati-deo.jpg",
+        "company_logo_url": "/images/speakers/logos/salesforce.png"
       },
       {
         "name": "Nathalie Criou",
         "company": "Vapi",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D4D03AQElqiFB8ax8Nw/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1715805541098?e=1778716800&v=beta&t=0iGMFmQExfplX82ulux4k7fycXHvAwExFwNu4ujlhEg",
-        "company_logo_url": "https://vapi.ai/brand/img/va-square-3.svg"
+        "photo_url": "/images/speakers/photos/nathalie-criou.jpg",
+        "company_logo_url": "/images/speakers/logos/vapi.svg"
       },
       {
         "name": "Dan Pechi",
         "company": "Databricks",
-        "photo_url": "https://media.licdn.com/dms/image/v2/C4E03AQEGN1vjVdiukQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1539357220624?e=1778716800&v=beta&t=_W7Lc7C_6RH-usr7IQNH7FF5ojSmZwrpmHAsVn35fAM",
-        "company_logo_url": "https://1000logos.net/wp-content/uploads/2025/01/Databricks-Emblem.png"
+        "photo_url": "/images/speakers/photos/dan-pechi.jpg",
+        "company_logo_url": "/images/speakers/logos/databricks.png"
       }
     ]
   },
@@ -142,22 +142,22 @@
       {
         "name": "Adelina Martiniuc",
         "company": "RoryPlans",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQFsDq4SEyKN4Q/profile-displayphoto-crop_800_800/B56ZisBL3JG4AI-/0/1755232649479?e=1778716800&v=beta&t=yTf5R-GB2M8YO2kFhSdtYV76dcABNk1KV0NOb2sxmr8",
-        "company_logo_url": "https://www.roryplans.ai/_next/image?url=%2Fimages%2Frory-logo.png&w=3840&q=75"
+        "photo_url": "/images/speakers/photos/adelina-martiniuc.png",
+        "company_logo_url": "/images/speakers/logos/roryplans.png"
       }
     ],
     "confirmed_speakers": [
       {
         "name": "Faraz Yaghouti",
         "company": "Drata",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQHVCgPBy8yMeA/profile-displayphoto-crop_800_800/B56Z1HjWtLGwAI-/0/1775021945247?e=1778716800&v=beta&t=LNhsi48boF34OdMs-YhhtoKkMf4-aqSRYDB27FjWQpc",
-        "company_logo_url": "https://asset.brandfetch.io/idQSKHq3LU/id70baVbJ-.png"
+        "photo_url": "/images/speakers/photos/faraz-yaghouti.png",
+        "company_logo_url": "/images/speakers/logos/drata.png"
       },
       {
         "name": "Vidhya Bhat",
         "company": "Snowflake",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQH-eKIKfT9y-w/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1711032601154?e=1778716800&v=beta&t=v-T1tRbYWhDPOPfqV1SH8lk3bGZOkchIadaI3flbB1w",
-        "company_logo_url": "https://raw.githubusercontent.com/lobehub/lobe-icons/refs/heads/master/packages/static-png/dark/snowflake-color.png"
+        "photo_url": "/images/speakers/photos/vidhya-bhat.jpg",
+        "company_logo_url": "/images/speakers/logos/snowflake.png"
       }
     ]
   },
@@ -169,14 +169,14 @@
       {
         "name": "Catherine McMillan",
         "company": "The AI Collective",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D4E03AQH8QAv6LCIHQA/profile-displayphoto-crop_800_800/B4EZ15FdtKJsAI-/0/1775852971151?e=1778716800&v=beta&t=HqWxobSY-aPdYdJ6R0q-7k0JVceFA3LcmYJxFDtxHdQ",
-        "company_logo_url": "https://platform.aicollective.com/_next/image?url=%2Flogo.png&w=256&q=75"
+        "photo_url": "/images/speakers/photos/catherine-mcmillan.png",
+        "company_logo_url": "/images/speakers/logos/the-ai-collective.png"
       },
       {
         "name": "AJ Green",
         "company": "The AI Collective",
-        "photo_url": "https://images.lumacdn.com/cdn-cgi/image/format%3Dauto%2Cfit%3Dcover%2Cdpr%3D2%2Canim%3Dfalse%2Cbackground%3Dwhite%2Cquality%3D75%2Cwidth%3D112%2Cheight%3D112/avatars/cq/91f4d7f7-fe76-4203-8399-1ba9dea2612d.jpg",
-        "company_logo_url": "https://platform.aicollective.com/_next/image?url=%2Flogo.png&w=256&q=75"
+        "photo_url": "/images/speakers/photos/aj-green.jpg",
+        "company_logo_url": "/images/speakers/logos/the-ai-collective.png"
       }
     ],
     "confirmed_speakers": []
@@ -189,22 +189,22 @@
       {
         "name": "Bill Raymond",
         "company": "Cambermast",
-        "photo_url": "https://www.cambermast.com/images/bill.jpg",
-        "company_logo_url": "https://www.cambermast.com/images/cambermast-logo-small-square-white.png"
+        "photo_url": "/images/speakers/photos/bill-raymond.jpg",
+        "company_logo_url": "/images/speakers/logos/cambermast.png"
       }
     ],
     "confirmed_speakers": [
       {
         "name": "Carl Fritjofsson",
         "company": "Creandum",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D4E03AQG1hSAPpESUxQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1693928670387?e=1778716800&v=beta&t=BYefPyUZuTYSKzvSaLqmlEOnJRa1cJCwIdPC9aIF58I",
-        "company_logo_url": "https://s3-us-west-2.amazonaws.com/cbi-image-service-prd/original/9ff93943-4ee9-4aca-8d70-fc87c533b329.png"
+        "photo_url": "/images/speakers/photos/carl-fritjofsson.jpg",
+        "company_logo_url": "/images/speakers/logos/creandum.jpg"
       },
       {
         "name": "Ghazwa Khalatbari",
         "company": "Creandum",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D4E03AQEDKX8MvjK1GQ/profile-displayphoto-crop_800_800/B4EZ1uHkRFJcAI-/0/1775668973219?e=1778716800&v=beta&t=i9Np1I4UIvChfPeKCyO0Nx9NOUt_vwibLiDkwZSPvsY",
-        "company_logo_url": "https://s3-us-west-2.amazonaws.com/cbi-image-service-prd/original/9ff93943-4ee9-4aca-8d70-fc87c533b329.png"
+        "photo_url": "/images/speakers/photos/ghazwa-khalatbari.png",
+        "company_logo_url": "/images/speakers/logos/creandum.jpg"
       }
     ]
   },
@@ -216,22 +216,22 @@
       {
         "name": "AJ Green",
         "company": "The AI Collective",
-        "photo_url": "https://images.lumacdn.com/cdn-cgi/image/format%3Dauto%2Cfit%3Dcover%2Cdpr%3D2%2Canim%3Dfalse%2Cbackground%3Dwhite%2Cquality%3D75%2Cwidth%3D112%2Cheight%3D112/avatars/cq/91f4d7f7-fe76-4203-8399-1ba9dea2612d.jpg",
-        "company_logo_url": "https://platform.aicollective.com/_next/image?url=%2Flogo.png&w=256&q=75"
+        "photo_url": "/images/speakers/photos/aj-green.jpg",
+        "company_logo_url": "/images/speakers/logos/the-ai-collective.png"
       }
     ],
     "confirmed_speakers": [
       {
         "name": "Roshan Manjaly",
         "company": "Vapi",
-        "photo_url": "https://media.licdn.com/dms/image/v2/C4E03AQGhBb3fffepug/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1589774536614?e=1778716800&v=beta&t=NxYnyc9QK39T1iSU3IVLYYPR9tnIhbyNEeR4VDMk1EU",
-        "company_logo_url": "https://vapi.ai/brand/img/va-square-3.svg"
+        "photo_url": "/images/speakers/photos/roshan-manjaly.jpg",
+        "company_logo_url": "/images/speakers/logos/vapi.svg"
       },
       {
         "name": "Dhruva Reddy",
         "company": "Vapi",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQFTLfvVI67crg/profile-displayphoto-crop_800_800/B56ZxidTYLKgAI-/0/1771178374986?e=1778716800&v=beta&t=9QQxkFhY3mQY0uO6ZqfOHR4FMsSvAIVIoBui7vctNag",
-        "company_logo_url": "https://vapi.ai/brand/img/va-square-3.svg"
+        "photo_url": "/images/speakers/photos/dhruva-reddy.jpg",
+        "company_logo_url": "/images/speakers/logos/vapi.svg"
       }
     ]
   },
@@ -243,16 +243,16 @@
       {
         "name": "Zhenbo Yan",
         "company": "The AI Collective",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D4E03AQGgExYzwTqcFA/profile-displayphoto-crop_800_800/B4EZ10tR1bG4AI-/0/1775779520768?e=1778716800&v=beta&t=CZ0bhPMgbz6UamSjAvST60uwrba6UQwEnF28EzcvXwU",
-        "company_logo_url": "https://platform.aicollective.com/_next/image?url=%2Flogo.png&w=256&q=75"
+        "photo_url": "/images/speakers/photos/zhenbo-yan.png",
+        "company_logo_url": "/images/speakers/logos/the-ai-collective.png"
       }
     ],
     "confirmed_speakers": [
       {
         "name": "Craig Mcluckie",
         "company": "Stacklok",
-        "photo_url": "https://media.licdn.com/dms/image/v2/C5603AQF5EDJ9580wPw/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1662782527900?e=1778716800&v=beta&t=KDVlgSEj31d1llXnSBDi5GqBeHOiTFqjb_ZCvX08cBk",
-        "company_logo_url": "https://media2.dev.to/dynamic/image/width=320,height=320,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Forganization%2Fprofile_image%2F9162%2Fff58e982-dcd1-478b-93be-574a981873f6.png"
+        "photo_url": "/images/speakers/photos/craig-mcluckie.jpg",
+        "company_logo_url": "/images/speakers/logos/stacklok.png"
       }
     ]
   },
@@ -264,22 +264,22 @@
       {
         "name": "AJ Green",
         "company": "The AI Collective",
-        "photo_url": "https://images.lumacdn.com/cdn-cgi/image/format%3Dauto%2Cfit%3Dcover%2Cdpr%3D2%2Canim%3Dfalse%2Cbackground%3Dwhite%2Cquality%3D75%2Cwidth%3D112%2Cheight%3D112/avatars/cq/91f4d7f7-fe76-4203-8399-1ba9dea2612d.jpg",
-        "company_logo_url": "https://platform.aicollective.com/_next/image?url=%2Flogo.png&w=256&q=75"
+        "photo_url": "/images/speakers/photos/aj-green.jpg",
+        "company_logo_url": "/images/speakers/logos/the-ai-collective.png"
       }
     ],
     "confirmed_speakers": [
       {
         "name": "Shekhar Natarajan",
         "company": "Orchestra.ai",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQHBgk1AtDaALA/profile-displayphoto-crop_800_800/B56ZmpQt1xJ4AI-/0/1759481358342?e=1778112000&v=beta&t=RcFnzXma8ANLbsaF7I8UofzWHp6o5qZimLBvsskdQAo",
-        "company_logo_url": "https://orchestra-ai.com/images/orchestra-logo-yellow@1x.png"
+        "photo_url": "/images/speakers/photos/shekhar-natarajan.png",
+        "company_logo_url": "/images/speakers/logos/orchestra-ai.png"
       },
       {
         "name": "Matthew Zeiler",
         "company": "Clarifai",
-        "photo_url": "https://media.licdn.com/dms/image/v2/C4D03AQGYnwlE7EFvIg/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1516495474293?e=1778716800&v=beta&t=K1gPSyzz9vcQnsfYpFbwSgmrVnSzRoABQSMgkc-79Yk",
-        "company_logo_url": "https://www.acquia.com/sites/default/files/styles/large/public/media/image/2023-08/Clarifai%20Logo_Integration.png"
+        "photo_url": "/images/speakers/photos/matthew-zeiler.jpg",
+        "company_logo_url": "/images/speakers/logos/clarifai.png"
       }
     ]
   },
@@ -291,14 +291,14 @@
       {
         "name": "Daniel Green",
         "company": "The AI Collective",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQHQJs6G2_oHiw/profile-displayphoto-shrink_800_800/B56ZTXuE7OHEAk-/0/1738785968215?e=1778716800&v=beta&t=KvBGEc2wkMjwWOYXeTe_82otRNmTEx2Vc5yUWvdP78Q",
-        "company_logo_url": "https://platform.aicollective.com/_next/image?url=%2Flogo.png&w=256&q=75"
+        "photo_url": "/images/speakers/photos/daniel-green.jpg",
+        "company_logo_url": "/images/speakers/logos/the-ai-collective.png"
       },
       {
         "name": "AJ Green",
         "company": "The AI Collective",
-        "photo_url": "https://images.lumacdn.com/cdn-cgi/image/format%3Dauto%2Cfit%3Dcover%2Cdpr%3D2%2Canim%3Dfalse%2Cbackground%3Dwhite%2Cquality%3D75%2Cwidth%3D112%2Cheight%3D112/avatars/cq/91f4d7f7-fe76-4203-8399-1ba9dea2612d.jpg",
-        "company_logo_url": "https://platform.aicollective.com/_next/image?url=%2Flogo.png&w=256&q=75"
+        "photo_url": "/images/speakers/photos/aj-green.jpg",
+        "company_logo_url": "/images/speakers/logos/the-ai-collective.png"
       }
     ],
     "confirmed_speakers": []
@@ -311,34 +311,34 @@
       {
         "name": "Adelina Martiniuc",
         "company": "RoryPlans",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQFsDq4SEyKN4Q/profile-displayphoto-crop_800_800/B56ZisBL3JG4AI-/0/1755232649479?e=1778716800&v=beta&t=yTf5R-GB2M8YO2kFhSdtYV76dcABNk1KV0NOb2sxmr8",
-        "company_logo_url": "https://www.roryplans.ai/_next/image?url=%2Fimages%2Frory-logo.png&w=3840&q=75"
+        "photo_url": "/images/speakers/photos/adelina-martiniuc.png",
+        "company_logo_url": "/images/speakers/logos/roryplans.png"
       }
     ],
     "confirmed_speakers": [
       {
         "name": "Rie Yano",
         "company": "Coral Capital",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQE5UifbwFMy4Q/profile-displayphoto-crop_800_800/B56ZrwzHj.LAAI-/0/1764976524031?e=1778716800&v=beta&t=V-j1yfyMvUc7X-L9X6kLe1u0IbBxBF-8krLyrr2LuFE",
-        "company_logo_url": "https://cdn.prod.website-files.com/6703bfea14477e3ce2f16eca/67a5be0cc2c76aa32f9370e9_Coral.png"
+        "photo_url": "/images/speakers/photos/rie-yano.jpg",
+        "company_logo_url": "/images/speakers/logos/coral-capital.png"
       },
       {
         "name": "Murray Newlands",
         "company": "IA Seed Capital",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQH-7P4FzuAVnA/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1714845614116?e=1778716800&v=beta&t=fKV-zLL2RHB4d80JFa-8XLN2wAPAQ0k_qyzaA-hwFYc",
-        "company_logo_url": "https://iasv.co/wp-content/uploads/2022/08/IA-seeds-1.png"
+        "photo_url": "/images/speakers/photos/murray-newlands.jpg",
+        "company_logo_url": "/images/speakers/logos/ia-seed-capital.png"
       },
       {
         "name": "Vaibhav Agrawal",
         "company": "Odd Bird VC",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQGC0kSkUo2XHQ/profile-displayphoto-crop_800_800/B56ZvdXG1dKwAQ-/0/1768945381151?e=1778716800&v=beta&t=JfVNy_Kiyn6S2wMlXPQoS-etBGUtsxmScjHoGs8RU98",
-        "company_logo_url": "https://media.licdn.com/dms/image/v2/D560BAQHpU3tDXYGZLQ/company-logo_100_100/company-logo_100_100/0/1718166187207/dia_vc_logo?e=1778716800&v=beta&t=ZQeFVuWfURnu-XPpYN1VU0nxi1rC6klSbJ_dxT6TAqs"
+        "photo_url": "/images/speakers/photos/vaibhav-agrawal.jpg",
+        "company_logo_url": "/images/speakers/logos/odd-bird-vc.jpg"
       },
       {
         "name": "Vik Ghai",
         "company": "G2C Ventures",
-        "photo_url": "https://images.crunchbase.com/image/upload/c_thumb,h_256,w_256,f_auto,g_face,z_0.7,q_auto:eco,dpr_1/1767bc9c655c411f8d3271a90161a38e?ik-sanitizeSvg=true",
-        "company_logo_url": "https://media.licdn.com/dms/image/v2/D560BAQFIEbnT1d5j_w/company-logo_100_100/B56Zp_z7B9HQAQ-/0/1763080909207/g2c_venture_partners_logo?e=1778716800&v=beta&t=MWGz0WwtER0Q_0OOILvmPLcUUaE_Ri8amtcgKv8r9N4"
+        "photo_url": "/images/speakers/photos/vik-ghai.jpg",
+        "company_logo_url": "/images/speakers/logos/g2c-ventures.jpg"
       }
     ]
   },
@@ -350,22 +350,22 @@
       {
         "name": "Bhola Chhetri",
         "company": "Broadcom",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQFfK_HCq4RRWg/profile-displayphoto-crop_800_800/B56ZfH3XqEHoAI-/0/1751404871085?e=1778716800&v=beta&t=nB-W0uoy-6NMNkqeUjblNnt5PT8uIAcav4a95io2YvA",
-        "company_logo_url": "https://media.licdn.com/dms/image/v2/C4E0BAQGDwy-AGAu-Hg/company-logo_100_100/company-logo_100_100/0/1631307574919?e=1778716800&v=beta&t=QeyZhwHtmatAzKemHYvPpNweWC2sM77m-uYBIdTjicA"
+        "photo_url": "/images/speakers/photos/bhola-chhetri.jpg",
+        "company_logo_url": "/images/speakers/logos/broadcom.jpg"
       }
     ],
     "confirmed_speakers": [
       {
         "name": "Mohammad Islam",
         "company": "Threshold VC",
-        "photo_url": "https://signal-api.nfx.com/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBd2lXQVE9PSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--a7bd91116b7776c5edbd21cab44b9629fef36537/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBPZ2hxY0djNkUzSmxjMmw2WlY5MGIxOW1hV3hzV3dkcEFsZ0NhUUpZQWc9PSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--f8e22238db523e6e5e5a8ae643921849c4b207bd/0",
-        "company_logo_url": "https://www.threshold.vc/images/Group.svg"
+        "photo_url": "/images/speakers/photos/mohammad-islam.jpg",
+        "company_logo_url": "/images/speakers/logos/threshold-vc.svg"
       },
       {
         "name": "Nikhil Choudhary",
         "company": "Nirman Ventures",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQEUHLuCNUwhPQ/profile-displayphoto-crop_800_800/B56Z2ts4.VKIAI-/0/1776735722376?e=1778716800&v=beta&t=yrgzvxNG3jcKd09OuHngb73VaW_5MhK8lbPqM2gGUAA",
-        "company_logo_url": "https://media.licdn.com/dms/image/v2/D4E0BAQHmcltpEo26xQ/company-logo_100_100/company-logo_100_100/0/1700106095559/nirmanvc_logo?e=1778716800&v=beta&t=Rs0MWbURO7BAoPyKd5BU-ipHd-OFk6T1R-KTQLvvURs"
+        "photo_url": "/images/speakers/photos/nikhil-choudhary.png",
+        "company_logo_url": "/images/speakers/logos/nirman-ventures.jpg"
       }
     ]
   },
@@ -377,28 +377,28 @@
       {
         "name": "Adelina Martiniuc",
         "company": "RoryPlans",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQFsDq4SEyKN4Q/profile-displayphoto-crop_800_800/B56ZisBL3JG4AI-/0/1755232649479?e=1778716800&v=beta&t=yTf5R-GB2M8YO2kFhSdtYV76dcABNk1KV0NOb2sxmr8",
-        "company_logo_url": "https://www.roryplans.ai/_next/image?url=%2Fimages%2Frory-logo.png&w=3840&q=75"
+        "photo_url": "/images/speakers/photos/adelina-martiniuc.png",
+        "company_logo_url": "/images/speakers/logos/roryplans.png"
       }
     ],
     "confirmed_speakers": [
       {
         "name": "Paulina Xu",
         "company": "Agentic Fabriq",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D4D03AQG26smpzkFDgQ/profile-displayphoto-crop_800_800/B4DZyWBzJeKEAM-/0/1772043583873?e=1778716800&v=beta&t=0I8uoAwBHqcY0rTKhnqBHW1p2grQozXYvgT1bdHl-lE",
-        "company_logo_url": "https://media.licdn.com/dms/image/v2/D560BAQGEwTkUDaasHQ/company-logo_100_100/B56ZiqAJGYG0AU-/0/1755198823377?e=1778716800&v=beta&t=8EMnW9LFfqnF8DLw76jSovAxl1u02vbRWER79BJiC4U"
+        "photo_url": "/images/speakers/photos/paulina-xu.png",
+        "company_logo_url": "/images/speakers/logos/agentic-fabriq.jpg"
       },
       {
         "name": "Gunjan Patel",
         "company": "Palo Alto Networks",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQFZ3J5msB7iGg/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1698912856049?e=1778716800&v=beta&t=qgCd9B4swZvRRqvFbXh0l4hc59b5OEmjIOU_TRP1XJU",
-        "company_logo_url": "https://media.licdn.com/dms/image/v2/C560BAQFZg72Sfni4SA/company-logo_100_100/company-logo_100_100/0/1657225156841/palo_alto_networks_logo?e=1778716800&v=beta&t=SkvL8wiriCFSsRS8hyNg_eWkPuzNAT5rebg6TKXw9QM"
+        "photo_url": "/images/speakers/photos/gunjan-patel.jpg",
+        "company_logo_url": "/images/speakers/logos/palo-alto-networks.jpg"
       },
       {
         "name": "Felicia Popa",
         "company": "Visa",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQHA0LjspKF_pg/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1709079755307?e=1778716800&v=beta&t=p_DbPOVCJVDr9JbdBRfQhz7x3P_SS8wuaj6xw4nh148",
-        "company_logo_url": "https://media.licdn.com/dms/image/v2/D4E0BAQHAxoD4chKrgg/company-logo_100_100/B4EZfR2e4JHcAk-/0/1751572410148/visa_logo?e=1778716800&v=beta&t=HbLszs1M6pSy9xMElgEyi7fQOkWOGM--fhmTV2uF918"
+        "photo_url": "/images/speakers/photos/felicia-popa.jpg",
+        "company_logo_url": "/images/speakers/logos/visa.jpg"
       }
     ]
   },
@@ -410,34 +410,34 @@
       {
         "name": "Daniel Green",
         "company": "The AI Collective",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQHQJs6G2_oHiw/profile-displayphoto-shrink_800_800/B56ZTXuE7OHEAk-/0/1738785968215?e=1778716800&v=beta&t=KvBGEc2wkMjwWOYXeTe_82otRNmTEx2Vc5yUWvdP78Q",
-        "company_logo_url": "https://platform.aicollective.com/_next/image?url=%2Flogo.png&w=256&q=75"
+        "photo_url": "/images/speakers/photos/daniel-green.jpg",
+        "company_logo_url": "/images/speakers/logos/the-ai-collective.png"
       }
     ],
     "confirmed_speakers": [
       {
         "name": "Wolf Ruzicka",
         "company": "Unlimit",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D4E03AQENUIKCh0KoEQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1718328691862?e=1778716800&v=beta&t=WoCHAX8ktGWBeDWI5WDmdsiSfQbG-6VYeknL0RCyXIY",
-        "company_logo_url": "https://www.unlimit.com/wp-content/themes/unlimint/assets/images/page-about/about-logo-v2.svg"
+        "photo_url": "/images/speakers/photos/wolf-ruzicka.jpg",
+        "company_logo_url": "/images/speakers/logos/unlimit.svg"
       },
       {
         "name": "Tony Loehr",
         "company": "Cline",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQEvUAvbY6PpqA/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1670357671137?e=1778716800&v=beta&t=1H_cx-s7WAfZ-3VamAytY1L4UfxFNwxQ9ttGtis-1Lo",
-        "company_logo_url": "https://cline.bot/assets/branding/favicons/favicon-256x256.png"
+        "photo_url": "/images/speakers/photos/tony-loehr.jpg",
+        "company_logo_url": "/images/speakers/logos/cline.png"
       },
       {
         "name": "Tyrone Ross",
         "company": "Cisco",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQH5n6P3G8GeFg/profile-displayphoto-crop_800_800/B56ZpSvVJpI4AI-/0/1762324730846?e=1778716800&v=beta&t=ngw661u1jnGf-UDiuc2Y7Q5rr1p7WsN0QpbEF-e6Btg",
-        "company_logo_url": "https://upload.wikimedia.org/wikipedia/commons/0/08/Cisco_logo_blue_2016.svg"
+        "photo_url": "/images/speakers/photos/tyrone-ross.jpg",
+        "company_logo_url": "/images/speakers/logos/cisco.svg"
       },
       {
         "name": "Vivek Ravisankar",
         "company": "HackerRank",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQH-LE0xwiCgUw/profile-displayphoto-crop_800_800/B56ZhdKLtZH0AI-/0/1753909607989?e=1778716800&v=beta&t=Yer5-cygV0qdANquD_GEgnrcbBOxrlzsWmOddXjk26s",
-        "company_logo_url": "https://media.licdn.com/dms/image/v2/D560BAQE8MivsmbT7Ig/company-logo_100_100/company-logo_100_100/0/1705561459405/hackerrank_logo?e=1778716800&v=beta&t=WUInIhuKgkXbNJr44Mhy4xpXJCvJx7uCUp7yi-Y-TlI"
+        "photo_url": "/images/speakers/photos/vivek-ravisankar.jpg",
+        "company_logo_url": "/images/speakers/logos/hackerrank.jpg"
       }
     ]
   },
@@ -449,28 +449,28 @@
       {
         "name": "Ash Kumra",
         "company": "The AI Collective",
-        "photo_url": "https://opthpnxhzznsfjqovbes.supabase.co/storage/v1/object/public/speaker-images/440f358f-a863-4cd6-9a24-fb690b6c80d4/ash_kumra_s29srtap27.webp",
-        "company_logo_url": "https://platform.aicollective.com/_next/image?url=%2Flogo.png&w=256&q=75"
+        "photo_url": "/images/speakers/photos/ash-kumra.webp",
+        "company_logo_url": "/images/speakers/logos/the-ai-collective.png"
       }
     ],
     "confirmed_speakers": [
       {
         "name": "Wallis Mills",
         "company": "Modern Enterprise",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQE0ote1_Pif7g/profile-displayphoto-crop_800_800/B56ZmtgdU1JoAI-/0/1759552591798?e=1778716800&v=beta&t=CWWMCuWTJl_S17KVZJEQ7juP4QXWgluzlxvR_VVe_cg",
-        "company_logo_url": "https://media.licdn.com/dms/image/v2/D560BAQHSj9iCmlRycw/company-logo_100_100/B56ZjFC8YFHAAQ-/0/1755652540405/the_modern_enterprise_logo?e=1778716800&v=beta&t=rZaxxxgqv_3kVqjeaGZqIhl8qTl5dE8nolKUnz48RJI"
+        "photo_url": "/images/speakers/photos/wallis-mills.jpg",
+        "company_logo_url": "/images/speakers/logos/modern-enterprise.jpg"
       },
       {
         "name": "Maju Kuruvilla",
         "company": "Spangle AI",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQEDV6DGNflnSw/profile-displayphoto-crop_800_800/B56ZqvN2ooH8AI-/0/1763876236191?e=1778716800&v=beta&t=Fqd0Dh89RxosJoHZ0U6upqsMg25mAuuZkNAn_ZofZWg",
-        "company_logo_url": "https://media.licdn.com/dms/image/v2/D560BAQG9NIqjaLcaMQ/company-logo_100_100/B56ZWpU29HHQAQ-/0/1742302572641/stealthgenaiforcommerce_logo?e=1778716800&v=beta&t=INXmKZvo9WlsW4Ak5sXMDvB_UslSMwzVOGOYSW_DEPw"
+        "photo_url": "/images/speakers/photos/maju-kuruvilla.jpg",
+        "company_logo_url": "/images/speakers/logos/spangle-ai.jpg"
       },
       {
         "name": "Lloyd Spencer",
         "company": "Workforce Mentor",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQFLFyBcXeR4mA/profile-displayphoto-shrink_800_800/B56ZTcVmnlHEAc-/0/1738863438592?e=1778716800&v=beta&t=5ScNbx277SwD0pduT1uUn3rszN74-clx4JtQhx3v9B0",
-        "company_logo_url": "https://media.licdn.com/dms/image/v2/D560BAQGNx52HvPS6hA/company-logo_100_100/B56Zt6nF_mJ8AQ-/0/1767288627700?e=1778716800&v=beta&t=q-AOVe1GLpSsXrFK1yHTWg8qbmEeD6OnJSLqN05N0Aw"
+        "photo_url": "/images/speakers/photos/lloyd-spencer.jpg",
+        "company_logo_url": "/images/speakers/logos/workforce-mentor.jpg"
       }
     ]
   },
@@ -482,22 +482,22 @@
       {
         "name": "Zhenbo Yan",
         "company": "The AI Collective",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D4E03AQGgExYzwTqcFA/profile-displayphoto-crop_800_800/B4EZ10tR1bG4AI-/0/1775779520768?e=1778716800&v=beta&t=CZ0bhPMgbz6UamSjAvST60uwrba6UQwEnF28EzcvXwU",
-        "company_logo_url": "https://platform.aicollective.com/_next/image?url=%2Flogo.png&w=256&q=75"
+        "photo_url": "/images/speakers/photos/zhenbo-yan.png",
+        "company_logo_url": "/images/speakers/logos/the-ai-collective.png"
       }
     ],
     "confirmed_speakers": [
       {
         "name": "Henry Zhang",
         "company": "Hermitage Capital",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQEmUd_XGXmAvw/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1684393916981?e=1778716800&v=beta&t=40nrRY1msd8ivxNxNWzmHhYF8IXtKF9MAk9EJtqQLcY",
-        "company_logo_url": "https://media.licdn.com/dms/image/v2/D560BAQHFXWo3eT4bSA/company-logo_100_100/company-logo_100_100/0/1698002458879/hermitagecapital_logo?e=1778716800&v=beta&t=oBSHFtIbdCIk1usAf04uxxYMG43BtlRXarRzwPUS_k0"
+        "photo_url": "/images/speakers/photos/henry-zhang.jpg",
+        "company_logo_url": "/images/speakers/logos/hermitage-capital.jpg"
       },
       {
         "name": "Anubhav Maheshwari",
         "company": "Nebius",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D4E03AQGG2NFUBNzsNg/profile-displayphoto-crop_800_800/B4EZxJkl_nIgAI-/0/1770760856009?e=1778716800&v=beta&t=jXJObnQ4tXnOatoZRBeHt8BAvMhiDyhlrS_vT0rV4xU",
-        "company_logo_url": "https://media.licdn.com/dms/image/v2/D4E0BAQGHUEXQhf1tuA/company-logo_100_100/company-logo_100_100/0/1696427125072/nebius_logo?e=1778716800&v=beta&t=rw2QzECfzNIfE8u-soyPq9sU--MX_8y59KOkLAukHcU"
+        "photo_url": "/images/speakers/photos/anubhav-maheshwari.jpg",
+        "company_logo_url": "/images/speakers/logos/nebius.jpg"
       }
     ]
   },
@@ -509,8 +509,8 @@
       {
         "name": "Bhola Chhetri",
         "company": "Broadcom",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQFfK_HCq4RRWg/profile-displayphoto-crop_800_800/B56ZfH3XqEHoAI-/0/1751404871085?e=1778716800&v=beta&t=nB-W0uoy-6NMNkqeUjblNnt5PT8uIAcav4a95io2YvA",
-        "company_logo_url": "https://media.licdn.com/dms/image/v2/C4E0BAQGDwy-AGAu-Hg/company-logo_100_100/company-logo_100_100/0/1631307574919?e=1778716800&v=beta&t=QeyZhwHtmatAzKemHYvPpNweWC2sM77m-uYBIdTjicA"
+        "photo_url": "/images/speakers/photos/bhola-chhetri.jpg",
+        "company_logo_url": "/images/speakers/logos/broadcom.jpg"
       }
     ],
     "confirmed_speakers": []
@@ -523,28 +523,28 @@
       {
         "name": "Ash Kumra",
         "company": "The AI Collective",
-        "photo_url": "https://opthpnxhzznsfjqovbes.supabase.co/storage/v1/object/public/speaker-images/440f358f-a863-4cd6-9a24-fb690b6c80d4/ash_kumra_s29srtap27.webp",
-        "company_logo_url": "https://platform.aicollective.com/_next/image?url=%2Flogo.png&w=256&q=75"
+        "photo_url": "/images/speakers/photos/ash-kumra.webp",
+        "company_logo_url": "/images/speakers/logos/the-ai-collective.png"
       }
     ],
     "confirmed_speakers": [
       {
         "name": "Clarey Zhu",
         "company": "Headline",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D4E03AQEbNouwvl6Nbw/profile-displayphoto-crop_800_800/B4EZlbdsSTHoAM-/0/1758176134714?e=1778716800&v=beta&t=sX4tUyNt9bIdIIVZo0Ej_ZgYUPago_BvZkpcWpHyQCs",
-        "company_logo_url": "https://media.licdn.com/dms/image/v2/C560BAQEZSxcZioKf5w/company-logo_100_100/company-logo_100_100/0/1630672929730/headlinevc_logo?e=1778716800&v=beta&t=BVICjVv2DcDWcDvp_AnnmKR6LRov3_XDd9JDrAWddHk"
+        "photo_url": "/images/speakers/photos/clarey-zhu.jpg",
+        "company_logo_url": "/images/speakers/logos/headline.jpg"
       },
       {
         "name": "Sanchit Garg",
         "company": "Zime.ai",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQFxwbmWMwLnFw/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1716381065433?e=1778716800&v=beta&t=CI2HiqXA4A_ueeP416BY9-CGyJjPUYOaB83irLFthYw",
-        "company_logo_url": "https://media.licdn.com/dms/image/v2/D560BAQFS2HAtzZ1_dw/company-logo_100_100/company-logo_100_100/0/1710262280688/zime_ai_logo?e=1778716800&v=beta&t=JH20BtJmVhnoUFGdAwURhcYLlO9HH4YfzQqRtvBETSQ"
+        "photo_url": "/images/speakers/photos/sanchit-garg.jpg",
+        "company_logo_url": "/images/speakers/logos/zime-ai.jpg"
       },
       {
         "name": "Nikhil Gupta",
         "company": "Vapi",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D4E03AQEzVLlKqXkFeQ/profile-displayphoto-crop_800_800/B4EZtDxL7UI0AM-/0/1766368526544?e=1778716800&v=beta&t=k9LXkD4GhbKU_8b_E3cEvm1QS4UrmztlcHThUI0PuHo",
-        "company_logo_url": "https://media.licdn.com/dms/image/v2/D560BAQF-xpCsNgdnCw/company-logo_100_100/B56ZVepa2LHEAQ-/0/1741049671272/vapi_ai_logo?e=1778716800&v=beta&t=t4XjsGa8C9Mk7ItiXoTj-6oU5TIL3T-SZ42EYB0XU00"
+        "photo_url": "/images/speakers/photos/nikhil-gupta.jpg",
+        "company_logo_url": "/images/speakers/logos/vapi.svg"
       }
     ]
   },
@@ -556,8 +556,8 @@
       {
         "name": "Adelina Martiniuc",
         "company": "RoryPlans",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQFsDq4SEyKN4Q/profile-displayphoto-crop_800_800/B56ZisBL3JG4AI-/0/1755232649479?e=1778716800&v=beta&t=yTf5R-GB2M8YO2kFhSdtYV76dcABNk1KV0NOb2sxmr8",
-        "company_logo_url": "https://www.roryplans.ai/_next/image?url=%2Fimages%2Frory-logo.png&w=3840&q=75"
+        "photo_url": "/images/speakers/photos/adelina-martiniuc.png",
+        "company_logo_url": "/images/speakers/logos/roryplans.png"
       }
     ],
     "confirmed_speakers": [
@@ -570,14 +570,14 @@
       {
         "name": "Philip Rathle",
         "company": "Neo4j",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQEUJWRUnlO1ow/profile-displayphoto-shrink_800_800/B56ZXkBTPUHEAc-/0/1743287301366?e=1778716800&v=beta&t=Jt7fb82_UEJYoL8feFmqvRaiBmA4sxh0nD4xBV_0o5U",
-        "company_logo_url": "https://media.licdn.com/dms/image/v2/D4D0BAQG6P9i9HARJvw/company-logo_100_100/company-logo_100_100/0/1697806384366/neo4j_logo?e=1778716800&v=beta&t=gXvKKLywe_yIYzxrfy4_sl5IM_8tX8HyEaxvET7ujGQ"
+        "photo_url": "/images/speakers/photos/philip-rathle.jpg",
+        "company_logo_url": "/images/speakers/logos/neo4j.jpg"
       },
       {
         "name": "Florent De Goriainoff",
         "company": "Fluents",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D4E03AQG9fizhCzxbRQ/profile-displayphoto-crop_800_800/B4EZj2pPczGcAM-/0/1756484667504?e=1778716800&v=beta&t=yX662zTfBSq8zk9u2NNbjrWI_2Ll4XsJVG4FfnppQq0",
-        "company_logo_url": "https://media.licdn.com/dms/image/v2/D560BAQEFgr8MoXSQig/company-logo_100_100/B56ZeIijs.HQAQ-/0/1750342450641/fluentsai_logo?e=1778716800&v=beta&t=GHczG7hXLGc5CcuXMsE389qs8HGpURsn7v6g9nmSYb0"
+        "photo_url": "/images/speakers/photos/florent-de-goriainoff.png",
+        "company_logo_url": "/images/speakers/logos/fluents.jpg"
       }
     ]
   }
