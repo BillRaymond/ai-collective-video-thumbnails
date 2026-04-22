@@ -17,6 +17,7 @@ export const theme: ThumbnailThemeDefinition = {
 		order: 20
 	},
 	component: Theme,
+	requiresImageProxy: true,
 	defaults: buildDataPhoenixDefaults,
 	editor: {
 		brandingFields: ['eventLogoUrl', 'producerCredit', 'ctaText'],

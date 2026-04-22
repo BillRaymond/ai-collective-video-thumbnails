@@ -3,6 +3,12 @@
 	import backgroundImageUrl from './assets/ai-collective-background.png';
 	import wordmarkUrl from './assets/Wordmark-White.png';
 	import { resolveRenderableImageUrl } from '$lib/image';
+	import {
+		createImageFailureTracker,
+		fitTitleFontSize,
+		hasImageUrl,
+		splitTitleAccent
+	} from '$lib/themes/theme-utils';
 	import type { ThumbnailEvent, ThumbnailPerson } from '$lib/types';
 
 	const THEME_ID = 'ai-collective-panel-default';
@@ -21,6 +27,16 @@
 	let failedCompanyLogoKeys = $state<Record<string, boolean>>({});
 	let eventLogoFailed = $state(false);
 	let titleParts = $derived(splitTitleAccent(event.title));
+	const photoFailureTracker = createImageFailureTracker({
+		getFailures: () => failedPhotoKeys,
+		setFailures: (next) => (failedPhotoKeys = next),
+		getKey: (person: ThumbnailPerson) => `${person.id}:${person.photoUrl.trim()}`
+	});
+	const companyLogoFailureTracker = createImageFailureTracker({
+		getFailures: () => failedCompanyLogoKeys,
+		setFailures: (next) => (failedCompanyLogoKeys = next),
+		getKey: (person: ThumbnailPerson) => `${person.id}:${person.companyLogoUrl.trim()}`
+	});
 
 	function getInitials(name: string) {
 		const letters = name
@@ -45,60 +61,32 @@
 		return 'speaker-count-6plus';
 	}
 
-	function hasImageUrl(value: string) {
-		return value.trim().length > 0;
-	}
-
 	function getImageSrc(value: string) {
 		return resolveRenderableImageUrl(value, THEME_ID);
 	}
 
-	function getPersonPhotoKey(person: ThumbnailPerson) {
-		return `${person.id}:${person.photoUrl.trim()}`;
-	}
-
-	function getPersonCompanyLogoKey(person: ThumbnailPerson) {
-		return `${person.id}:${person.companyLogoUrl.trim()}`;
-	}
-
 	function isPersonPhotoFailed(person: ThumbnailPerson) {
-		return Boolean(failedPhotoKeys[getPersonPhotoKey(person)]);
+		return photoFailureTracker.isFailed(person);
 	}
 
 	function isPersonCompanyLogoFailed(person: ThumbnailPerson) {
-		return Boolean(failedCompanyLogoKeys[getPersonCompanyLogoKey(person)]);
+		return companyLogoFailureTracker.isFailed(person);
 	}
 
 	function markPersonPhotoFailed(person: ThumbnailPerson) {
-		const key = getPersonPhotoKey(person);
-		failedPhotoKeys = { ...failedPhotoKeys, [key]: true };
+		photoFailureTracker.markFailed(person);
 	}
 
 	function markPersonCompanyLogoFailed(person: ThumbnailPerson) {
-		const key = getPersonCompanyLogoKey(person);
-		failedCompanyLogoKeys = { ...failedCompanyLogoKeys, [key]: true };
+		companyLogoFailureTracker.markFailed(person);
 	}
 
 	function clearPersonPhotoFailed(person: ThumbnailPerson) {
-		const key = getPersonPhotoKey(person);
-
-		if (!failedPhotoKeys[key]) {
-			return;
-		}
-
-		const { [key]: _, ...rest } = failedPhotoKeys;
-		failedPhotoKeys = rest;
+		photoFailureTracker.clearFailed(person);
 	}
 
 	function clearPersonCompanyLogoFailed(person: ThumbnailPerson) {
-		const key = getPersonCompanyLogoKey(person);
-
-		if (!failedCompanyLogoKeys[key]) {
-			return;
-		}
-
-		const { [key]: _, ...rest } = failedCompanyLogoKeys;
-		failedCompanyLogoKeys = rest;
+		companyLogoFailureTracker.clearFailed(person);
 	}
 
 	function shouldRenderCompanyLogo(person: ThumbnailPerson) {
@@ -109,22 +97,6 @@
 		return hasImageUrl(event.thumbnail.eventLogoUrl) && !eventLogoFailed;
 	}
 
-	function splitTitleAccent(title: string) {
-		const match = title.match(/^(.*?[?:]\s+)(\S[\s\S]*)$/);
-
-		if (!match) {
-			return {
-				prefix: title,
-				accent: ''
-			};
-		}
-
-		return {
-			prefix: match[1],
-			accent: match[2]
-		};
-	}
-
 	function getEyebrow(day: ThumbnailEvent['day']) {
 		if (day !== undefined && day !== null && `${day}`.trim() !== '') {
 			return `Day ${day} · ${DEFAULT_EYEBROW_SUFFIX}`;
@@ -133,60 +105,14 @@
 		return DEFAULT_EYEBROW_SUFFIX;
 	}
 
-	function applyTitleSize(size: number) {
-		titleElement?.style.setProperty('--thumbnail-title-size', `${size}px`);
-	}
-
-	function titleFits() {
-		if (!titleBox || !titleElement) {
-			return true;
-		}
-
-		const titleRect = titleElement.getBoundingClientRect();
-		const boxRect = titleBox.getBoundingClientRect();
-		const clippedHorizontally =
-			Math.ceil(titleElement.scrollWidth) > Math.floor(titleBox.clientWidth) + 1 ||
-			titleRect.right > boxRect.right + 1;
-		const clippedVertically =
-			Math.ceil(titleElement.scrollHeight) > Math.floor(titleBox.clientHeight) + 1 ||
-			titleRect.bottom > boxRect.bottom + 1;
-
-		return !clippedHorizontally && !clippedVertically;
-	}
-
 	function fitTitleToBounds() {
-		if (!titleBox || !titleElement) {
-			return;
-		}
-
-		if (titleBox.clientWidth <= 0 || titleBox.clientHeight <= 0) {
-			return;
-		}
-
-		let low = TITLE_MIN_FONT_SIZE;
-		let high = TITLE_MAX_FONT_SIZE;
-		let best = TITLE_MIN_FONT_SIZE;
-
-		while (low <= high) {
-			const mid = Math.floor((low + high) / 2);
-			applyTitleSize(mid);
-
-			const fits = titleFits();
-
-			if (fits) {
-				best = mid;
-				low = mid + 1;
-			} else {
-				high = mid - 1;
-			}
-		}
-
-		applyTitleSize(best);
-
-		while (best > TITLE_MIN_FONT_SIZE && !titleFits()) {
-			best -= 1;
-			applyTitleSize(best);
-		}
+		fitTitleFontSize({
+			box: titleBox,
+			element: titleElement,
+			cssVariableName: '--thumbnail-title-size',
+			min: TITLE_MIN_FONT_SIZE,
+			max: TITLE_MAX_FONT_SIZE
+		});
 	}
 
 	function scheduleTitleFit() {

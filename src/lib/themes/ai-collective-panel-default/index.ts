@@ -20,6 +20,7 @@ export const theme: ThumbnailThemeDefinition = {
 		order: 10
 	},
 	component: Theme,
+	requiresImageProxy: true,
 	defaults: (event) => {
 		const base = buildAiCollectiveDefaults(event);
 		const createId = (role: string, i: number) => `${event.id}-${role}-${i + 1}`;

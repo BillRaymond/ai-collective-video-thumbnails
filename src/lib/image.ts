@@ -1,8 +1,6 @@
-const AI_COLLECTIVE_THEME_ID = 'ai-collective-panel-default';
-const DATA_PHOENIX_THEME_ID = 'data-phoenix-neon-panel';
-const WSERV_BASE_URL = 'https://wsrv.nl/';
+import { thumbnailThemes } from '$lib/themes';
 
-const PROXIED_THEME_IDS = new Set([AI_COLLECTIVE_THEME_ID, DATA_PHOENIX_THEME_ID]);
+const WSERV_BASE_URL = 'https://wsrv.nl/';
 
 function hasValue(value: string) {
 	return value.trim().length > 0;
@@ -16,16 +14,44 @@ function isAlreadyProxied(url: string) {
 	return /^https:\/\/wsrv\.nl\/\?url=/i.test(url.trim());
 }
 
+function isSameOriginOrLocalUrl(value: string) {
+	const trimmed = value.trim();
+
+	try {
+		const parsed = new URL(trimmed);
+
+		if (typeof window !== 'undefined' && parsed.origin === window.location.origin) {
+			return true;
+		}
+
+		return (
+			parsed.hostname === 'localhost' ||
+			parsed.hostname === '127.0.0.1' ||
+			parsed.hostname === '0.0.0.0' ||
+			parsed.hostname === '[::1]'
+		);
+	} catch {
+		return false;
+	}
+}
+
 function buildProxyUrl(url: string) {
 	return `${WSERV_BASE_URL}?url=${encodeURIComponent(url.trim())}`;
 }
 
 export function shouldProxyThemeImage(url: string, themeId: string) {
-	if (!PROXIED_THEME_IDS.has(themeId)) {
+	const theme = thumbnailThemes.find((entry) => entry.meta.id === themeId);
+
+	if (!theme?.requiresImageProxy) {
 		return false;
 	}
 
-	if (!hasValue(url) || !isRemoteHttpUrl(url) || isAlreadyProxied(url)) {
+	if (
+		!hasValue(url) ||
+		!isRemoteHttpUrl(url) ||
+		isAlreadyProxied(url) ||
+		isSameOriginOrLocalUrl(url)
+	) {
 		return false;
 	}
 
@@ -39,5 +65,3 @@ export function resolveRenderableImageUrl(url: string, themeId: string) {
 
 	return buildProxyUrl(url);
 }
-
-export { AI_COLLECTIVE_THEME_ID, DATA_PHOENIX_THEME_ID };

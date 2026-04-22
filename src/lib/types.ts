@@ -87,6 +87,7 @@ export interface ThumbnailThemeDefinition {
 	component: Component<ThumbnailThemeProps>;
 	defaults: (event: EventSource) => Partial<ThumbnailConfig>;
 	editor: ThumbnailThemeEditorCapabilities;
+	requiresImageProxy?: boolean;
 	assets?: ThumbnailThemeAssets;
 	legacyAssetUrls?: Record<string, string>;
 }

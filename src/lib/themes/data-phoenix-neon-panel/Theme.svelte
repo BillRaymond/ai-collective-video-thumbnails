@@ -3,6 +3,12 @@
 	import backgroundImageUrl from './assets/data-phoenix-background.png';
 	import secondaryLogoUrl from './assets/AIC-Logo-White-cropped.png';
 	import { resolveRenderableImageUrl } from '$lib/image';
+	import {
+		createImageFailureTracker,
+		fitTitleFontSize,
+		hasImageUrl,
+		splitTitleAccent
+	} from '$lib/themes/theme-utils';
 	import type { ThumbnailEvent, ThumbnailPerson } from '$lib/types';
 
 	const THEME_ID = 'data-phoenix-neon-panel';
@@ -20,6 +26,11 @@
 	let failedPhotoKeys = $state<Record<string, boolean>>({});
 	let titleParts = $derived(splitTitleAccent(event.title));
 	let personRows = $derived(splitPeopleIntoRows(event.thumbnail.people));
+	const photoFailureTracker = createImageFailureTracker({
+		getFailures: () => failedPhotoKeys,
+		setFailures: (next) => (failedPhotoKeys = next),
+		getKey: (person: ThumbnailPerson) => `${person.id}:${person.photoUrl.trim()}`
+	});
 
 	function getInitials(name: string) {
 		const letters = name
@@ -36,28 +47,16 @@
 		return resolveRenderableImageUrl(value, THEME_ID);
 	}
 
-	function getPersonPhotoKey(person: ThumbnailPerson) {
-		return `${person.id}:${person.photoUrl.trim()}`;
-	}
-
 	function isPersonPhotoFailed(person: ThumbnailPerson) {
-		return Boolean(failedPhotoKeys[getPersonPhotoKey(person)]);
+		return photoFailureTracker.isFailed(person);
 	}
 
 	function markPersonPhotoFailed(person: ThumbnailPerson) {
-		const key = getPersonPhotoKey(person);
-		failedPhotoKeys = { ...failedPhotoKeys, [key]: true };
+		photoFailureTracker.markFailed(person);
 	}
 
 	function clearPersonPhotoFailed(person: ThumbnailPerson) {
-		const key = getPersonPhotoKey(person);
-
-		if (!failedPhotoKeys[key]) {
-			return;
-		}
-
-		const { [key]: _, ...rest } = failedPhotoKeys;
-		failedPhotoKeys = rest;
+		photoFailureTracker.clearFailed(person);
 	}
 
 	function personCountClass(people: ThumbnailPerson[]) {
@@ -74,10 +73,6 @@
 		}
 
 		return 'phoenix-count-5plus';
-	}
-
-	function hasImageUrl(value: string) {
-		return value.trim().length > 0;
 	}
 
 	function splitPeopleIntoRows(people: ThumbnailPerson[], maxPerRow = 3) {
@@ -100,59 +95,15 @@
 		return rows;
 	}
 
-	function splitTitleAccent(title: string) {
-		const match = title.match(/^(.*?[?:]\s+)(\S[\s\S]*)$/);
-
-		if (!match) {
-			return {
-				prefix: title,
-				accent: ''
-			};
-		}
-
-		return {
-			prefix: match[1],
-			accent: match[2]
-		};
-	}
-
-	function applyTitleSize(size: number) {
-		titleElement?.style.setProperty('--phoenix-title-size', `${size}px`);
-	}
-
 	function fitTitleToBounds() {
-		if (!titleBox || !titleElement) {
-			return;
-		}
-
-		const availableWidth = Math.floor(titleBox.clientWidth);
-		const availableHeight = Math.floor(titleBox.clientHeight * TITLE_FIT_HEIGHT_RATIO);
-
-		if (availableWidth <= 0 || availableHeight <= 0) {
-			return;
-		}
-
-		let low = TITLE_MIN_FONT_SIZE;
-		let high = TITLE_MAX_FONT_SIZE;
-		let best = TITLE_MIN_FONT_SIZE;
-
-		while (low <= high) {
-			const mid = Math.floor((low + high) / 2);
-			applyTitleSize(mid);
-
-			const fits =
-				titleElement.scrollWidth <= availableWidth + 1 &&
-				titleElement.scrollHeight <= availableHeight;
-
-			if (fits) {
-				best = mid;
-				low = mid + 1;
-			} else {
-				high = mid - 1;
-			}
-		}
-
-		applyTitleSize(best);
+		fitTitleFontSize({
+			box: titleBox,
+			element: titleElement,
+			cssVariableName: '--phoenix-title-size',
+			min: TITLE_MIN_FONT_SIZE,
+			max: TITLE_MAX_FONT_SIZE,
+			heightRatio: TITLE_FIT_HEIGHT_RATIO
+		});
 	}
 
 	function scheduleTitleFit() {

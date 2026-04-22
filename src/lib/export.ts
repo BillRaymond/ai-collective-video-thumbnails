@@ -1,3 +1,6 @@
+import * as htmlToImage from 'html-to-image';
+import JSZip from 'jszip';
+import { CANVAS_HEIGHT, CANVAS_WIDTH } from './constants';
 import type { ExportFormat, ThumbnailEvent } from './types';
 
 type ExportableNode = HTMLElement;
@@ -21,16 +24,6 @@ type RenderOptions = {
 const TRANSPARENT_IMAGE_PLACEHOLDER =
 	'data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=';
 
-const HTML_TO_IMAGE_URLS = [
-	'https://cdn.jsdelivr.net/npm/html-to-image@1.11.13/dist/html-to-image.min.js',
-	'https://unpkg.com/html-to-image@1.11.13/dist/html-to-image.min.js'
-];
-
-const JSZIP_URLS = [
-	'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js',
-	'https://unpkg.com/jszip@3.10.1/dist/jszip.min.js'
-];
-
 function slugify(value: string) {
 	return value
 		.normalize('NFKD')
@@ -41,75 +34,18 @@ function slugify(value: string) {
 		.replace(/-{2,}/g, '-');
 }
 
-function appendScript(src: string) {
-	return new Promise<void>((resolve, reject) => {
-		const existing = document.querySelector<HTMLScriptElement>(`script[src="${src}"]`);
-
-		if (existing) {
-			if (existing.dataset.loaded === 'true') {
-				resolve();
-				return;
-			}
-
-			existing.addEventListener('load', () => resolve(), { once: true });
-			existing.addEventListener('error', () => reject(new Error(`Failed to load ${src}`)), {
-				once: true
-			});
-			return;
-		}
-
-		const script = document.createElement('script');
-		script.src = src;
-		script.async = true;
-		script.addEventListener(
-			'load',
-			() => {
-				script.dataset.loaded = 'true';
-				resolve();
-			},
-			{ once: true }
-		);
-		script.addEventListener('error', () => reject(new Error(`Failed to load ${src}`)), {
-			once: true
-		});
-		document.head.appendChild(script);
-	});
-}
-
-async function loadFromUrls(urls: string[], check: () => boolean) {
-	if (check()) {
-		return;
-	}
-
-	let lastError: Error | undefined;
-
-	for (const url of urls) {
-		try {
-			await appendScript(url);
-			if (check()) {
-				return;
-			}
-		} catch (error) {
-			lastError = error instanceof Error ? error : new Error(String(error));
-		}
-	}
-
-	throw lastError ?? new Error('Required export dependency could not be loaded.');
-}
-
 export async function ensureExportDependencies() {
-	await loadFromUrls(HTML_TO_IMAGE_URLS, () => Boolean(window.htmlToImage?.toCanvas));
-	await loadFromUrls(JSZIP_URLS, () => Boolean(window.JSZip));
+	return Promise.resolve();
 }
 
 function buildRenderOptions(format: ExportFormat): RenderOptions {
 	return {
 		cacheBust: true,
 		pixelRatio: 1,
-		width: 1280,
-		height: 720,
-		canvasWidth: 1280,
-		canvasHeight: 1280 / (16 / 9),
+		width: CANVAS_WIDTH,
+		height: CANVAS_HEIGHT,
+		canvasWidth: CANVAS_WIDTH,
+		canvasHeight: CANVAS_HEIGHT,
 		backgroundColor: format === 'jpg' ? '#0b1a2e' : undefined,
 		imagePlaceholder: TRANSPARENT_IMAGE_PLACEHOLDER,
 		filter: (domNode) =>
@@ -306,7 +242,7 @@ export async function renderThumbnailBlob(node: ExportableNode, format: ExportFo
 	await ensureExportDependencies();
 
 	const canvas = await renderWithSanitizedClone(node, (clone) =>
-		window.htmlToImage!.toCanvas(clone, buildRenderOptions(format))
+		htmlToImage.toCanvas(clone, buildRenderOptions(format))
 	);
 
 	return canvasToBlob(canvas, format);
@@ -323,11 +259,9 @@ export async function renderThumbnailPreviewUrl(node: ExportableNode) {
 		} satisfies PreviewRenderResult;
 	} catch (blobError) {
 		try {
-			if (window.htmlToImage?.toSvg) {
+			if (htmlToImage.toSvg) {
 				return {
-					url: await renderWithSanitizedClone(node, (clone) =>
-						window.htmlToImage!.toSvg!(clone, buildRenderOptions('png'))
-					),
+					url: await renderWithSanitizedClone(node, (clone) => htmlToImage.toSvg(clone, buildRenderOptions('png'))),
 					kind: 'svg'
 				} satisfies PreviewRenderResult;
 			}
@@ -351,7 +285,7 @@ export async function downloadSingleThumbnail(
 export async function downloadZipFromBlobs(entries: Array<{ filename: string; blob: Blob }>) {
 	await ensureExportDependencies();
 
-	const zip = new window.JSZip!();
+	const zip = new JSZip();
 	for (const entry of entries) {
 		zip.file(entry.filename, entry.blob);
 	}

@@ -1,5 +1,6 @@
 import { gsap } from 'gsap';
 
+// Retained intentionally so future motion work can import through a single SSR-safe wrapper.
 export { gsap };
 
 export function motionAllowed() {

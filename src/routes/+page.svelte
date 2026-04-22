@@ -10,6 +10,7 @@
 	import { browser, dev } from '$app/environment';
 	import { tick } from 'svelte';
 	import sampleEvents from '../../default-list.json';
+	import { CANVAS_HEIGHT, CANVAS_WIDTH } from '$lib/constants';
 	import { resolveRenderableImageUrl } from '$lib/image';
 	import {
 		applyThemeToProject,
@@ -277,7 +278,7 @@
 		}
 
 		const { width } = previewViewport.getBoundingClientRect();
-		previewScale = Math.min(Math.max((width - 24) / 1280, 0.2), 1);
+		previewScale = Math.min(Math.max((width - 24) / CANVAS_WIDTH, 0.2), 1);
 	}
 
 	$effect(() => {
@@ -818,7 +819,7 @@
 						onclick={openPreviewModal}
 						aria-label="Open rendered preview image"
 					>
-						<div class="preview-stage-inner" style={`height: ${720 * previewScale}px;`}>
+						<div class="preview-stage-inner" style={`height: ${CANVAS_HEIGHT * previewScale}px;`}>
 							<div
 								class="thumbnail-export-root"
 								style={`transform: scale(${previewScale}); transform-origin: top left;`}
