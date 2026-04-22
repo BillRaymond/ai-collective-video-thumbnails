@@ -1,5 +1,5 @@
 import Theme from './Theme.svelte';
-import backgroundImageUrl from './assets/default-thumbnail-bg.png';
+import backgroundImageUrl from './assets/ai-collective-background.png';
 import eventLogoUrl from './assets/HumanX-white-logo-cropped.png';
 import wordmarkUrl from './assets/Wordmark-White.png';
 import { buildAiCollectiveDefaults, DEFAULT_BACKGROUND_URL_LEGACY, DEFAULT_EVENT_LOGO_URL_LEGACY } from './defaults';
@@ -56,7 +56,7 @@ export const theme: ThumbnailThemeDefinition = {
 	},
 	editor: {
 		eventFields: ['variantLabel', 'eyebrow'],
-		brandingFields: ['backgroundImageUrl', 'eventLogoUrl', 'producerCredit', 'ctaText'],
+		brandingFields: ['eventLogoUrl', 'producerCredit', 'ctaText'],
 		personFields: ['role', 'name', 'company', 'photoUrl', 'companyLogoUrl', 'photoPosition', 'logoScale']
 	},
 	assets,

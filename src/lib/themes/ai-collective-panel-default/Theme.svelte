@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
+	import backgroundImageUrl from './assets/ai-collective-background.png';
 	import wordmarkUrl from './assets/Wordmark-White.png';
 	import { resolveRenderableImageUrl } from '$lib/image';
 	import type { ThumbnailEvent, ThumbnailPerson } from '$lib/types';
@@ -200,12 +201,8 @@
 
 <div class="thumbnail-frame">
 	<div class="thumbnail-bg">
-		{#if hasImageUrl(event.thumbnail.backgroundImageUrl)}
-			<img src={getImageSrc(event.thumbnail.backgroundImageUrl)} alt="" crossorigin="anonymous" />
-		{/if}
+		<img src={backgroundImageUrl} alt="" crossorigin="anonymous" />
 	</div>
-	<div class="thumbnail-overlay"></div>
-	<div class="thumbnail-grain"></div>
 
 	<div class="thumbnail-content">
 		<div class="thumbnail-top">
