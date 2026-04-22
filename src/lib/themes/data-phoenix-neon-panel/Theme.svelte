@@ -2,7 +2,10 @@
 	import { onMount, tick } from 'svelte';
 	import backgroundImageUrl from './assets/data-phoenix-background.png';
 	import secondaryLogoUrl from './assets/AIC-Logo-White-cropped.png';
+	import { resolveRenderableImageUrl } from '$lib/image';
 	import type { ThumbnailEvent, ThumbnailPerson } from '$lib/types';
+
+	const THEME_ID = 'data-phoenix-neon-panel';
 
 	const TITLE_MAX_FONT_SIZE = 74;
 	const TITLE_MIN_FONT_SIZE = 28;
@@ -13,6 +16,7 @@
 	let titleElement: HTMLHeadingElement | null = null;
 	let resizeObserver: ResizeObserver | null = null;
 	let fitRequest = 0;
+	let failedPhotoKeys = $state<Record<string, boolean>>({});
 	let titleParts = $derived(splitTitleAccent(event.title));
 	let personRows = $derived(splitPeopleIntoRows(event.thumbnail.people));
 
@@ -25,6 +29,34 @@
 			.join('');
 
 		return letters || 'DP';
+	}
+
+	function getImageSrc(value: string) {
+		return resolveRenderableImageUrl(value, THEME_ID);
+	}
+
+	function getPersonPhotoKey(person: ThumbnailPerson) {
+		return `${person.id}:${person.photoUrl.trim()}`;
+	}
+
+	function isPersonPhotoFailed(person: ThumbnailPerson) {
+		return Boolean(failedPhotoKeys[getPersonPhotoKey(person)]);
+	}
+
+	function markPersonPhotoFailed(person: ThumbnailPerson) {
+		const key = getPersonPhotoKey(person);
+		failedPhotoKeys = { ...failedPhotoKeys, [key]: true };
+	}
+
+	function clearPersonPhotoFailed(person: ThumbnailPerson) {
+		const key = getPersonPhotoKey(person);
+
+		if (!failedPhotoKeys[key]) {
+			return;
+		}
+
+		const { [key]: _, ...rest } = failedPhotoKeys;
+		failedPhotoKeys = rest;
 	}
 
 	function personCountClass(people: ThumbnailPerson[]) {
@@ -176,42 +208,58 @@
 		</div>
 
 		<div class="phoenix-lower">
-				<div class="phoenix-people-wrap">
-					<div class={`phoenix-people ${personCountClass(event.thumbnail.people)}`}>
-						<div class="phoenix-people-title">{event.thumbnail.variantLabel}</div>
+			<div class="phoenix-people-wrap">
+				<div class={`phoenix-people ${personCountClass(event.thumbnail.people)}`}>
+					<div class="phoenix-people-title">{event.thumbnail.variantLabel}</div>
 
-						<div class="phoenix-people-grid">
-							{#if event.thumbnail.people.length === 0}
-								<div class="phoenix-people-row phoenix-row-count-1">
-									<div class="phoenix-person phoenix-person-empty">
-										<div class="phoenix-avatar phoenix-avatar-fallback">DP</div>
-										<div class="phoenix-person-copy">
-											<div class="phoenix-role">Speaker slot</div>
-											<div class="phoenix-name">Add a speaker</div>
-											<div class="phoenix-company">Use the editor to populate this session</div>
-										</div>
+					<div class="phoenix-people-grid">
+						{#if event.thumbnail.people.length === 0}
+							<div class="phoenix-people-row phoenix-row-count-1">
+								<div class="phoenix-person phoenix-person-empty">
+									<div class="phoenix-avatar">
+										<div class="phoenix-avatar-fallback">DP</div>
+									</div>
+									<div class="phoenix-person-copy">
+										<div class="phoenix-role">Speaker slot</div>
+										<div class="phoenix-name">Add a speaker</div>
+										<div class="phoenix-company">Use the editor to populate this session</div>
 									</div>
 								</div>
-							{:else}
-								{#each personRows as row}
-									<div class={`phoenix-people-row phoenix-row-count-${row.length}`}>
-										{#each row as person (person.id)}
-											<div class="phoenix-person">
-												<div class="phoenix-role phoenix-person-role">{person.role || 'Panelist'}</div>
-												<div class="phoenix-avatar phoenix-avatar-fallback">{getInitials(person.name)}</div>
+							</div>
+						{:else}
+							{#each personRows as row}
+								<div class={`phoenix-people-row phoenix-row-count-${row.length}`}>
+									{#each row as person (person.id)}
+										<div class="phoenix-person">
+											<div class="phoenix-role phoenix-person-role">{person.role || 'Panelist'}</div>
 
-												<div class="phoenix-person-copy">
-													<div class="phoenix-name">{person.name || 'Unnamed speaker'}</div>
-													<div class="phoenix-company">{person.company || ' '}</div>
-												</div>
+											<div class={`phoenix-avatar ${isPersonPhotoFailed(person) ? 'photo-failed' : ''}`}>
+												<div class="phoenix-avatar-fallback">{getInitials(person.name)}</div>
+												{#if hasImageUrl(person.photoUrl)}
+													<img
+														src={getImageSrc(person.photoUrl)}
+														alt={person.name || 'Speaker photo'}
+														crossorigin="anonymous"
+														data-load-failed={isPersonPhotoFailed(person) ? 'true' : undefined}
+														style={`object-position: ${person.photoPositionX}% ${person.photoPositionY}%;`}
+														onload={() => clearPersonPhotoFailed(person)}
+														onerror={() => markPersonPhotoFailed(person)}
+													/>
+												{/if}
 											</div>
-										{/each}
-									</div>
-								{/each}
-							{/if}
-						</div>
+
+											<div class="phoenix-person-copy">
+												<div class="phoenix-name">{person.name || 'Unnamed speaker'}</div>
+												<div class="phoenix-company">{person.company || ' '}</div>
+											</div>
+										</div>
+									{/each}
+								</div>
+							{/each}
+						{/if}
 					</div>
 				</div>
+			</div>
 
 			<div class="phoenix-meta-row">
 				<div class="phoenix-footer-logo-lockup">
@@ -439,15 +487,18 @@
 
 	.phoenix-avatar {
 		grid-area: avatar;
-		display: grid;
-		place-items: center;
+		position: relative;
 		width: 46px;
 		height: 46px;
 		border-radius: 50%;
-		background: rgba(255, 255, 255, 0.06);
+		overflow: hidden;
 	}
 
 	.phoenix-avatar-fallback {
+		position: absolute;
+		inset: 0;
+		display: grid;
+		place-items: center;
 		background:
 			radial-gradient(circle at 30% 25%, rgba(118, 243, 255, 0.24), transparent 42%),
 			linear-gradient(160deg, rgba(53, 66, 144, 0.96), rgba(73, 21, 108, 0.96));
@@ -455,6 +506,18 @@
 		font-weight: 800;
 		letter-spacing: 0.08em;
 		box-shadow: inset 0 0 0 1px rgba(131, 239, 255, 0.25);
+	}
+
+	.phoenix-avatar img {
+		position: relative;
+		z-index: 1;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	.phoenix-avatar.photo-failed img {
+		display: none;
 	}
 
 	.phoenix-person-copy {

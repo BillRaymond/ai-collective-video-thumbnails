@@ -1,5 +1,8 @@
 const AI_COLLECTIVE_THEME_ID = 'ai-collective-panel-default';
+const DATA_PHOENIX_THEME_ID = 'data-phoenix-neon-panel';
 const WSERV_BASE_URL = 'https://wsrv.nl/';
+
+const PROXIED_THEME_IDS = new Set([AI_COLLECTIVE_THEME_ID, DATA_PHOENIX_THEME_ID]);
 
 function hasValue(value: string) {
 	return value.trim().length > 0;
@@ -18,7 +21,7 @@ function buildProxyUrl(url: string) {
 }
 
 export function shouldProxyThemeImage(url: string, themeId: string) {
-	if (themeId !== AI_COLLECTIVE_THEME_ID) {
+	if (!PROXIED_THEME_IDS.has(themeId)) {
 		return false;
 	}
 
@@ -37,4 +40,4 @@ export function resolveRenderableImageUrl(url: string, themeId: string) {
 	return buildProxyUrl(url);
 }
 
-export { AI_COLLECTIVE_THEME_ID };
+export { AI_COLLECTIVE_THEME_ID, DATA_PHOENIX_THEME_ID };

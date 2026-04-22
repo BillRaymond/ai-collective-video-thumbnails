@@ -21,7 +21,7 @@ export const theme: ThumbnailThemeDefinition = {
 	editor: {
 		eventFields: ['variantLabel'],
 		brandingFields: ['eventLogoUrl', 'producerCredit', 'ctaText'],
-		personFields: ['role', 'name', 'company']
+		personFields: ['role', 'name', 'company', 'photoUrl', 'photoPosition']
 	},
 	assets
 };
