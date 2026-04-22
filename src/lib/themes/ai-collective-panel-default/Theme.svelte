@@ -17,6 +17,8 @@
 	let resizeObserver: ResizeObserver | null = null;
 	let fitRequest = 0;
 	let failedPhotoKeys = $state<Record<string, boolean>>({});
+	let failedCompanyLogoKeys = $state<Record<string, boolean>>({});
+	let eventLogoFailed = $state(false);
 	let titleParts = $derived(splitTitleAccent(event.title));
 
 	function getInitials(name: string) {
@@ -54,13 +56,26 @@
 		return `${person.id}:${person.photoUrl.trim()}`;
 	}
 
+	function getPersonCompanyLogoKey(person: ThumbnailPerson) {
+		return `${person.id}:${person.companyLogoUrl.trim()}`;
+	}
+
 	function isPersonPhotoFailed(person: ThumbnailPerson) {
 		return Boolean(failedPhotoKeys[getPersonPhotoKey(person)]);
+	}
+
+	function isPersonCompanyLogoFailed(person: ThumbnailPerson) {
+		return Boolean(failedCompanyLogoKeys[getPersonCompanyLogoKey(person)]);
 	}
 
 	function markPersonPhotoFailed(person: ThumbnailPerson) {
 		const key = getPersonPhotoKey(person);
 		failedPhotoKeys = { ...failedPhotoKeys, [key]: true };
+	}
+
+	function markPersonCompanyLogoFailed(person: ThumbnailPerson) {
+		const key = getPersonCompanyLogoKey(person);
+		failedCompanyLogoKeys = { ...failedCompanyLogoKeys, [key]: true };
 	}
 
 	function clearPersonPhotoFailed(person: ThumbnailPerson) {
@@ -72,6 +87,25 @@
 
 		const { [key]: _, ...rest } = failedPhotoKeys;
 		failedPhotoKeys = rest;
+	}
+
+	function clearPersonCompanyLogoFailed(person: ThumbnailPerson) {
+		const key = getPersonCompanyLogoKey(person);
+
+		if (!failedCompanyLogoKeys[key]) {
+			return;
+		}
+
+		const { [key]: _, ...rest } = failedCompanyLogoKeys;
+		failedCompanyLogoKeys = rest;
+	}
+
+	function shouldRenderCompanyLogo(person: ThumbnailPerson) {
+		return hasImageUrl(person.companyLogoUrl) && !isPersonCompanyLogoFailed(person);
+	}
+
+	function shouldRenderEventLogo() {
+		return hasImageUrl(event.thumbnail.eventLogoUrl) && !eventLogoFailed;
 	}
 
 	function splitTitleAccent(title: string) {
@@ -234,19 +268,24 @@
 								<div class="speaker-company">{person.company || 'Company name'}</div>
 							</div>
 
-							<div class="speaker-logo-wrap">
-								{#if hasImageUrl(person.companyLogoUrl)}
-									<img
-										class="speaker-logo"
-										src={getImageSrc(person.companyLogoUrl)}
-										alt={person.company || 'Company logo'}
-										crossorigin="anonymous"
-										style={`transform: scale(${person.logoScale / 100});`}
-									/>
-								{:else}
-									<img class="speaker-logo speaker-logo-fallback" src={fallbackLogoUrl} alt="" />
-								{/if}
-							</div>
+							{#if shouldRenderCompanyLogo(person) || !hasImageUrl(person.companyLogoUrl)}
+								<div class="speaker-logo-wrap">
+									{#if shouldRenderCompanyLogo(person)}
+										<img
+											class="speaker-logo"
+											src={getImageSrc(person.companyLogoUrl)}
+											alt={person.company || 'Company logo'}
+											crossorigin="anonymous"
+											data-load-failed={isPersonCompanyLogoFailed(person) ? 'true' : undefined}
+											style={`transform: scale(${person.logoScale / 100});`}
+											onload={() => clearPersonCompanyLogoFailed(person)}
+											onerror={() => markPersonCompanyLogoFailed(person)}
+										/>
+									{:else}
+										<img class="speaker-logo speaker-logo-fallback" src={fallbackLogoUrl} alt="" />
+									{/if}
+								</div>
+							{/if}
 						</div>
 					{/each}
 				{/if}
@@ -257,10 +296,19 @@
 			<div class="event-lockup">
 				<div class="event-lockup-label">Presented at</div>
 				<div class="event-lockup-logo">
-					{#if hasImageUrl(event.thumbnail.eventLogoUrl)}
-						<img src={getImageSrc(event.thumbnail.eventLogoUrl)} alt="Event logo" crossorigin="anonymous" />
+					{#if shouldRenderEventLogo()}
+						<img
+							src={getImageSrc(event.thumbnail.eventLogoUrl)}
+							alt="Event logo"
+							crossorigin="anonymous"
+							data-load-failed={eventLogoFailed ? 'true' : undefined}
+							onload={() => (eventLogoFailed = false)}
+							onerror={() => (eventLogoFailed = true)}
+						/>
 					{:else}
-						<div class="event-lockup-placeholder">Add event logo</div>
+						{#if !hasImageUrl(event.thumbnail.eventLogoUrl)}
+							<div class="event-lockup-placeholder">Add event logo</div>
+						{/if}
 					{/if}
 				</div>
 			</div>
