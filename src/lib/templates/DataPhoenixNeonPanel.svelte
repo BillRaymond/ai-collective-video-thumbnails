@@ -13,6 +13,7 @@
 	let resizeObserver: ResizeObserver | null = null;
 	let fitRequest = 0;
 	let titleParts = $derived(splitTitleAccent(event.title));
+	let personRows = $derived(splitPeopleIntoRows(event.thumbnail.people));
 
 	function getInitials(name: string) {
 		const letters = name
@@ -34,15 +35,35 @@
 			return 'phoenix-count-3';
 		}
 
-		if (people.length <= 5) {
-			return 'phoenix-count-5';
+		if (people.length === 4) {
+			return 'phoenix-count-4';
 		}
 
-		return 'phoenix-count-6plus';
+		return 'phoenix-count-5plus';
 	}
 
 	function hasImageUrl(value: string) {
 		return value.trim().length > 0;
+	}
+
+	function splitPeopleIntoRows(people: ThumbnailPerson[], maxPerRow = 4) {
+		if (people.length === 0) {
+			return [];
+		}
+
+		const rowCount = Math.ceil(people.length / maxPerRow);
+		const baseRowSize = Math.floor(people.length / rowCount);
+		const remainder = people.length % rowCount;
+		const rows: ThumbnailPerson[][] = [];
+		let start = 0;
+
+		for (let index = 0; index < rowCount; index += 1) {
+			const rowSize = baseRowSize + (index < remainder ? 1 : 0);
+			rows.push(people.slice(start, start + rowSize));
+			start += rowSize;
+		}
+
+		return rows;
 	}
 
 	function splitTitleAccent(title: string) {
@@ -154,34 +175,42 @@
 		</div>
 
 		<div class="phoenix-lower">
-			<div class="phoenix-people-wrap">
-				<div class={`phoenix-people ${personCountClass(event.thumbnail.people)}`}>
-					<div class="phoenix-people-title">{event.thumbnail.variantLabel}</div>
+				<div class="phoenix-people-wrap">
+					<div class={`phoenix-people ${personCountClass(event.thumbnail.people)}`}>
+						<div class="phoenix-people-title">{event.thumbnail.variantLabel}</div>
 
-					{#if event.thumbnail.people.length === 0}
-						<div class="phoenix-person phoenix-person-empty">
-							<div class="phoenix-avatar phoenix-avatar-fallback">DP</div>
-							<div class="phoenix-person-copy">
-								<div class="phoenix-role">Speaker slot</div>
-								<div class="phoenix-name">Add a speaker</div>
-								<div class="phoenix-company">Use the editor to populate this session</div>
-							</div>
-						</div>
-					{:else}
-						{#each event.thumbnail.people as person (person.id)}
-							<div class="phoenix-person">
-								<div class="phoenix-avatar phoenix-avatar-fallback">{getInitials(person.name)}</div>
-
-								<div class="phoenix-person-copy">
-									<div class="phoenix-role">{person.role || 'Panelist'}</div>
-									<div class="phoenix-name">{person.name || 'Unnamed speaker'}</div>
-									<div class="phoenix-company">{person.company || 'Company name'}</div>
+						<div class="phoenix-people-grid">
+							{#if event.thumbnail.people.length === 0}
+								<div class="phoenix-people-row phoenix-row-count-1">
+									<div class="phoenix-person phoenix-person-empty">
+										<div class="phoenix-avatar phoenix-avatar-fallback">DP</div>
+										<div class="phoenix-person-copy">
+											<div class="phoenix-role">Speaker slot</div>
+											<div class="phoenix-name">Add a speaker</div>
+											<div class="phoenix-company">Use the editor to populate this session</div>
+										</div>
+									</div>
 								</div>
-							</div>
-						{/each}
-					{/if}
+							{:else}
+								{#each personRows as row}
+									<div class={`phoenix-people-row phoenix-row-count-${row.length}`}>
+										{#each row as person (person.id)}
+											<div class="phoenix-person">
+												<div class="phoenix-role phoenix-person-role">{person.role || 'Panelist'}</div>
+												<div class="phoenix-avatar phoenix-avatar-fallback">{getInitials(person.name)}</div>
+
+												<div class="phoenix-person-copy">
+													<div class="phoenix-name">{person.name || 'Unnamed speaker'}</div>
+													<div class="phoenix-company">{person.company || 'Company name'}</div>
+												</div>
+											</div>
+										{/each}
+									</div>
+								{/each}
+							{/if}
+						</div>
+					</div>
 				</div>
-			</div>
 
 			<div class="phoenix-meta-row">
 				<div class="phoenix-footer-logo">
@@ -316,26 +345,29 @@
 	}
 
 	.phoenix-people {
-		width: 100%;
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-		gap: 8px;
-		align-items: stretch;
+		--phoenix-card-width: 246px;
+		width: fit-content;
+		max-width: 80%;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
 		padding: 10px;
 		border-radius: 22px;
-		background: rgba(14, 9, 42, 0.76);
+		background: rgba(14, 9, 42, 0.5);
 		border: 1px solid rgba(117, 143, 255, 0.22);
-		backdrop-filter: blur(18px);
+		backdrop-filter: blur(12px);
 		box-shadow: 0 22px 36px rgba(4, 1, 15, 0.3);
 	}
 
 	.phoenix-people-wrap {
-		width: 79.8%;
+		display: flex;
+		justify-content: center;
+		width: 100%;
 		margin: 0 auto;
 	}
 
 	.phoenix-people-title {
-		grid-column: 1 / -1;
+		align-self: flex-start;
 		margin: 0 0 2px;
 		color: #d6fbff;
 		font-size: 11px;
@@ -344,13 +376,35 @@
 		text-transform: uppercase;
 	}
 
+	.phoenix-people-grid {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 8px;
+		width: 100%;
+	}
+
+	.phoenix-people-row {
+		display: flex;
+		justify-content: center;
+		gap: 8px;
+		width: 100%;
+	}
+
 	.phoenix-person {
 		display: grid;
+		flex: 0 1 var(--phoenix-card-width);
+		width: var(--phoenix-card-width);
+		max-width: 100%;
 		grid-template-columns: 46px minmax(0, 1fr);
+		grid-template-areas:
+			'role role'
+			'avatar copy';
 		align-items: center;
-		gap: 10px;
-		min-height: 62px;
-		padding: 8px 10px;
+		column-gap: 10px;
+		row-gap: 6px;
+		min-height: 74px;
+		padding: 9px 10px 10px;
 		border-radius: 16px;
 		background: linear-gradient(180deg, rgba(46, 28, 98, 0.7), rgba(19, 11, 46, 0.92));
 		border: 1px solid rgba(120, 196, 255, 0.2);
@@ -361,6 +415,7 @@
 	}
 
 	.phoenix-avatar {
+		grid-area: avatar;
 		display: grid;
 		place-items: center;
 		width: 46px;
@@ -380,16 +435,21 @@
 	}
 
 	.phoenix-person-copy {
+		grid-area: copy;
 		min-width: 0;
 	}
 
 	.phoenix-role {
-		margin-bottom: 4px;
 		color: #9aefff;
 	}
 
+	.phoenix-person-role {
+		grid-area: role;
+		margin: 0;
+	}
+
 	.phoenix-name {
-		font-size: 17px;
+		font-size: 19px;
 		font-weight: 700;
 		line-height: 1.05;
 		white-space: nowrap;
@@ -398,8 +458,8 @@
 	}
 
 	.phoenix-company {
-		margin-top: 3px;
-		font-size: 11px;
+		margin-top: 4px;
+		font-size: 12px;
 		font-weight: 700;
 		letter-spacing: 0.09em;
 		text-transform: uppercase;
@@ -410,48 +470,42 @@
 	}
 
 	.phoenix-count-1 {
-		grid-template-columns: minmax(240px, 320px);
-		justify-content: center;
+		--phoenix-card-width: 320px;
 	}
 
 	.phoenix-count-3 {
-		grid-template-columns: repeat(3, minmax(0, 1fr));
+		--phoenix-card-width: 246px;
 	}
 
-	.phoenix-count-5 {
-		grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	.phoenix-count-4 {
+		--phoenix-card-width: 234px;
 	}
 
-	.phoenix-count-5 .phoenix-person {
-		min-height: 64px;
+	.phoenix-count-5plus {
+		--phoenix-card-width: 234px;
 	}
 
-	.phoenix-count-5 .phoenix-name {
-		font-size: 16px;
-	}
-
-	.phoenix-count-6plus {
-		grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-	}
-
-	.phoenix-count-6plus .phoenix-person {
+	.phoenix-count-5plus .phoenix-person {
 		grid-template-columns: 40px minmax(0, 1fr);
+		grid-template-areas:
+			'role role'
+			'avatar copy';
 		min-height: 54px;
 		padding: 8px 10px;
 	}
 
-	.phoenix-count-6plus .phoenix-avatar {
+	.phoenix-count-5plus .phoenix-avatar {
 		width: 40px;
 		height: 40px;
 	}
 
-	.phoenix-count-6plus .phoenix-role,
-	.phoenix-count-6plus .phoenix-company {
-		font-size: 9px;
+	.phoenix-count-5plus .phoenix-role,
+	.phoenix-count-5plus .phoenix-company {
+		font-size: 10px;
 	}
 
-	.phoenix-count-6plus .phoenix-name {
-		font-size: 15px;
+	.phoenix-count-5plus .phoenix-name {
+		font-size: 16px;
 	}
 
 	.phoenix-meta-row {
@@ -492,7 +546,8 @@
 		justify-content: flex-start;
 		justify-self: end;
 		gap: 12px;
-		width: 156px;
+		width: auto;
+		min-width: 174px;
 		min-height: 58px;
 		padding: 10px 16px 10px 10px;
 		border-radius: 18px;
@@ -514,10 +569,9 @@
 
 	.phoenix-cta-text {
 		display: block;
-		max-width: 78px;
 		font-size: 18px;
 		line-height: 1.06;
 		font-weight: 500;
-		white-space: normal;
+		white-space: nowrap;
 	}
 </style>
