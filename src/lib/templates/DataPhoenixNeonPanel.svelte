@@ -296,7 +296,7 @@
 		font-family: var(--font-display);
 		max-width: 100%;
 		font-size: var(--phoenix-title-size, 74px);
-		line-height: 0.92;
+		line-height: 1.02;
 		letter-spacing: -0.03em;
 		color: #fff8ff;
 		text-align: center;
