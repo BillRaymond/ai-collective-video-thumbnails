@@ -7,7 +7,7 @@
 </svelte:head>
 
 <script lang="ts">
-	import { browser } from '$app/environment';
+	import { browser, dev } from '$app/environment';
 	import { tick } from 'svelte';
 	import sampleEvents from '../../default-list.json';
 	import { resolveRenderableImageUrl } from '$lib/image';
@@ -966,6 +966,12 @@
 						</div>
 					</div>
 				</div>
+
+				{#if !dev}
+					<p class="read-only-notice">
+						⚠ This is a published site, edits are not saved. To request changes, <a href="https://www.cambermast.com/contact" target="_blank" rel="noopener noreferrer">contact Bill Raymond</a>.
+					</p>
+				{/if}
 
 				{#if importError}
 					<p class="error-text">{importError}</p>

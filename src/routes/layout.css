@@ -663,6 +663,23 @@ optgroup {
 	word-break: break-word;
 }
 
+.read-only-notice {
+	margin: 0;
+	padding: 0.6rem 0.85rem;
+	border-radius: 0.72rem;
+	border: 1px solid rgba(255, 100, 80, 0.3);
+	background: rgba(255, 80, 60, 0.08);
+	color: var(--color-danger);
+	font-size: 0.92rem;
+	line-height: 1.45;
+}
+
+.read-only-notice a {
+	color: var(--color-danger);
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
 .modal-backdrop {
 	position: fixed;
 	inset: 0;
