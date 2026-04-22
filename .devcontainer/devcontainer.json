@@ -31,7 +31,8 @@
         "svelte.svelte-vscode",
         "bradlc.vscode-tailwindcss",
         "anthropic.claude-code",
-        "openai.chatgpt"
+        "openai.chatgpt",
+        "google.geminicodeassist"
       ]
     }
   }
