@@ -728,6 +728,24 @@ optgroup {
 	color: rgba(255, 255, 255, 0.78);
 }
 
+select.nav-count-select {
+	background: transparent;
+	border: 1px solid rgba(255, 255, 255, 0.18);
+	border-radius: 0.3rem;
+	padding: 0.15rem 0.3rem;
+	cursor: pointer;
+	max-width: 12rem;
+}
+
+select.nav-count-select:hover {
+	border-color: rgba(255, 255, 255, 0.4);
+}
+
+select.nav-count-select option {
+	background: #1a1a2e;
+	color: #fff;
+}
+
 .modal-body {
 	display: flex;
 	align-items: center;

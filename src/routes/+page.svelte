@@ -807,9 +807,18 @@
 						>
 							<span aria-hidden="true">←</span>
 						</button>
-						<span class="modal-count">
-							{activeEventIndex >= 0 ? activeEventIndex + 1 : 0} / {project.events.length}
-						</span>
+						<select
+							class="modal-count nav-count-select"
+							value={selectedEventId}
+							onchange={(e) => selectEvent((e.currentTarget as HTMLSelectElement).value)}
+							aria-label="Select event"
+						>
+							{#each project.events as event, i}
+								<option value={`${event.id}`}>
+									{i + 1}/{project.events.length} · {event.title.length > 26 ? event.title.slice(0, 26) + '…' : event.title}
+								</option>
+							{/each}
+						</select>
 						<button
 							class="nav-icon-button"
 							type="button"
@@ -1432,9 +1441,19 @@
 						>
 							<span aria-hidden="true">←</span>
 						</button>
-						<span class="modal-count">
-							{activeEventIndex >= 0 ? activeEventIndex + 1 : 0} / {project.events.length}
-						</span>
+						<select
+							class="modal-count nav-count-select"
+							value={selectedEventId}
+							disabled={isPreviewModalLoading}
+							onchange={(e) => selectEvent((e.currentTarget as HTMLSelectElement).value)}
+							aria-label="Select slide"
+						>
+							{#each project.events as event, i}
+								<option value={`${event.id}`}>
+									{i + 1}/{project.events.length} · {event.title.length > 26 ? event.title.slice(0, 26) + '…' : event.title}
+								</option>
+							{/each}
+						</select>
 						<button
 							class="nav-icon-button"
 							type="button"
