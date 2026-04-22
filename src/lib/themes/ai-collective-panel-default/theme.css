@@ -298,9 +298,14 @@
 	gap: 6px;
 }
 
+.event-lockup {
+	flex: 0 0 auto;
+}
+
 .producer-credit {
 	align-items: center;
-	flex: 1;
+	flex: 1 1 auto;
+	min-width: 0;
 	padding-inline: 1rem;
 }
 
@@ -340,11 +345,13 @@
 }
 
 .cta-pill {
+	flex: 0 0 auto;
 	background: rgba(255, 255, 255, 0.08);
 	border: 1px solid rgba(255, 255, 255, 0.18);
 	color: rgba(255, 255, 255, 0.9);
 	font-size: 15px;
 	font-weight: 600;
+	white-space: nowrap;
 }
 
 .cta-pill-icon {
