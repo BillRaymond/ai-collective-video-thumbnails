@@ -55,7 +55,6 @@ export const theme: ThumbnailThemeDefinition = {
 		};
 	},
 	editor: {
-		eventFields: ['variantLabel', 'eyebrow'],
 		brandingFields: ['eventLogoUrl', 'producerCredit', 'ctaText'],
 		personFields: ['role', 'name', 'company', 'photoUrl', 'companyLogoUrl', 'photoPosition', 'logoScale']
 	},

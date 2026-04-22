@@ -52,7 +52,6 @@ export const theme: ThumbnailThemeDefinition = {
 \tcomponent: Theme,
 \tdefaults: build${themeName.replace(/\s+/g, '')}Defaults,
 \teditor: {
-\t\teventFields: ['variantLabel', 'eyebrow'],
 \t\tbrandingFields: ['backgroundImageUrl', 'eventLogoUrl', 'producerCredit', 'ctaText'],
 \t\tpersonFields: ['role', 'name', 'company', 'photoUrl', 'companyLogoUrl', 'photoPosition', 'logoScale']
 \t},
@@ -66,10 +65,8 @@ export const theme: ThumbnailThemeDefinition = {
 
 export function build${themeName.replace(/\s+/g, '')}Defaults(
 \t_event: EventSource
-): Partial<Omit<ThumbnailConfig, 'templateId' | 'people'>> {
+): Partial<ThumbnailConfig> {
 \treturn {
-\t\tvariantLabel: 'Panel Discussion',
-\t\teyebrow: '',
 \t\teventLogoUrl: '',
 \t\tbackgroundImageUrl: '',
 \t\tproducerCredit: '',
@@ -88,10 +85,9 @@ export function build${themeName.replace(/\s+/g, '')}Defaults(
 
 <div class="${rawThemeId}-frame">
 \t<div class="${rawThemeId}-content">
-\t\t<p class="${rawThemeId}-eyebrow">{event.thumbnail.eyebrow || 'Theme eyebrow'}</p>
 \t\t<h1 class="${rawThemeId}-title">{event.title}</h1>
 \t\t<p class="${rawThemeId}-meta">
-\t\t\t{event.thumbnail.variantLabel || 'Variant'} · {event.thumbnail.ctaText || 'Watch Now'}
+\t\t\t{event.thumbnail.ctaText || 'Watch Now'}
 \t\t</p>
 \t</div>
 </div>
@@ -121,14 +117,6 @@ export function build${themeName.replace(/\s+/g, '')}Defaults(
 \tborder-radius: 32px;
 \tbackground: rgba(15, 23, 42, 0.72);
 \tbackdrop-filter: blur(18px);
-}
-
-.${rawThemeId}-eyebrow {
-\tmargin: 0 0 16px;
-\tfont-size: 18px;
-\tletter-spacing: 0.14em;
-\ttext-transform: uppercase;
-\tcolor: rgba(255, 255, 255, 0.72);
 }
 
 .${rawThemeId}-title {

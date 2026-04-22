@@ -6,7 +6,7 @@ Static SvelteKit app for turning event JSON into editable 1280×720 video thumbn
 
 - Upload a raw event JSON file or load the included sample data
 - Normalize source event data into a thumbnail-friendly editing model
-- Edit title, eyebrow, background, event logo, CTA, producer credit, and people metadata
+- Edit title, background, event logo, CTA, producer credit, and people metadata
 - Preview the active thumbnail live before export
 - Save a new augmented JSON file with thumbnail settings preserved
 - Export one PNG/JPG at a time or package all PNG renders into a ZIP
@@ -76,9 +76,6 @@ The saved JSON is intended to stay theme-agnostic. It stores shared thumbnail da
       "moderators": [],
       "confirmed_speakers": [],
       "thumbnail": {
-        "templateId": "ai-collective-panel-default",
-        "variantLabel": "Panel Discussion",
-        "eyebrow": "Day 1 · The AI Collective",
         "eventLogoUrl": "/HumanX-white-logo-cropped.png",
         "backgroundImageUrl": "/default-thumbnail-bg.png",
         "producerCredit": "KROK PRODUCTIONS by Data Phoenix",
@@ -115,8 +112,6 @@ You will usually want to augment source events with thumbnail-specific values be
 
 - `backgroundImageUrl`
 - `eventLogoUrl`
-- `variantLabel`
-- `eyebrow`
 - `producerCredit`
 - `ctaText`
 - crop/position overrides for photos and logos
@@ -163,8 +158,7 @@ Each theme package owns:
 - The project JSON is theme-agnostic and should be treated as shared content/configuration, not as a theme-specific document format.
 - A theme decides which fields from `thumbnail` it uses, ignores, or renders differently.
 - The editor theme should remain stable while you move between slides; slide navigation should not unexpectedly swap themes.
-- The event JSON still stores `thumbnail.templateId` for backward compatibility with saved projects and imports.
-- Treat `thumbnail.templateId` as compatibility metadata, not as the source of truth for whether the underlying JSON is tied to a single theme forever.
+- The active theme is chosen in the studio UI rather than persisted in the JSON payload.
 
 ### Theme package rules
 

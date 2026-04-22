@@ -12,7 +12,6 @@
 	import sampleEvents from '../../default-list.json';
 	import { resolveRenderableImageUrl } from '$lib/image';
 	import {
-		applyThemeToThumbnail,
 		applyThemeToProject,
 		cloneProject,
 		createEmptyPerson,
@@ -42,7 +41,6 @@
 	type EditorSection = 'content' | 'style' | 'people';
 	type EditorSubsection =
 		| 'title'
-		| 'supporting'
 		| 'imagery'
 		| 'overlays'
 		| 'roster'
@@ -52,7 +50,7 @@
 	const sampleProject = normalizeProject(sampleEvents);
 	const initialSelectedEventId = `${sampleProject.events[0]?.id ?? ''}`;
 	const initialOpenPersonId = sampleProject.events[0]?.thumbnail.people[0]?.id ?? '';
-	const initialThemeId = sampleProject.events[0]?.thumbnail.templateId ?? thumbnailThemes[0]?.meta.id ?? '';
+	const initialThemeId = thumbnailThemes[0]?.meta.id ?? '';
 	const editorSections: Array<{ id: EditorSection; label: string }> = [
 		{ id: 'content', label: 'Content' },
 		{ id: 'style', label: 'Style' },
@@ -101,13 +99,7 @@
 
 	let activeEvent = $derived(getActiveEvent());
 	let activeEventIndex = $derived(getActiveEventIndex());
-	let activeTheme = $derived(
-		activeEvent?.thumbnail.templateId
-			? getThemeById(activeEvent.thumbnail.templateId)
-			: selectedThemeId
-				? getThemeById(selectedThemeId)
-				: null
-	);
+	let activeTheme = $derived(selectedThemeId ? getThemeById(selectedThemeId) : null);
 	let visibleEditorSections = $derived(
 		editorSections.filter((section) => {
 			if (!activeTheme) {
@@ -132,8 +124,8 @@
 	);
 	let visibleEditorSubsections = $derived(getEditorSubsections(openEditorSection));
 
-	function themeSupportsTextField(section: 'eventFields' | 'brandingFields', field: ThumbnailThemeTextField) {
-		return activeTheme?.editor[section].includes(field) ?? false;
+	function themeSupportsTextField(field: ThumbnailThemeTextField) {
+		return activeTheme?.editor.brandingFields.includes(field) ?? false;
 	}
 
 	function themeSupportsPersonField(field: ThumbnailThemePersonField) {
@@ -159,33 +151,22 @@
 		}
 
 		if (section === 'content') {
-			const subsections: Array<{ id: EditorSubsection; label: string }> = [
-				{ id: 'title', label: 'Title' }
-			];
-
-			if (
-				themeSupportsTextField('eventFields', 'variantLabel') ||
-				themeSupportsTextField('eventFields', 'eyebrow')
-			) {
-				subsections.push({ id: 'supporting', label: 'Supporting' });
-			}
-
-			return subsections;
+			return [{ id: 'title', label: 'Title' }];
 		}
 
 		if (section === 'style') {
 			const subsections: Array<{ id: EditorSubsection; label: string }> = [];
 
 			if (
-				themeSupportsTextField('brandingFields', 'backgroundImageUrl') ||
-				themeSupportsTextField('brandingFields', 'eventLogoUrl')
+				themeSupportsTextField('backgroundImageUrl') ||
+				themeSupportsTextField('eventLogoUrl')
 			) {
 				subsections.push({ id: 'imagery', label: 'Imagery' });
 			}
 
 			if (
-				themeSupportsTextField('brandingFields', 'producerCredit') ||
-				themeSupportsTextField('brandingFields', 'ctaText')
+				themeSupportsTextField('producerCredit') ||
+				themeSupportsTextField('ctaText')
 			) {
 				subsections.push({ id: 'overlays', label: 'Overlays' });
 			}
@@ -252,17 +233,6 @@
 
 	$effect(() => {
 		syncActiveSelections();
-	});
-
-	$effect(() => {
-		if (!activeEvent || !selectedThemeId || activeEvent.thumbnail.templateId === selectedThemeId) {
-			return;
-		}
-
-		updateEvent(`${activeEvent.id}`, (event) => ({
-			...event,
-			thumbnail: applyThemeToThumbnail(event, event.thumbnail, selectedThemeId)
-		}));
 	});
 
 	$effect(() => {
@@ -549,11 +519,11 @@
 	}
 
 	function getRenderableUrl(url: string) {
-		if (!activeEvent) {
+		if (!activeTheme) {
 			return url;
 		}
 
-		return resolveRenderableImageUrl(url, activeEvent.thumbnail.templateId);
+		return resolveRenderableImageUrl(url, activeTheme.meta.id);
 	}
 
 	function ensureUrlStatus(url: string) {
@@ -609,7 +579,7 @@
 			setProject(normalized);
 			projectName = file.name.replace(/\.json$/i, '') || 'ai-collective-events';
 			selectedEventId = `${normalized.events[0]?.id ?? ''}`;
-			selectedThemeId = normalized.events[0]?.thumbnail.templateId ?? thumbnailThemes[0]?.meta.id ?? '';
+			selectedThemeId = thumbnailThemes[0]?.meta.id ?? '';
 			openPersonId = normalized.events[0]?.thumbnail.people[0]?.id ?? '';
 			openEditorSection = 'content';
 			openEditorSubsection = 'title';
@@ -625,7 +595,7 @@
 		setProject(nextProject);
 		projectName = 'default-list';
 		selectedEventId = `${nextProject.events[0]?.id ?? ''}`;
-		selectedThemeId = nextProject.events[0]?.thumbnail.templateId ?? thumbnailThemes[0]?.meta.id ?? '';
+		selectedThemeId = thumbnailThemes[0]?.meta.id ?? '';
 		openPersonId = nextProject.events[0]?.thumbnail.people[0]?.id ?? '';
 		openEditorSection = 'content';
 		openEditorSubsection = 'title';
@@ -1065,55 +1035,23 @@
 							<div class="editor-section-head compact-section-head">
 								<div>
 									<p class="panel-label">Content</p>
-									<h3>{openEditorSubsection === 'supporting' ? 'Supporting text' : 'Primary title'}</h3>
+									<h3>Primary title</h3>
 								</div>
 							</div>
 
 							<div class="form-grid compact-form-grid">
-								{#if openEditorSubsection === 'title'}
-									<label class="field-block field-block-full">
-										<span>Event title</span>
-										<input
-											type="text"
-											value={activeEvent.title}
-											oninput={(inputEvent) =>
-												updateActiveEventField(
-													'title',
-													(inputEvent.currentTarget as HTMLInputElement).value
-												)}
-										/>
-									</label>
-								{:else}
-									{#if themeSupportsTextField('eventFields', 'variantLabel')}
-										<label class="field-block">
-											<span>Variant label</span>
-											<input
-												type="text"
-												value={activeEvent.thumbnail.variantLabel}
-												oninput={(inputEvent) =>
-													updateActiveThumbnailField(
-														'variantLabel',
-														(inputEvent.currentTarget as HTMLInputElement).value
-													)}
-											/>
-										</label>
-									{/if}
-
-									{#if themeSupportsTextField('eventFields', 'eyebrow')}
-										<label class="field-block">
-											<span>Eyebrow</span>
-											<input
-												type="text"
-												value={activeEvent.thumbnail.eyebrow}
-												oninput={(inputEvent) =>
-													updateActiveThumbnailField(
-														'eyebrow',
-														(inputEvent.currentTarget as HTMLInputElement).value
-													)}
-											/>
-										</label>
-									{/if}
-								{/if}
+								<label class="field-block field-block-full">
+									<span>Event title</span>
+									<input
+										type="text"
+										value={activeEvent.title}
+										oninput={(inputEvent) =>
+											updateActiveEventField(
+												'title',
+												(inputEvent.currentTarget as HTMLInputElement).value
+											)}
+									/>
+								</label>
 							</div>
 						</section>
 					{:else if openEditorSection === 'style'}
@@ -1127,7 +1065,7 @@
 
 							<div class="form-grid compact-form-grid">
 								{#if openEditorSubsection === 'imagery'}
-									{#if themeSupportsTextField('brandingFields', 'backgroundImageUrl')}
+									{#if themeSupportsTextField('backgroundImageUrl')}
 										<label class="field-block field-block-full">
 											<span>Background image URL</span>
 											<input
@@ -1143,7 +1081,7 @@
 										</label>
 									{/if}
 
-									{#if themeSupportsTextField('brandingFields', 'eventLogoUrl')}
+									{#if themeSupportsTextField('eventLogoUrl')}
 										<label class="field-block field-block-full">
 											<span>Event logo URL</span>
 											<input
@@ -1159,7 +1097,7 @@
 										</label>
 									{/if}
 								{:else}
-									{#if themeSupportsTextField('brandingFields', 'producerCredit')}
+									{#if themeSupportsTextField('producerCredit')}
 										<label class="field-block">
 											<span>Producer credit</span>
 											<input
@@ -1174,7 +1112,7 @@
 										</label>
 									{/if}
 
-									{#if themeSupportsTextField('brandingFields', 'ctaText')}
+									{#if themeSupportsTextField('ctaText')}
 										<label class="field-block">
 											<span>CTA text</span>
 											<input

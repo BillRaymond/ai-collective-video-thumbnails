@@ -57,10 +57,8 @@ function createPersonId(eventId: EventSource['id'], role: string, index: number)
 	return `${eventId}-${role.toLowerCase()}-${index + 1}`;
 }
 
-function buildBaseThumbnailDefaults(): Omit<ThumbnailConfig, 'templateId' | 'people'> {
+function buildBaseThumbnailDefaults(): Omit<ThumbnailConfig, 'people'> {
 	return {
-		variantLabel: '',
-		eyebrow: '',
 		eventLogoUrl: '',
 		backgroundImageUrl: '',
 		producerCredit: '',
@@ -75,8 +73,6 @@ function buildThemeBackedThumbnailDefaults(event: EventSource, themeId: string) 
 
 	return {
 		themeId: theme?.meta.id ?? DEFAULT_THEME_ID,
-		variantLabel: withFallback(themeDefaults.variantLabel, baseDefaults.variantLabel),
-		eyebrow: withFallback(themeDefaults.eyebrow, baseDefaults.eyebrow),
 		eventLogoUrl: resolveLegacyAssetUrl(
 			withFallback(themeDefaults.eventLogoUrl, baseDefaults.eventLogoUrl)
 		),
@@ -172,8 +168,7 @@ function backfillDerivedPersonFields(event: EventSource, people: ThumbnailPerson
 
 function normalizeThumbnail(event: EventSource, thumbnailValue: unknown): ThumbnailConfig {
 	const safeThumbnail = isObject(thumbnailValue) ? thumbnailValue : {};
-	const requestedThemeId = asString(safeThumbnail.templateId, DEFAULT_THEME_ID);
-	const themeDefaults = buildThemeBackedThumbnailDefaults(event, requestedThemeId);
+	const themeDefaults = buildThemeBackedThumbnailDefaults(event, DEFAULT_THEME_ID);
 	const normalizedPeople = Array.isArray(safeThumbnail.people)
 		? backfillDerivedPersonFields(
 				event,
@@ -182,9 +177,6 @@ function normalizeThumbnail(event: EventSource, thumbnailValue: unknown): Thumbn
 		: (themeDefaults.people ?? buildPeopleFromSource(event));
 
 	return {
-		templateId: themeDefaults.themeId,
-		variantLabel: withFallback(asOptionalString(safeThumbnail.variantLabel), themeDefaults.variantLabel),
-		eyebrow: withFallback(asOptionalString(safeThumbnail.eyebrow), themeDefaults.eyebrow),
 		eventLogoUrl: resolveLegacyAssetUrl(
 			withFallback(asOptionalString(safeThumbnail.eventLogoUrl), themeDefaults.eventLogoUrl)
 		),
@@ -248,9 +240,6 @@ export function applyThemeToThumbnail(event: EventSource, thumbnail: ThumbnailCo
 
 	return {
 		...thumbnail,
-		templateId: themeDefaults.themeId,
-		variantLabel: withFallback(thumbnail.variantLabel, themeDefaults.variantLabel),
-		eyebrow: withFallback(thumbnail.eyebrow, themeDefaults.eyebrow),
 		eventLogoUrl: resolveLegacyAssetUrl(withFallback(thumbnail.eventLogoUrl, themeDefaults.eventLogoUrl)),
 		backgroundImageUrl: resolveLegacyAssetUrl(
 			withFallback(thumbnail.backgroundImageUrl, themeDefaults.backgroundImageUrl)

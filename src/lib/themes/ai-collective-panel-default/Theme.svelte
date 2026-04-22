@@ -6,6 +6,8 @@
 	import type { ThumbnailEvent, ThumbnailPerson } from '$lib/types';
 
 	const THEME_ID = 'ai-collective-panel-default';
+	const DEFAULT_VARIANT_LABEL = 'Panel Discussion';
+	const DEFAULT_EYEBROW_SUFFIX = 'The AI Collective';
 
 	const TITLE_MAX_FONT_SIZE = 84;
 	const TITLE_MIN_FONT_SIZE = 24;
@@ -123,6 +125,14 @@
 		};
 	}
 
+	function getEyebrow(day: ThumbnailEvent['day']) {
+		if (day !== undefined && day !== null && `${day}`.trim() !== '') {
+			return `Day ${day} · ${DEFAULT_EYEBROW_SUFFIX}`;
+		}
+
+		return DEFAULT_EYEBROW_SUFFIX;
+	}
+
 	function applyTitleSize(size: number) {
 		titleElement?.style.setProperty('--thumbnail-title-size', `${size}px`);
 	}
@@ -227,13 +237,13 @@
 			</div>
 			<div class="badge-pill">
 				<div class="badge-pill-dot"></div>
-				<span>{event.thumbnail.variantLabel}</span>
+				<span>{DEFAULT_VARIANT_LABEL}</span>
 			</div>
 		</div>
 
 			<div class="thumbnail-main">
 			<div class="title-column">
-				<p class="thumbnail-eyebrow">{event.thumbnail.eyebrow}</p>
+				<p class="thumbnail-eyebrow">{getEyebrow(event.day)}</p>
 				<div class="thumbnail-title-box" bind:this={titleBox}>
 					<h1 class="thumbnail-title" bind:this={titleElement}>
 						{titleParts.prefix}

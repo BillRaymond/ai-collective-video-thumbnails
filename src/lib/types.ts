@@ -3,8 +3,6 @@ import type { Component } from 'svelte';
 export type ImageStatus = 'idle' | 'loading' | 'valid' | 'failed';
 export type ExportFormat = 'png' | 'jpg';
 export type ThumbnailThemeTextField =
-	| 'variantLabel'
-	| 'eyebrow'
 	| 'backgroundImageUrl'
 	| 'eventLogoUrl'
 	| 'producerCredit'
@@ -46,9 +44,6 @@ export interface ThumbnailPerson {
 }
 
 export interface ThumbnailConfig {
-	templateId: string;
-	variantLabel: string;
-	eyebrow: string;
 	eventLogoUrl: string;
 	backgroundImageUrl: string;
 	producerCredit: string;
@@ -79,7 +74,6 @@ export interface ThumbnailThemeMeta {
 }
 
 export interface ThumbnailThemeEditorCapabilities {
-	eventFields: ThumbnailThemeTextField[];
 	brandingFields: ThumbnailThemeTextField[];
 	personFields: ThumbnailThemePersonField[];
 }
@@ -91,7 +85,7 @@ export interface ThumbnailThemeAssets {
 export interface ThumbnailThemeDefinition {
 	meta: ThumbnailThemeMeta;
 	component: Component<ThumbnailThemeProps>;
-	defaults: (event: EventSource) => Partial<Omit<ThumbnailConfig, 'templateId'>>;
+	defaults: (event: EventSource) => Partial<ThumbnailConfig>;
 	editor: ThumbnailThemeEditorCapabilities;
 	assets?: ThumbnailThemeAssets;
 	legacyAssetUrls?: Record<string, string>;

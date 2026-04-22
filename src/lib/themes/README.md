@@ -11,7 +11,6 @@ Each theme lives in its own folder:
 Notes:
 
 - Theme IDs must be kebab-case.
-- `thumbnail.templateId` remains the persisted selector field in saved JSON.
 - Keep app shell styles in `src/routes/layout.css`.
 - Keep thumbnail render styles and theme assets inside the package.
 - Use `npm run theme:new -- <theme-id>` to scaffold a new package.

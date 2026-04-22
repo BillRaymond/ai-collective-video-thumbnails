@@ -59,13 +59,9 @@
       }
     ],
     "thumbnail": {
-      "templateId": "data-phoenix-neon-panel",
-      "variantLabel": "Signal Session",
-      "eyebrow": "Day 1 · Data Phoenix",
       "eventLogoUrl": "",
       "backgroundImageUrl": "/data-phoenix-background.png",
-      "producerCredit": "KROK PRODUCTIONS x Data Phoenix",
-      "ctaText": "Watch Signal Replay"
+      "producerCredit": "KROK PRODUCTIONS x Data Phoenix"
     }
   },
   {

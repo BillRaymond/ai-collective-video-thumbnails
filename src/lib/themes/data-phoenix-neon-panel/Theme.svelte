@@ -6,6 +6,7 @@
 	import type { ThumbnailEvent, ThumbnailPerson } from '$lib/types';
 
 	const THEME_ID = 'data-phoenix-neon-panel';
+	const SESSION_LABEL = 'Signal Session';
 
 	const TITLE_MAX_FONT_SIZE = 74;
 	const TITLE_MIN_FONT_SIZE = 28;
@@ -210,7 +211,7 @@
 		<div class="phoenix-lower">
 			<div class="phoenix-people-wrap">
 				<div class={`phoenix-people ${personCountClass(event.thumbnail.people)}`}>
-					<div class="phoenix-people-title">{event.thumbnail.variantLabel}</div>
+					<div class="phoenix-people-title">{SESSION_LABEL}</div>
 
 					<div class="phoenix-people-grid">
 						{#if event.thumbnail.people.length === 0}

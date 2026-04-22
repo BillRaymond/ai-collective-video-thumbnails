@@ -19,7 +19,6 @@ export const theme: ThumbnailThemeDefinition = {
 	component: Theme,
 	defaults: buildDataPhoenixDefaults,
 	editor: {
-		eventFields: ['variantLabel'],
 		brandingFields: ['eventLogoUrl', 'producerCredit', 'ctaText'],
 		personFields: ['role', 'name', 'company', 'photoUrl', 'photoPosition']
 	},
