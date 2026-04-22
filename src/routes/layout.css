@@ -507,16 +507,25 @@ button {
 }
 
 .workspace-top {
-	display: flex;
-	justify-content: space-between;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
 	gap: 1rem;
-	align-items: start;
+	align-items: center;
 	margin-bottom: 0.8rem;
+}
+
+.workspace-copy {
+	display: flex;
+	align-items: center;
+}
+
+.event-launcher-shell {
+	width: min(100%, 40rem);
 }
 
 .preview-toolbar {
 	display: flex;
-	align-items: flex-start;
+	align-items: center;
 	justify-content: flex-end;
 }
 

@@ -751,7 +751,6 @@
 		<section class="panel-surface preview-panel-large">
 			<div class="workspace-top">
 				<div class="workspace-copy">
-					<p class="workspace-kicker">Preview</p>
 					<div class="menu-shell event-launcher-shell">
 						<button
 							class="event-launcher"
