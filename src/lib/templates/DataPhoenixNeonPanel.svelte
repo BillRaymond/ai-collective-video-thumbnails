@@ -6,6 +6,7 @@
 	const TITLE_MIN_FONT_SIZE = 28;
 	const TITLE_FIT_HEIGHT_RATIO = 0.98;
 	const PHOENIX_BACKGROUND = '/data-phoenix-background.png';
+	const AI_COLLECTIVE_LOGO = '/AIC-Logo-White-cropped.png';
 
 	let { event }: { event: ThumbnailEvent } = $props();
 	let titleBox: HTMLDivElement | null = null;
@@ -213,12 +214,18 @@
 				</div>
 
 			<div class="phoenix-meta-row">
-				<div class="phoenix-footer-logo">
-					{#if hasImageUrl(event.thumbnail.eventLogoUrl)}
-						<img src={event.thumbnail.eventLogoUrl} alt="Event logo" crossorigin="anonymous" />
-					{:else}
-						<div class="phoenix-footer-mark">Add event logo</div>
-					{/if}
+				<div class="phoenix-footer-logo-lockup">
+					<div class="phoenix-footer-logo">
+						{#if hasImageUrl(event.thumbnail.eventLogoUrl)}
+							<img src={event.thumbnail.eventLogoUrl} alt="Event logo" crossorigin="anonymous" />
+						{:else}
+							<div class="phoenix-footer-mark">Add event logo</div>
+						{/if}
+					</div>
+
+					<div class="phoenix-footer-logo phoenix-footer-logo-secondary">
+						<img src={AI_COLLECTIVE_LOGO} alt="The AI Collective logo" crossorigin="anonymous" />
+					</div>
 				</div>
 
 				<div class="phoenix-credit-pill">
@@ -333,10 +340,25 @@
 		box-shadow: 0 16px 28px rgba(5, 2, 18, 0.3);
 	}
 
+	.phoenix-footer-logo-lockup {
+		display: inline-flex;
+		align-items: stretch;
+		gap: 10px;
+	}
+
 	.phoenix-footer-logo img {
+		width: auto;
 		max-width: 100%;
-		max-height: 30px;
+		height: 30px;
 		object-fit: contain;
+	}
+
+	.phoenix-footer-logo-secondary {
+		padding-inline: 18px;
+	}
+
+	.phoenix-footer-logo-secondary img {
+		max-width: 132px;
 	}
 
 	.phoenix-footer-mark {
