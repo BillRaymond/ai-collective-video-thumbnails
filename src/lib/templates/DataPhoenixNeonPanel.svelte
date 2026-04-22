@@ -154,17 +154,6 @@
 		</div>
 
 		<div class="phoenix-lower">
-			<div class="phoenix-footer-block phoenix-footer-partner">
-				<div class="phoenix-footer-label">Event partner</div>
-				<div class="phoenix-footer-logo">
-					{#if hasImageUrl(event.thumbnail.eventLogoUrl)}
-						<img src={event.thumbnail.eventLogoUrl} alt="Event logo" crossorigin="anonymous" />
-					{:else}
-						<div class="phoenix-footer-mark">Add event logo</div>
-					{/if}
-				</div>
-			</div>
-
 			<div class="phoenix-people-wrap">
 				<div class={`phoenix-people ${personCountClass(event.thumbnail.people)}`}>
 					<div class="phoenix-people-title">{event.thumbnail.variantLabel}</div>
@@ -194,23 +183,27 @@
 				</div>
 			</div>
 
-			<div class="phoenix-footer-block phoenix-footer-cta">
-				<div class="phoenix-footer-label">Watch now</div>
+			<div class="phoenix-meta-row">
+				<div class="phoenix-footer-logo">
+					{#if hasImageUrl(event.thumbnail.eventLogoUrl)}
+						<img src={event.thumbnail.eventLogoUrl} alt="Event logo" crossorigin="anonymous" />
+					{:else}
+						<div class="phoenix-footer-mark">Add event logo</div>
+					{/if}
+				</div>
+
+				<div class="phoenix-credit-pill">
+					<span class="phoenix-credit">{event.thumbnail.producerCredit}</span>
+				</div>
+
 				<div class="phoenix-cta">
 					<div class="phoenix-cta-icon">
 						<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
 							<path d="M4 2.5L13 8L4 13.5V2.5Z" fill="currentColor" />
 						</svg>
 					</div>
-					<span>{event.thumbnail.ctaText}</span>
+					<span class="phoenix-cta-text">{event.thumbnail.ctaText}</span>
 				</div>
-			</div>
-		</div>
-
-		<div class="phoenix-credit-bar">
-			<div class="phoenix-credit-pill">
-				<span class="phoenix-footer-label">Produced by</span>
-				<span class="phoenix-credit">{event.thumbnail.producerCredit}</span>
 			</div>
 		</div>
 	</div>
@@ -241,10 +234,9 @@
 	.phoenix-content {
 		position: absolute;
 		inset: 0;
-		padding: 34px 42px 28px;
+		padding: 24px 42px 34px;
 	}
 
-	.phoenix-footer-label,
 	.phoenix-role {
 		font-size: 11px;
 		font-weight: 700;
@@ -254,10 +246,10 @@
 
 	.phoenix-title-column {
 		position: absolute;
-		top: 4.5%;
-		left: 10%;
-		width: 80%;
-		height: 16%;
+		top: 24px;
+		left: 9.5%;
+		width: 81%;
+		height: 116px;
 	}
 
 	.phoenix-title-box {
@@ -292,44 +284,21 @@
 	.phoenix-lower {
 		position: absolute;
 		left: 0;
-		right: 0;
-		bottom: 26px;
-		min-height: 104px;
-	}
-
-	.phoenix-footer-block {
-		display: flex;
-		flex-direction: column;
-		gap: 10px;
-	}
-
-	.phoenix-footer-partner {
-		position: absolute;
-		left: 42px;
-		bottom: 0;
-		justify-content: flex-end;
-	}
-
-	.phoenix-footer-cta {
-		position: absolute;
-		right: 42px;
-		bottom: 0;
-		align-items: flex-end;
-		justify-content: flex-end;
-		text-align: right;
-	}
-
-	.phoenix-footer-label {
-		color: rgba(211, 240, 255, 0.68);
+		width: 100%;
+		bottom: 18px;
+		display: grid;
+		grid-template-rows: auto auto;
+		gap: 14px;
 	}
 
 	.phoenix-footer-logo {
-		display: flex;
+		display: inline-flex;
+		justify-content: center;
 		align-items: center;
-		min-height: 48px;
+		min-height: 52px;
 		padding: 14px 16px;
 		border-radius: 18px;
-		background: rgba(14, 10, 48, 0.82);
+		background: rgba(14, 10, 48, 0.5);
 		border: 1px solid rgba(123, 140, 255, 0.22);
 		backdrop-filter: blur(12px);
 		box-shadow: 0 16px 28px rgba(5, 2, 18, 0.3);
@@ -361,10 +330,8 @@
 	}
 
 	.phoenix-people-wrap {
-		position: absolute;
-		left: 10%;
-		bottom: 82px;
-		width: 80%;
+		width: 79.8%;
+		margin: 0 auto;
 	}
 
 	.phoenix-people-title {
@@ -487,26 +454,28 @@
 		font-size: 15px;
 	}
 
-	.phoenix-credit-bar {
-		position: absolute;
-		left: 50%;
-		width: 80%;
-		bottom: 0;
-		transform: translateX(-50%);
-		display: flex;
-		justify-content: center;
+	.phoenix-meta-row {
+		display: grid;
+		grid-template-columns: max-content 1fr max-content;
+		align-items: end;
+		width: calc(100% - 56px);
+		margin: 0 auto;
+		gap: 12px;
+		padding: 0;
 	}
 
 	.phoenix-credit-pill {
 		display: inline-flex;
 		align-items: center;
-		gap: 12px;
-		padding: 9px 14px;
-		border-radius: 999px;
-		background: rgba(14, 8, 38, 0.8);
+		justify-content: center;
+		justify-self: center;
+		padding: 14px 16px;
+		border-radius: 18px;
+		background: rgba(14, 8, 38, 0.5);
 		border: 1px solid rgba(131, 170, 255, 0.2);
 		backdrop-filter: blur(10px);
 		box-shadow: 0 12px 24px rgba(6, 2, 18, 0.26);
+		text-align: center;
 	}
 
 	.phoenix-credit {
@@ -520,10 +489,14 @@
 	.phoenix-cta {
 		display: inline-flex;
 		align-items: center;
+		justify-content: flex-start;
+		justify-self: end;
 		gap: 12px;
-		padding: 10px 14px 10px 10px;
-		border-radius: 999px;
-		background: rgba(9, 16, 56, 0.84);
+		width: 156px;
+		min-height: 58px;
+		padding: 10px 16px 10px 10px;
+		border-radius: 18px;
+		background: rgba(9, 16, 56, 0.5);
 		border: 1px solid rgba(106, 238, 255, 0.38);
 		backdrop-filter: blur(10px);
 		box-shadow: 0 14px 26px rgba(6, 3, 18, 0.28);
@@ -537,5 +510,14 @@
 		border-radius: 50%;
 		background: linear-gradient(145deg, #70f0ff, #d66eff);
 		color: #130327;
+	}
+
+	.phoenix-cta-text {
+		display: block;
+		max-width: 78px;
+		font-size: 18px;
+		line-height: 1.06;
+		font-weight: 500;
+		white-space: normal;
 	}
 </style>
