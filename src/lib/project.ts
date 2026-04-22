@@ -1,18 +1,26 @@
-import type { EventPersonSource, EventSource, ThumbnailEvent, ThumbnailPerson, ThumbnailProject } from './types';
+import { DEFAULT_THEME_ID, getThemeById, getThemeLegacyAssetUrlMap } from '$lib/themes';
+import type { EventPersonSource, EventSource, ThumbnailConfig, ThumbnailEvent, ThumbnailPerson, ThumbnailProject } from './types';
 
-export const DEFAULT_TEMPLATE_ID = 'ai-collective-panel-default';
-export const DEFAULT_EVENT_LOGO_URL = '/HumanX-white-logo-cropped.png';
-export const DEFAULT_BACKGROUND_URL = '/default-thumbnail-bg.png';
-export const DEFAULT_PRODUCER_CREDIT = 'KROK PRODUCTIONS by Data Phoenix';
-export const DEFAULT_CTA_TEXT = 'Watch Now';
-export const DEFAULT_VARIANT_LABEL = 'Panel Discussion';
-export const DEFAULT_EYEBROW_SUFFIX = 'The AI Collective';
+const LEGACY_ASSET_URLS = getThemeLegacyAssetUrlMap();
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
 	typeof value === 'object' && value !== null;
 
 function asString(value: unknown, fallback = '') {
 	return typeof value === 'string' ? value : fallback;
+}
+
+function asOptionalString(value: unknown) {
+	return typeof value === 'string' ? value : undefined;
+}
+
+function withFallback(value: unknown, fallback = '') {
+	const normalized = typeof value === 'string' ? value.trim() : '';
+	return normalized ? asString(value) : fallback;
+}
+
+function resolveLegacyAssetUrl(value: string) {
+	return LEGACY_ASSET_URLS[value] ?? value;
 }
 
 function asPeople(value: unknown): EventPersonSource[] {
@@ -45,16 +53,39 @@ function normalizeEventSource(value: unknown): EventSource {
 	};
 }
 
-function buildDefaultEyebrow(event: EventSource) {
-	if (event.day !== undefined && event.day !== null && event.day !== '') {
-		return `Day ${event.day} · ${DEFAULT_EYEBROW_SUFFIX}`;
-	}
-
-	return DEFAULT_EYEBROW_SUFFIX;
-}
-
 function createPersonId(eventId: EventSource['id'], role: string, index: number) {
 	return `${eventId}-${role.toLowerCase()}-${index + 1}`;
+}
+
+function buildBaseThumbnailDefaults(): Omit<ThumbnailConfig, 'templateId' | 'people'> {
+	return {
+		variantLabel: '',
+		eyebrow: '',
+		eventLogoUrl: '',
+		backgroundImageUrl: '',
+		producerCredit: '',
+		ctaText: ''
+	};
+}
+
+function buildThemeBackedThumbnailDefaults(event: EventSource, themeId: string) {
+	const theme = getThemeById(themeId);
+	const baseDefaults = buildBaseThumbnailDefaults();
+	const themeDefaults = theme?.defaults(event) ?? {};
+
+	return {
+		themeId: theme?.meta.id ?? DEFAULT_THEME_ID,
+		variantLabel: withFallback(themeDefaults.variantLabel, baseDefaults.variantLabel),
+		eyebrow: withFallback(themeDefaults.eyebrow, baseDefaults.eyebrow),
+		eventLogoUrl: resolveLegacyAssetUrl(
+			withFallback(themeDefaults.eventLogoUrl, baseDefaults.eventLogoUrl)
+		),
+		backgroundImageUrl: resolveLegacyAssetUrl(
+			withFallback(themeDefaults.backgroundImageUrl, baseDefaults.backgroundImageUrl)
+		),
+		producerCredit: withFallback(themeDefaults.producerCredit, baseDefaults.producerCredit),
+		ctaText: withFallback(themeDefaults.ctaText, baseDefaults.ctaText)
+	};
 }
 
 export function buildPeopleFromSource(event: EventSource): ThumbnailPerson[] {
@@ -103,17 +134,26 @@ function normalizePerson(eventId: EventSource['id'], value: unknown, index: numb
 	};
 }
 
-function normalizeThumbnail(event: EventSource, thumbnailValue: unknown) {
+function normalizeThumbnail(event: EventSource, thumbnailValue: unknown): ThumbnailConfig {
 	const safeThumbnail = isObject(thumbnailValue) ? thumbnailValue : {};
+	const requestedThemeId = asString(safeThumbnail.templateId, DEFAULT_THEME_ID);
+	const themeDefaults = buildThemeBackedThumbnailDefaults(event, requestedThemeId);
 
 	return {
-		templateId: asString(safeThumbnail.templateId, DEFAULT_TEMPLATE_ID),
-		variantLabel: asString(safeThumbnail.variantLabel, DEFAULT_VARIANT_LABEL),
-		eyebrow: asString(safeThumbnail.eyebrow, buildDefaultEyebrow(event)),
-		eventLogoUrl: asString(safeThumbnail.eventLogoUrl, DEFAULT_EVENT_LOGO_URL),
-		backgroundImageUrl: asString(safeThumbnail.backgroundImageUrl, DEFAULT_BACKGROUND_URL),
-		producerCredit: asString(safeThumbnail.producerCredit, DEFAULT_PRODUCER_CREDIT),
-		ctaText: asString(safeThumbnail.ctaText, DEFAULT_CTA_TEXT),
+		templateId: themeDefaults.themeId,
+		variantLabel: withFallback(asOptionalString(safeThumbnail.variantLabel), themeDefaults.variantLabel),
+		eyebrow: withFallback(asOptionalString(safeThumbnail.eyebrow), themeDefaults.eyebrow),
+		eventLogoUrl: resolveLegacyAssetUrl(
+			withFallback(asOptionalString(safeThumbnail.eventLogoUrl), themeDefaults.eventLogoUrl)
+		),
+		backgroundImageUrl: resolveLegacyAssetUrl(
+			withFallback(asOptionalString(safeThumbnail.backgroundImageUrl), themeDefaults.backgroundImageUrl)
+		),
+		producerCredit: withFallback(
+			asOptionalString(safeThumbnail.producerCredit),
+			themeDefaults.producerCredit
+		),
+		ctaText: withFallback(asOptionalString(safeThumbnail.ctaText), themeDefaults.ctaText),
 		people: Array.isArray(safeThumbnail.people)
 			? safeThumbnail.people.map((person, index) => normalizePerson(event.id, person, index))
 			: buildPeopleFromSource(event)
@@ -161,6 +201,33 @@ export function normalizeProject(value: unknown): ThumbnailProject {
 
 export function cloneProject(project: ThumbnailProject): ThumbnailProject {
 	return JSON.parse(JSON.stringify(project)) as ThumbnailProject;
+}
+
+export function applyThemeToThumbnail(event: EventSource, thumbnail: ThumbnailConfig, nextThemeId: string) {
+	const themeDefaults = buildThemeBackedThumbnailDefaults(event, nextThemeId);
+
+	return {
+		...thumbnail,
+		templateId: themeDefaults.themeId,
+		variantLabel: withFallback(thumbnail.variantLabel, themeDefaults.variantLabel),
+		eyebrow: withFallback(thumbnail.eyebrow, themeDefaults.eyebrow),
+		eventLogoUrl: resolveLegacyAssetUrl(withFallback(thumbnail.eventLogoUrl, themeDefaults.eventLogoUrl)),
+		backgroundImageUrl: resolveLegacyAssetUrl(
+			withFallback(thumbnail.backgroundImageUrl, themeDefaults.backgroundImageUrl)
+		),
+		producerCredit: withFallback(thumbnail.producerCredit, themeDefaults.producerCredit),
+		ctaText: withFallback(thumbnail.ctaText, themeDefaults.ctaText)
+	} satisfies ThumbnailConfig;
+}
+
+export function applyThemeToProject(project: ThumbnailProject, nextThemeId: string): ThumbnailProject {
+	return {
+		...project,
+		events: project.events.map((event) => ({
+			...event,
+			thumbnail: applyThemeToThumbnail(event, event.thumbnail, nextThemeId)
+		}))
+	};
 }
 
 export function createEmptyPerson(eventId: EventSource['id'], peopleCount: number): ThumbnailPerson {

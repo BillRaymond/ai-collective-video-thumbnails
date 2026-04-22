@@ -10,8 +10,14 @@
 	import { browser } from '$app/environment';
 	import { tick } from 'svelte';
 	import sampleEvents from '../../default-list.json';
-	import { cloneProject, createEmptyPerson, normalizeProject, projectToJson } from '$lib/project';
-	import { getTemplateById, thumbnailTemplates } from '$lib/templates';
+	import {
+		applyThemeToProject,
+		cloneProject,
+		createEmptyPerson,
+		normalizeProject,
+		projectToJson
+	} from '$lib/project';
+	import { getThemeById, thumbnailThemes } from '$lib/themes';
 	import {
 		buildThumbnailFilename,
 		downloadSingleThumbnail,
@@ -26,7 +32,9 @@
 		ImageStatus,
 		ThumbnailEvent,
 		ThumbnailPerson,
-		ThumbnailProject
+		ThumbnailProject,
+		ThumbnailThemePersonField,
+		ThumbnailThemeTextField
 	} from '$lib/types';
 
 	type EditorSection = 'event' | 'branding' | 'people';
@@ -34,8 +42,7 @@
 	const sampleProject = normalizeProject(sampleEvents);
 	const initialSelectedEventId = `${sampleProject.events[0]?.id ?? ''}`;
 	const initialOpenPersonId = sampleProject.events[0]?.thumbnail.people[0]?.id ?? '';
-	const initialTemplateId =
-		sampleProject.events[0]?.thumbnail.templateId ?? thumbnailTemplates[0]?.id ?? '';
+	const initialThemeId = sampleProject.events[0]?.thumbnail.templateId ?? thumbnailThemes[0]?.meta.id ?? '';
 	const editorSections: Array<{ id: EditorSection; label: string }> = [
 		{ id: 'event', label: 'Event' },
 		{ id: 'branding', label: 'Branding' },
@@ -51,7 +58,7 @@
 
 	let project = $state<ThumbnailProject>(cloneProject(sampleProject));
 	let selectedEventId = $state<string>(initialSelectedEventId);
-	let selectedTemplateId = $state<string>(initialTemplateId);
+	let selectedThemeId = $state<string>(initialThemeId);
 	let projectName = $state('ai-collective-events');
 	let openEditorSection = $state<EditorSection>('event');
 	let openPersonId = $state<string>(initialOpenPersonId);
@@ -81,12 +88,43 @@
 
 	let activeEvent = $derived(getActiveEvent());
 	let activeEventIndex = $derived(getActiveEventIndex());
-	let activeTemplate = $derived(selectedTemplateId ? getTemplateById(selectedTemplateId) : null);
+	let activeTheme = $derived(
+		activeEvent?.thumbnail.templateId
+			? getThemeById(activeEvent.thumbnail.templateId)
+			: selectedThemeId
+				? getThemeById(selectedThemeId)
+				: null
+	);
+	let visibleEditorSections = $derived(
+		editorSections.filter((section) => {
+			if (!activeTheme) {
+				return true;
+			}
+
+			if (section.id === 'event') {
+				return true;
+			}
+
+			if (section.id === 'branding') {
+				return activeTheme.editor.brandingFields.length > 0;
+			}
+
+			return activeTheme.editor.personFields.length > 0;
+		})
+	);
 	let activePerson = $derived(
 		activeEvent?.thumbnail.people.find((person) => person.id === openPersonId) ??
 			activeEvent?.thumbnail.people[0] ??
 			null
 	);
+
+	function themeSupportsTextField(section: 'eventFields' | 'brandingFields', field: ThumbnailThemeTextField) {
+		return activeTheme?.editor[section].includes(field) ?? false;
+	}
+
+	function themeSupportsPersonField(field: ThumbnailThemePersonField) {
+		return activeTheme?.editor.personFields.includes(field) ?? false;
+	}
 
 	function setPreviewImageUrl(nextUrl: string) {
 		if (previewImageUrl.startsWith('blob:') && previewImageUrl !== nextUrl) {
@@ -109,14 +147,20 @@
 	function syncActiveSelections() {
 		if (!activeEvent) {
 			selectedEventId = '';
+			selectedThemeId = '';
 			openPersonId = '';
 			return;
 		}
 
 		selectedEventId = `${activeEvent.id}`;
+		selectedThemeId = activeEvent.thumbnail.templateId;
 
 		if (!activeEvent.thumbnail.people.some((person) => person.id === openPersonId)) {
 			openPersonId = activeEvent.thumbnail.people[0]?.id ?? '';
+		}
+
+		if (!visibleEditorSections.some((section) => section.id === openEditorSection)) {
+			openEditorSection = visibleEditorSections[0]?.id ?? 'event';
 		}
 	}
 
@@ -192,18 +236,9 @@
 		});
 	}
 
-	function updateProjectTemplate(templateId: string) {
-		selectedTemplateId = templateId;
-		setProject({
-			...project,
-			events: project.events.map((event) => ({
-				...event,
-				thumbnail: {
-					...event.thumbnail,
-					templateId
-				}
-			}))
-		});
+	function updateProjectTheme(themeId: string) {
+		selectedThemeId = themeId;
+		setProject(applyThemeToProject(project, themeId));
 	}
 
 	function updateAllPeople(
@@ -461,8 +496,7 @@
 			setProject(normalized);
 			projectName = file.name.replace(/\.json$/i, '') || 'ai-collective-events';
 			selectedEventId = `${normalized.events[0]?.id ?? ''}`;
-			selectedTemplateId =
-				normalized.events[0]?.thumbnail.templateId ?? thumbnailTemplates[0]?.id ?? '';
+			selectedThemeId = normalized.events[0]?.thumbnail.templateId ?? thumbnailThemes[0]?.meta.id ?? '';
 			openPersonId = normalized.events[0]?.thumbnail.people[0]?.id ?? '';
 			openEditorSection = 'event';
 		} catch (error) {
@@ -477,8 +511,7 @@
 		setProject(nextProject);
 		projectName = 'default-list';
 		selectedEventId = `${nextProject.events[0]?.id ?? ''}`;
-		selectedTemplateId =
-			nextProject.events[0]?.thumbnail.templateId ?? thumbnailTemplates[0]?.id ?? '';
+		selectedThemeId = nextProject.events[0]?.thumbnail.templateId ?? thumbnailThemes[0]?.meta.id ?? '';
 		openPersonId = nextProject.events[0]?.thumbnail.people[0]?.id ?? '';
 		openEditorSection = 'event';
 	}
@@ -622,14 +655,14 @@
 
 				<div class="editor-actions">
 					<label class="toolbar-field">
-						<span>Template</span>
+						<span>Theme</span>
 						<select
-							value={selectedTemplateId}
+							value={selectedThemeId}
 							onchange={(changeEvent) =>
-								updateProjectTemplate((changeEvent.currentTarget as HTMLSelectElement).value)}
+								updateProjectTheme((changeEvent.currentTarget as HTMLSelectElement).value)}
 						>
-							{#each thumbnailTemplates as template}
-								<option value={template.id}>{template.name}</option>
+							{#each thumbnailThemes as theme}
+								<option value={theme.meta.id}>{theme.meta.name}</option>
 							{/each}
 						</select>
 					</label>
@@ -727,7 +760,7 @@
 				</div>
 
 				<div class="section-tabs" role="tablist" aria-label="Editor sections">
-					{#each editorSections as section}
+					{#each visibleEditorSections as section}
 						<button
 							type="button"
 							class:active={openEditorSection === section.id}
@@ -746,14 +779,17 @@
 				<div>
 					<p class="panel-label">Current Event</p>
 					<h2>{activeEvent?.title ?? 'Select an event'}</h2>
+					{#if activeTheme}
+						<p class="panel-caption">{activeTheme.meta.description}</p>
+					{/if}
 				</div>
 				<div class="event-summary-meta">
 					<span>#{activeEvent?.id ?? '–'}</span>
 					{#if activeEvent?.day !== undefined && activeEvent?.day !== null && `${activeEvent.day}`.trim() !== ''}
 						<span>Day {activeEvent.day}</span>
 					{/if}
-					{#if activeTemplate}
-						<span>{activeTemplate.name}</span>
+					{#if activeTheme}
+						<span>{activeTheme.meta.name}</span>
 					{/if}
 					{#if activeEvent}
 						<span>{activeEvent.thumbnail.people.length} people</span>
@@ -786,31 +822,35 @@
 									/>
 								</label>
 
-								<label class="field-block">
-									<span>Variant label</span>
-									<input
-										type="text"
-										value={activeEvent.thumbnail.variantLabel}
-										oninput={(inputEvent) =>
-											updateActiveThumbnailField(
-												'variantLabel',
-												(inputEvent.currentTarget as HTMLInputElement).value
-											)}
-									/>
-								</label>
+								{#if themeSupportsTextField('eventFields', 'variantLabel')}
+									<label class="field-block">
+										<span>Variant label</span>
+										<input
+											type="text"
+											value={activeEvent.thumbnail.variantLabel}
+											oninput={(inputEvent) =>
+												updateActiveThumbnailField(
+													'variantLabel',
+													(inputEvent.currentTarget as HTMLInputElement).value
+												)}
+										/>
+									</label>
+								{/if}
 
-								<label class="field-block">
-									<span>Eyebrow</span>
-									<input
-										type="text"
-										value={activeEvent.thumbnail.eyebrow}
-										oninput={(inputEvent) =>
-											updateActiveThumbnailField(
-												'eyebrow',
-												(inputEvent.currentTarget as HTMLInputElement).value
-											)}
-									/>
-								</label>
+								{#if themeSupportsTextField('eventFields', 'eyebrow')}
+									<label class="field-block">
+										<span>Eyebrow</span>
+										<input
+											type="text"
+											value={activeEvent.thumbnail.eyebrow}
+											oninput={(inputEvent) =>
+												updateActiveThumbnailField(
+													'eyebrow',
+													(inputEvent.currentTarget as HTMLInputElement).value
+												)}
+										/>
+									</label>
+								{/if}
 							</div>
 						</section>
 					{:else if openEditorSection === 'branding'}
@@ -823,59 +863,67 @@
 							</div>
 
 							<div class="form-grid compact-form-grid">
-								<label class="field-block field-block-full">
-									<span>Background image URL</span>
-									<input
-										type="url"
-										value={activeEvent.thumbnail.backgroundImageUrl}
-										oninput={(inputEvent) =>
-											updateActiveThumbnailField(
-												'backgroundImageUrl',
-												(inputEvent.currentTarget as HTMLInputElement).value
-											)}
-									/>
-									<small>{statusLabel[getUrlStatus(activeEvent.thumbnail.backgroundImageUrl)]}</small>
-								</label>
+								{#if themeSupportsTextField('brandingFields', 'backgroundImageUrl')}
+									<label class="field-block field-block-full">
+										<span>Background image URL</span>
+										<input
+											type="url"
+											value={activeEvent.thumbnail.backgroundImageUrl}
+											oninput={(inputEvent) =>
+												updateActiveThumbnailField(
+													'backgroundImageUrl',
+													(inputEvent.currentTarget as HTMLInputElement).value
+												)}
+										/>
+										<small>{statusLabel[getUrlStatus(activeEvent.thumbnail.backgroundImageUrl)]}</small>
+									</label>
+								{/if}
 
-								<label class="field-block field-block-full">
-									<span>Event logo URL</span>
-									<input
-										type="url"
-										value={activeEvent.thumbnail.eventLogoUrl}
-										oninput={(inputEvent) =>
-											updateActiveThumbnailField(
-												'eventLogoUrl',
-												(inputEvent.currentTarget as HTMLInputElement).value
-											)}
-									/>
-									<small>{statusLabel[getUrlStatus(activeEvent.thumbnail.eventLogoUrl)]}</small>
-								</label>
+								{#if themeSupportsTextField('brandingFields', 'eventLogoUrl')}
+									<label class="field-block field-block-full">
+										<span>Event logo URL</span>
+										<input
+											type="url"
+											value={activeEvent.thumbnail.eventLogoUrl}
+											oninput={(inputEvent) =>
+												updateActiveThumbnailField(
+													'eventLogoUrl',
+													(inputEvent.currentTarget as HTMLInputElement).value
+												)}
+										/>
+										<small>{statusLabel[getUrlStatus(activeEvent.thumbnail.eventLogoUrl)]}</small>
+									</label>
+								{/if}
 
-								<label class="field-block">
-									<span>Producer credit</span>
-									<input
-										type="text"
-										value={activeEvent.thumbnail.producerCredit}
-										oninput={(inputEvent) =>
-											updateActiveThumbnailField(
-												'producerCredit',
-												(inputEvent.currentTarget as HTMLInputElement).value
-											)}
-									/>
-								</label>
+								{#if themeSupportsTextField('brandingFields', 'producerCredit')}
+									<label class="field-block">
+										<span>Producer credit</span>
+										<input
+											type="text"
+											value={activeEvent.thumbnail.producerCredit}
+											oninput={(inputEvent) =>
+												updateActiveThumbnailField(
+													'producerCredit',
+													(inputEvent.currentTarget as HTMLInputElement).value
+												)}
+										/>
+									</label>
+								{/if}
 
-								<label class="field-block">
-									<span>CTA text</span>
-									<input
-										type="text"
-										value={activeEvent.thumbnail.ctaText}
-										oninput={(inputEvent) =>
-											updateActiveThumbnailField(
-												'ctaText',
-												(inputEvent.currentTarget as HTMLInputElement).value
-											)}
-									/>
-								</label>
+								{#if themeSupportsTextField('brandingFields', 'ctaText')}
+									<label class="field-block">
+										<span>CTA text</span>
+										<input
+											type="text"
+											value={activeEvent.thumbnail.ctaText}
+											oninput={(inputEvent) =>
+												updateActiveThumbnailField(
+													'ctaText',
+													(inputEvent.currentTarget as HTMLInputElement).value
+												)}
+										/>
+									</label>
+								{/if}
 							</div>
 						</section>
 					{:else}
@@ -925,125 +973,139 @@
 
 							{#if activePerson}
 								<div class="form-grid compact-form-grid">
-									<label class="field-block">
-										<span>Role</span>
-										<input
-											type="text"
-											value={activePerson.role}
-											oninput={(inputEvent) =>
-												updatePersonField(
-													activePerson.id,
-													'role',
-													(inputEvent.currentTarget as HTMLInputElement).value
-												)}
-										/>
-									</label>
+									{#if themeSupportsPersonField('role')}
+										<label class="field-block">
+											<span>Role</span>
+											<input
+												type="text"
+												value={activePerson.role}
+												oninput={(inputEvent) =>
+													updatePersonField(
+														activePerson.id,
+														'role',
+														(inputEvent.currentTarget as HTMLInputElement).value
+													)}
+											/>
+										</label>
+									{/if}
 
-									<label class="field-block">
-										<span>Name</span>
-										<input
-											type="text"
-											value={activePerson.name}
-											oninput={(inputEvent) =>
-												updatePersonField(
-													activePerson.id,
-													'name',
-													(inputEvent.currentTarget as HTMLInputElement).value
-												)}
-										/>
-									</label>
+									{#if themeSupportsPersonField('name')}
+										<label class="field-block">
+											<span>Name</span>
+											<input
+												type="text"
+												value={activePerson.name}
+												oninput={(inputEvent) =>
+													updatePersonField(
+														activePerson.id,
+														'name',
+														(inputEvent.currentTarget as HTMLInputElement).value
+													)}
+											/>
+										</label>
+									{/if}
 
-									<label class="field-block field-block-full">
-										<span>Company</span>
-										<input
-											type="text"
-											value={activePerson.company}
-											oninput={(inputEvent) =>
-												updatePersonField(
-													activePerson.id,
-													'company',
-													(inputEvent.currentTarget as HTMLInputElement).value
-												)}
-										/>
-									</label>
+									{#if themeSupportsPersonField('company')}
+										<label class="field-block field-block-full">
+											<span>Company</span>
+											<input
+												type="text"
+												value={activePerson.company}
+												oninput={(inputEvent) =>
+													updatePersonField(
+														activePerson.id,
+														'company',
+														(inputEvent.currentTarget as HTMLInputElement).value
+													)}
+											/>
+										</label>
+									{/if}
 
-									<label class="field-block field-block-full">
-										<span>Photo URL</span>
-										<input
-											type="url"
-											value={activePerson.photoUrl}
-											oninput={(inputEvent) =>
-												updatePersonField(
-													activePerson.id,
-													'photoUrl',
-													(inputEvent.currentTarget as HTMLInputElement).value
-												)}
-										/>
-										<small>{statusLabel[getUrlStatus(activePerson.photoUrl)]}</small>
-									</label>
+									{#if themeSupportsPersonField('photoUrl')}
+										<label class="field-block field-block-full">
+											<span>Photo URL</span>
+											<input
+												type="url"
+												value={activePerson.photoUrl}
+												oninput={(inputEvent) =>
+													updatePersonField(
+														activePerson.id,
+														'photoUrl',
+														(inputEvent.currentTarget as HTMLInputElement).value
+													)}
+											/>
+											<small>{statusLabel[getUrlStatus(activePerson.photoUrl)]}</small>
+										</label>
+									{/if}
 
-									<label class="field-block field-block-full">
-										<span>Company logo URL</span>
-										<input
-											type="url"
-											value={activePerson.companyLogoUrl}
-											oninput={(inputEvent) =>
-												updatePersonField(
-													activePerson.id,
-													'companyLogoUrl',
-													(inputEvent.currentTarget as HTMLInputElement).value
-												)}
-										/>
-										<small>{statusLabel[getUrlStatus(activePerson.companyLogoUrl)]}</small>
-									</label>
+									{#if themeSupportsPersonField('companyLogoUrl')}
+										<label class="field-block field-block-full">
+											<span>Company logo URL</span>
+											<input
+												type="url"
+												value={activePerson.companyLogoUrl}
+												oninput={(inputEvent) =>
+													updatePersonField(
+														activePerson.id,
+														'companyLogoUrl',
+														(inputEvent.currentTarget as HTMLInputElement).value
+													)}
+											/>
+											<small>{statusLabel[getUrlStatus(activePerson.companyLogoUrl)]}</small>
+										</label>
+									{/if}
 
-									<label class="field-block">
-										<span>Photo X</span>
-										<input
-											type="range"
-											min="0"
-											max="100"
-											value={activePerson.photoPositionX}
-											oninput={(inputEvent) =>
-												updatePersonField(
-													activePerson.id,
-													'photoPositionX',
-													Number((inputEvent.currentTarget as HTMLInputElement).value)
-												)}
-										/>
-									</label>
+									{#if themeSupportsPersonField('photoPosition')}
+										<label class="field-block">
+											<span>Photo X</span>
+											<input
+												type="range"
+												min="0"
+												max="100"
+												value={activePerson.photoPositionX}
+												oninput={(inputEvent) =>
+													updatePersonField(
+														activePerson.id,
+														'photoPositionX',
+														Number((inputEvent.currentTarget as HTMLInputElement).value)
+													)}
+											/>
+										</label>
 
-									<label class="field-block">
-										<span>Photo Y</span>
-										<input
-											type="range"
-											min="0"
-											max="100"
-											value={activePerson.photoPositionY}
-											oninput={(inputEvent) =>
-												updatePersonField(
-													activePerson.id,
-													'photoPositionY',
-													Number((inputEvent.currentTarget as HTMLInputElement).value)
-												)}
-										/>
-									</label>
+										<label class="field-block">
+											<span>Photo Y</span>
+											<input
+												type="range"
+												min="0"
+												max="100"
+												value={activePerson.photoPositionY}
+												oninput={(inputEvent) =>
+													updatePersonField(
+														activePerson.id,
+														'photoPositionY',
+														Number((inputEvent.currentTarget as HTMLInputElement).value)
+													)}
+											/>
+										</label>
+									{/if}
 
-									<label class="field-block field-block-full">
-										<span>Logo scale</span>
-										<input
-											type="range"
-											min="50"
-											max="150"
-											value={activePerson.logoScale}
-											oninput={(inputEvent) =>
-												updatePersonField(
-													activePerson.id,
-													'logoScale',
-													Number((inputEvent.currentTarget as HTMLInputElement).value)
-												)}
-										/>
-									</label>
+									{#if themeSupportsPersonField('logoScale')}
+										<label class="field-block field-block-full">
+											<span>Logo scale</span>
+											<input
+												type="range"
+												min="50"
+												max="150"
+												value={activePerson.logoScale}
+												oninput={(inputEvent) =>
+													updatePersonField(
+														activePerson.id,
+														'logoScale',
+														Number((inputEvent.currentTarget as HTMLInputElement).value)
+													)}
+											/>
+										</label>
+									{/if}
 								</div>
 							{:else}
 								<div class="editor-empty-state">
@@ -1081,7 +1143,7 @@
 			</div>
 
 			<div class="preview-stage preview-stage-large" bind:this={previewViewport}>
-				{#if activeEvent && activeTemplate}
+				{#if activeEvent && activeTheme}
 					<button
 						type="button"
 						class="preview-click-target"
@@ -1093,7 +1155,7 @@
 								class="thumbnail-export-root"
 								style={`transform: scale(${previewScale}); transform-origin: top left;`}
 							>
-								<activeTemplate.component event={activeEvent} />
+								<activeTheme.component event={activeEvent} />
 							</div>
 						</div>
 						<span class="preview-click-hint">Open rendered image</span>
@@ -1117,10 +1179,10 @@
 	</main>
 </div>
 
-{#if activeEvent && activeTemplate}
+{#if activeEvent && activeTheme}
 	<div class="offscreen-render-shell" aria-hidden="true">
 		<div class="thumbnail-export-root" bind:this={exportRenderNode}>
-			<activeTemplate.component event={activeEvent} />
+			<activeTheme.component event={activeEvent} />
 		</div>
 	</div>
 {/if}

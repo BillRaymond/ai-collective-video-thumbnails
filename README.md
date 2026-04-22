@@ -1,6 +1,6 @@
 # AI Collective Thumbnail Studio
 
-Static SvelteKit app for turning event JSON into editable 1280×720 video thumbnails. The studio starts from the AI Collective default panel template, lets you review and adjust people/logo/image metadata, and exports PNG or JPG files directly in the browser.
+Static SvelteKit app for turning event JSON into editable 1280×720 video thumbnails. The studio supports packaged thumbnail themes, lets you review and adjust people/logo/image metadata, and exports PNG or JPG files directly in the browser.
 
 ## What It Does
 
@@ -17,6 +17,7 @@ Static SvelteKit app for turning event JSON into editable 1280×720 video thumbn
 npm run dev
 npm run check
 npm run build
+npm run theme:new -- my-new-theme
 ```
 
 ## Accepted Input Shape
@@ -138,29 +139,52 @@ The app is intentionally browser-only so it stays GitHub Pages friendly. That me
 - If that happens, replace the URL with a CORS-friendly source or host the image locally.
 - The preview status indicator only checks whether the image can load in the browser, not whether the remote host allows canvas export.
 
-## Template System
+## Theme System
 
-V1 ships one template:
+Themes now live under `src/lib/themes/<theme-id>/` and are auto-discovered with `import.meta.glob`.
+
+The app currently ships:
 
 - `ai-collective-panel-default`
+- `data-phoenix-neon-panel`
 
-Templates are registry-based so more layouts can be added later. Each template definition needs:
+Each theme package owns:
 
-- `id`
-- `name`
-- `description`
-- Svelte preview component
+- `index.ts` with `meta`, `component`, `defaults`, `editor`, and optional `assets`
+- `Theme.svelte` for the renderable thumbnail
+- `theme.css` for theme-local styles when needed
+- `assets/` for theme-specific fonts and imagery
+- `defaults.ts` for theme-aware fallback values
 
-The event JSON stores `thumbnail.templateId`, so a single project can support multiple templates over time without changing the top-level project shape.
+The event JSON still stores `thumbnail.templateId` for backward compatibility. Internally, that value is treated as the selected theme ID.
+
+### Theme package rules
+
+- Keep app/editor shell styles in `src/routes/layout.css`
+- Keep thumbnail render styles inside the theme package
+- Put theme-only assets in the theme's `assets/` folder and import them through Vite
+- Use the `editor` capability metadata to declare which event, branding, and people controls the theme actually uses
+
+### Scaffolding a new theme
+
+Run:
+
+```sh
+npm run theme:new -- my-new-theme
+```
+
+This creates:
+
+- `src/lib/themes/my-new-theme/index.ts`
+- `src/lib/themes/my-new-theme/defaults.ts`
+- `src/lib/themes/my-new-theme/Theme.svelte`
+- `src/lib/themes/my-new-theme/theme.css`
+- `src/lib/themes/my-new-theme/assets/.gitkeep`
+
+Theme IDs should be kebab-case. New theme folders are picked up automatically without editing a central registry file.
 
 ## Design-System Assets Brought In From The ZIP
 
-Only the curated subset needed for the studio was copied into `static/`:
+Theme-owned fonts and imagery now live alongside each theme package in `src/lib/themes/*/assets/`.
 
-- `Wordmark-White.png`
-- `AIC-Logo-White-cropped.png`
-- `HumanX-white-logo-cropped.png`
-- `default-thumbnail-bg.png`
-- `Georgia-Bold.ttf`
-
-The rest of the ZIP remains external to the repo.
+Legacy asset paths in older saved JSON are still mapped at import time so previously exported projects continue to load correctly.

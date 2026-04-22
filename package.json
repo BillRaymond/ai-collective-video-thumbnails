@@ -9,6 +9,7 @@
 		"preview": "vite preview",
 		"docker:dev:build": "sh ./scripts/docker-dev-build.sh",
 		"docker:dev:run": "sh ./scripts/docker-dev-run.sh",
+		"theme:new": "node ./scripts/create-theme.mjs",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"

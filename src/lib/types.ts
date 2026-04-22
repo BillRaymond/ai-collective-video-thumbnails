@@ -2,6 +2,21 @@ import type { Component } from 'svelte';
 
 export type ImageStatus = 'idle' | 'loading' | 'valid' | 'failed';
 export type ExportFormat = 'png' | 'jpg';
+export type ThumbnailThemeTextField =
+	| 'variantLabel'
+	| 'eyebrow'
+	| 'backgroundImageUrl'
+	| 'eventLogoUrl'
+	| 'producerCredit'
+	| 'ctaText';
+export type ThumbnailThemePersonField =
+	| 'role'
+	| 'name'
+	| 'company'
+	| 'photoUrl'
+	| 'companyLogoUrl'
+	| 'photoPosition'
+	| 'logoScale';
 
 export interface EventPersonSource {
 	name: string;
@@ -52,13 +67,32 @@ export interface ThumbnailProject {
 	events: ThumbnailEvent[];
 }
 
-export interface ThumbnailTemplateProps {
+export interface ThumbnailThemeProps {
 	event: ThumbnailEvent;
 }
 
-export interface ThumbnailTemplateDefinition {
+export interface ThumbnailThemeMeta {
 	id: string;
 	name: string;
 	description: string;
-	component: Component<ThumbnailTemplateProps>;
+	order?: number;
+}
+
+export interface ThumbnailThemeEditorCapabilities {
+	eventFields: ThumbnailThemeTextField[];
+	brandingFields: ThumbnailThemeTextField[];
+	personFields: ThumbnailThemePersonField[];
+}
+
+export interface ThumbnailThemeAssets {
+	[key: string]: string;
+}
+
+export interface ThumbnailThemeDefinition {
+	meta: ThumbnailThemeMeta;
+	component: Component<ThumbnailThemeProps>;
+	defaults: (event: EventSource) => Partial<Omit<ThumbnailConfig, 'templateId' | 'people'>>;
+	editor: ThumbnailThemeEditorCapabilities;
+	assets?: ThumbnailThemeAssets;
+	legacyAssetUrls?: Record<string, string>;
 }

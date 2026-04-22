@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
+	import backgroundImageUrl from './assets/data-phoenix-background.png';
+	import secondaryLogoUrl from './assets/AIC-Logo-White-cropped.png';
 	import type { ThumbnailEvent, ThumbnailPerson } from '$lib/types';
 
 	const TITLE_MAX_FONT_SIZE = 74;
 	const TITLE_MIN_FONT_SIZE = 28;
 	const TITLE_FIT_HEIGHT_RATIO = 0.98;
-	const PHOENIX_BACKGROUND = '/data-phoenix-background.png';
-	const AI_COLLECTIVE_LOGO = '/AIC-Logo-White-cropped.png';
 
 	let { event }: { event: ThumbnailEvent } = $props();
 	let titleBox: HTMLDivElement | null = null;
@@ -160,7 +160,7 @@
 
 <div class="phoenix-frame">
 	<div class="phoenix-bg">
-		<img src={PHOENIX_BACKGROUND} alt="" crossorigin="anonymous" />
+		<img src={backgroundImageUrl} alt="" crossorigin="anonymous" />
 	</div>
 
 	<div class="phoenix-content">
@@ -224,7 +224,7 @@
 					</div>
 
 					<div class="phoenix-footer-logo phoenix-footer-logo-secondary">
-						<img src={AI_COLLECTIVE_LOGO} alt="The AI Collective logo" crossorigin="anonymous" />
+						<img src={secondaryLogoUrl} alt="The AI Collective logo" crossorigin="anonymous" />
 					</div>
 				</div>
 

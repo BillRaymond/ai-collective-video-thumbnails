@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
+	import fallbackLogoUrl from './assets/AIC-Logo-White-cropped.png';
+	import wordmarkUrl from './assets/Wordmark-White.png';
 	import type { ThumbnailEvent, ThumbnailPerson } from '$lib/types';
 
-	const FALLBACK_LOGO = '/AIC-Logo-White-cropped.png';
-	const FALLBACK_WORDMARK = '/Wordmark-White.png';
 	const TITLE_MAX_FONT_SIZE = 84;
 	const TITLE_MIN_FONT_SIZE = 24;
 	const TITLE_FIT_HEIGHT_RATIO = 0.98;
@@ -145,7 +145,7 @@
 	<div class="thumbnail-content">
 		<div class="thumbnail-top">
 			<div class="brand-lockup">
-				<img class="brand-wordmark" src={FALLBACK_WORDMARK} alt="The AI Collective" />
+				<img class="brand-wordmark" src={wordmarkUrl} alt="The AI Collective" />
 			</div>
 			<div class="badge-pill">
 				<div class="badge-pill-dot"></div>
@@ -208,7 +208,7 @@
 										style={`transform: scale(${person.logoScale / 100});`}
 									/>
 								{:else}
-									<img class="speaker-logo speaker-logo-fallback" src={FALLBACK_LOGO} alt="" />
+									<img class="speaker-logo speaker-logo-fallback" src={fallbackLogoUrl} alt="" />
 								{/if}
 							</div>
 						</div>
