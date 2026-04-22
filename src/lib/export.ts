@@ -207,13 +207,21 @@ async function renderWithSanitizedClone<T>(node: ExportableNode, renderer: (clon
 	}
 }
 
-function triggerDownload(blob: Blob, filename: string) {
+export function triggerDownload(blob: Blob, filename: string) {
 	const url = URL.createObjectURL(blob);
 	const link = document.createElement('a');
 	link.href = url;
 	link.download = filename;
+	link.style.display = 'none';
+	document.body.appendChild(link);
 	link.click();
-	setTimeout(() => URL.revokeObjectURL(url), 1_000);
+
+	// Some browsers can leave generated downloads stuck in a temporary state
+	// if the object URL is revoked immediately after the click.
+	window.setTimeout(() => {
+		link.remove();
+		URL.revokeObjectURL(url);
+	}, 60_000);
 }
 
 function canvasToBlob(canvas: HTMLCanvasElement, format: ExportFormat) {
@@ -299,5 +307,12 @@ export async function downloadZipFromBlobs(entries: Array<{ filename: string; bl
 	}
 
 	const archive = await zip.generateAsync({ type: 'blob' });
-	triggerDownload(archive, 'ai-collective-thumbnails.zip');
+	const firstExtension = entries[0]?.filename.split('.').pop()?.toLowerCase();
+	const archiveName =
+		firstExtension === 'jpg'
+			? 'ai-collective-thumbnails-jpg.zip'
+			: firstExtension === 'png'
+				? 'ai-collective-thumbnails-png.zip'
+				: 'ai-collective-thumbnails.zip';
+	triggerDownload(archive, archiveName);
 }

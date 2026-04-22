@@ -17,7 +17,8 @@
 		downloadSingleThumbnail,
 		downloadZipFromBlobs,
 		renderThumbnailBlob,
-		renderThumbnailPreviewUrl
+		renderThumbnailPreviewUrl,
+		triggerDownload
 	} from '$lib/export';
 	import type { PreviewRenderResult } from '$lib/export';
 	import type {
@@ -484,12 +485,7 @@
 
 	function saveProjectJson() {
 		const blob = new Blob([projectToJson(project)], { type: 'application/json' });
-		const url = URL.createObjectURL(blob);
-		const link = document.createElement('a');
-		link.href = url;
-		link.download = `${projectName || 'ai-collective-events'}-thumbnail-project.json`;
-		link.click();
-		setTimeout(() => URL.revokeObjectURL(url), 1_000);
+		triggerDownload(blob, `${projectName || 'ai-collective-events'}-thumbnail-project.json`);
 	}
 
 	async function exportCurrent(format: ExportFormat) {
@@ -670,6 +666,14 @@
 						disabled={isExporting || project.events.length === 0}
 					>
 						Save all PNGs
+					</button>
+					<button
+						class="primary-button compact-button"
+						type="button"
+						onclick={() => exportAll('jpg')}
+						disabled={isExporting || project.events.length === 0}
+					>
+						Save all JPGs
 					</button>
 				</div>
 
