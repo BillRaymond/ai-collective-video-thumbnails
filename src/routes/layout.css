@@ -744,6 +744,7 @@ select.nav-count-select:hover {
 select.nav-count-select option {
 	background: #1a1a2e;
 	color: #fff;
+	text-align: left;
 }
 
 .modal-body {
