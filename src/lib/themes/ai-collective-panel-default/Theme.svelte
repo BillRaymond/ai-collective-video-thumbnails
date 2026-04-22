@@ -184,7 +184,6 @@
 									<img
 										src={person.photoUrl}
 										alt={person.name || 'Speaker photo'}
-										crossorigin="anonymous"
 										style={`object-position: ${person.photoPositionX}% ${person.photoPositionY}%;`}
 									/>
 								{:else}
@@ -204,7 +203,6 @@
 										class="speaker-logo"
 										src={person.companyLogoUrl}
 										alt={person.company || 'Company logo'}
-										crossorigin="anonymous"
 										style={`transform: scale(${person.logoScale / 100});`}
 									/>
 								{:else}
@@ -222,7 +220,7 @@
 				<div class="event-lockup-label">Presented at</div>
 				<div class="event-lockup-logo">
 					{#if hasImageUrl(event.thumbnail.eventLogoUrl)}
-						<img src={event.thumbnail.eventLogoUrl} alt="Event logo" crossorigin="anonymous" />
+						<img src={event.thumbnail.eventLogoUrl} alt="Event logo" />
 					{:else}
 						<div class="event-lockup-placeholder">Add event logo</div>
 					{/if}

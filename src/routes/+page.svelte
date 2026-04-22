@@ -543,7 +543,6 @@
 
 		markUrl(url, 'loading');
 		const image = new Image();
-		image.crossOrigin = 'anonymous';
 		image.onload = () => markUrl(url, 'valid');
 		image.onerror = () => markUrl(url, 'failed');
 		image.src = url;

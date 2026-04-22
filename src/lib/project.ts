@@ -134,10 +134,51 @@ function normalizePerson(eventId: EventSource['id'], value: unknown, index: numb
 	};
 }
 
+function createPersonLookupKey(person: Pick<ThumbnailPerson, 'id' | 'role' | 'name' | 'company'>) {
+	return `${person.id}::${person.role.trim().toLowerCase()}::${person.name.trim().toLowerCase()}::${person.company.trim().toLowerCase()}`;
+}
+
+function backfillDerivedPersonFields(event: EventSource, people: ThumbnailPerson[]) {
+	const sourcePeople = buildPeopleFromSource(event);
+	const sourceByKey = new Map(
+		sourcePeople.map((person) => [createPersonLookupKey(person), person] as const)
+	);
+
+	return people.map((person, index) => {
+		const sourceMatch =
+			sourceByKey.get(createPersonLookupKey(person)) ??
+			sourcePeople.find(
+				(candidate) =>
+					candidate.id === person.id ||
+					(
+						candidate.role.trim().toLowerCase() === person.role.trim().toLowerCase() &&
+						candidate.name.trim().toLowerCase() === person.name.trim().toLowerCase()
+					)
+			) ??
+			sourcePeople[index];
+
+		if (!sourceMatch) {
+			return person;
+		}
+
+		return {
+			...person,
+			photoUrl: withFallback(person.photoUrl, sourceMatch.photoUrl),
+			companyLogoUrl: withFallback(person.companyLogoUrl, sourceMatch.companyLogoUrl)
+		};
+	});
+}
+
 function normalizeThumbnail(event: EventSource, thumbnailValue: unknown): ThumbnailConfig {
 	const safeThumbnail = isObject(thumbnailValue) ? thumbnailValue : {};
 	const requestedThemeId = asString(safeThumbnail.templateId, DEFAULT_THEME_ID);
 	const themeDefaults = buildThemeBackedThumbnailDefaults(event, requestedThemeId);
+	const normalizedPeople = Array.isArray(safeThumbnail.people)
+		? backfillDerivedPersonFields(
+				event,
+				safeThumbnail.people.map((person, index) => normalizePerson(event.id, person, index))
+			)
+		: buildPeopleFromSource(event);
 
 	return {
 		templateId: themeDefaults.themeId,
@@ -154,9 +195,7 @@ function normalizeThumbnail(event: EventSource, thumbnailValue: unknown): Thumbn
 			themeDefaults.producerCredit
 		),
 		ctaText: withFallback(asOptionalString(safeThumbnail.ctaText), themeDefaults.ctaText),
-		people: Array.isArray(safeThumbnail.people)
-			? safeThumbnail.people.map((person, index) => normalizePerson(event.id, person, index))
-			: buildPeopleFromSource(event)
+		people: normalizedPeople
 	};
 }
 
