@@ -37,15 +37,23 @@
 		ThumbnailThemeTextField
 	} from '$lib/types';
 
-	type EditorSection = 'event' | 'branding' | 'people';
+	type EditorSection = 'content' | 'style' | 'people';
+	type EditorSubsection =
+		| 'title'
+		| 'supporting'
+		| 'imagery'
+		| 'overlays'
+		| 'roster'
+		| 'details';
+	type AppMenu = 'none' | 'actions' | 'export' | 'events';
 
 	const sampleProject = normalizeProject(sampleEvents);
 	const initialSelectedEventId = `${sampleProject.events[0]?.id ?? ''}`;
 	const initialOpenPersonId = sampleProject.events[0]?.thumbnail.people[0]?.id ?? '';
 	const initialThemeId = sampleProject.events[0]?.thumbnail.templateId ?? thumbnailThemes[0]?.meta.id ?? '';
 	const editorSections: Array<{ id: EditorSection; label: string }> = [
-		{ id: 'event', label: 'Event' },
-		{ id: 'branding', label: 'Branding' },
+		{ id: 'content', label: 'Content' },
+		{ id: 'style', label: 'Style' },
 		{ id: 'people', label: 'People' }
 	];
 
@@ -60,8 +68,11 @@
 	let selectedEventId = $state<string>(initialSelectedEventId);
 	let selectedThemeId = $state<string>(initialThemeId);
 	let projectName = $state('ai-collective-events');
-	let openEditorSection = $state<EditorSection>('event');
+	let openEditorSection = $state<EditorSection>('content');
+	let openEditorSubsection = $state<EditorSubsection>('title');
 	let openPersonId = $state<string>(initialOpenPersonId);
+	let isEventSummaryExpanded = $state(false);
+	let openAppMenu = $state<AppMenu>('none');
 	let importError = $state('');
 	let exportError = $state('');
 	let exportMessage = $state('');
@@ -101,11 +112,11 @@
 				return true;
 			}
 
-			if (section.id === 'event') {
+			if (section.id === 'content') {
 				return true;
 			}
 
-			if (section.id === 'branding') {
+			if (section.id === 'style') {
 				return activeTheme.editor.brandingFields.length > 0;
 			}
 
@@ -117,6 +128,7 @@
 			activeEvent?.thumbnail.people[0] ??
 			null
 	);
+	let visibleEditorSubsections = $derived(getEditorSubsections(openEditorSection));
 
 	function themeSupportsTextField(section: 'eventFields' | 'brandingFields', field: ThumbnailThemeTextField) {
 		return activeTheme?.editor[section].includes(field) ?? false;
@@ -124,6 +136,73 @@
 
 	function themeSupportsPersonField(field: ThumbnailThemePersonField) {
 		return activeTheme?.editor.personFields.includes(field) ?? false;
+	}
+
+	function getEditorSubsections(
+		section: EditorSection
+	): Array<{ id: EditorSubsection; label: string }> {
+		if (!activeTheme) {
+			if (section === 'content') {
+				return [{ id: 'title', label: 'Title' }];
+			}
+
+			if (section === 'style') {
+				return [];
+			}
+
+			return [
+				{ id: 'roster', label: 'Roster' },
+				{ id: 'details', label: 'Details' }
+			];
+		}
+
+		if (section === 'content') {
+			const subsections: Array<{ id: EditorSubsection; label: string }> = [
+				{ id: 'title', label: 'Title' }
+			];
+
+			if (
+				themeSupportsTextField('eventFields', 'variantLabel') ||
+				themeSupportsTextField('eventFields', 'eyebrow')
+			) {
+				subsections.push({ id: 'supporting', label: 'Supporting' });
+			}
+
+			return subsections;
+		}
+
+		if (section === 'style') {
+			const subsections: Array<{ id: EditorSubsection; label: string }> = [];
+
+			if (
+				themeSupportsTextField('brandingFields', 'backgroundImageUrl') ||
+				themeSupportsTextField('brandingFields', 'eventLogoUrl')
+			) {
+				subsections.push({ id: 'imagery', label: 'Imagery' });
+			}
+
+			if (
+				themeSupportsTextField('brandingFields', 'producerCredit') ||
+				themeSupportsTextField('brandingFields', 'ctaText')
+			) {
+				subsections.push({ id: 'overlays', label: 'Overlays' });
+			}
+
+			return subsections;
+		}
+
+		return [
+			{ id: 'roster', label: 'Roster' },
+			{ id: 'details', label: 'Details' }
+		];
+	}
+
+	function toggleAppMenu(menu: Exclude<AppMenu, 'none'>) {
+		openAppMenu = openAppMenu === menu ? 'none' : menu;
+	}
+
+	function closeMenus() {
+		openAppMenu = 'none';
 	}
 
 	function setPreviewImageUrl(nextUrl: string) {
@@ -149,6 +228,7 @@
 			selectedEventId = '';
 			selectedThemeId = '';
 			openPersonId = '';
+			openAppMenu = 'none';
 			return;
 		}
 
@@ -160,7 +240,12 @@
 		}
 
 		if (!visibleEditorSections.some((section) => section.id === openEditorSection)) {
-			openEditorSection = visibleEditorSections[0]?.id ?? 'event';
+			openEditorSection = visibleEditorSections[0]?.id ?? 'content';
+		}
+
+		const allowedSubsections = getEditorSubsections(openEditorSection);
+		if (!allowedSubsections.some((section) => section.id === openEditorSubsection)) {
+			openEditorSubsection = allowedSubsections[0]?.id ?? 'title';
 		}
 	}
 
@@ -384,10 +469,16 @@
 		selectedEventId = eventId;
 		const nextEvent = project.events.find((event) => `${event.id}` === eventId);
 		openPersonId = nextEvent?.thumbnail.people[0]?.id ?? '';
+		closeMenus();
 	}
 
 	function setEditorSection(section: EditorSection) {
 		openEditorSection = section;
+		openEditorSubsection = getEditorSubsections(section)[0]?.id ?? 'title';
+	}
+
+	function setEditorSubsection(subsection: EditorSubsection) {
+		openEditorSubsection = subsection;
 	}
 
 	function navigateEvent(direction: -1 | 1) {
@@ -417,6 +508,7 @@
 			}
 		}));
 		openEditorSection = 'people';
+		openEditorSubsection = 'details';
 		openPersonId = newPerson.id;
 	}
 
@@ -498,7 +590,8 @@
 			selectedEventId = `${normalized.events[0]?.id ?? ''}`;
 			selectedThemeId = normalized.events[0]?.thumbnail.templateId ?? thumbnailThemes[0]?.meta.id ?? '';
 			openPersonId = normalized.events[0]?.thumbnail.people[0]?.id ?? '';
-			openEditorSection = 'event';
+			openEditorSection = 'content';
+			openEditorSubsection = 'title';
 		} catch (error) {
 			importError = error instanceof Error ? error.message : 'The JSON file could not be parsed.';
 		} finally {
@@ -513,7 +606,8 @@
 		selectedEventId = `${nextProject.events[0]?.id ?? ''}`;
 		selectedThemeId = nextProject.events[0]?.thumbnail.templateId ?? thumbnailThemes[0]?.meta.id ?? '';
 		openPersonId = nextProject.events[0]?.thumbnail.people[0]?.id ?? '';
-		openEditorSection = 'event';
+		openEditorSection = 'content';
+		openEditorSubsection = 'title';
 	}
 
 	function saveProjectJson() {
@@ -588,6 +682,7 @@
 			return;
 		}
 
+		closeMenus();
 		isPreviewModalOpen = true;
 	}
 
@@ -642,72 +737,215 @@
 </script>
 
 <div class="studio-shell">
+	<main class="preview-workspace">
+		<section class="panel-surface preview-panel-large">
+			<div class="workspace-top">
+				<div class="workspace-copy">
+					<p class="workspace-kicker">Preview</p>
+					<div class="menu-shell event-launcher-shell">
+						<button
+							class="event-launcher"
+							type="button"
+							aria-expanded={openAppMenu === 'events'}
+							onclick={() => toggleAppMenu('events')}
+						>
+							<span>{activeEvent?.title ?? 'Select an event'}</span>
+							<small>
+								{activeEventIndex >= 0 ? activeEventIndex + 1 : 0} / {project.events.length} slides
+							</small>
+						</button>
+
+						{#if openAppMenu === 'events'}
+							<div class="floating-menu event-picker-menu">
+								<label class="toolbar-field event-picker">
+									<span>Editing</span>
+									<select
+										value={selectedEventId}
+										onchange={(changeEvent) =>
+											selectEvent((changeEvent.currentTarget as HTMLSelectElement).value)}
+									>
+										{#each project.events as event}
+											<option value={`${event.id}`}>
+												#{event.id} {event.title}
+											</option>
+										{/each}
+									</select>
+								</label>
+								<p class="panel-caption">Choose a slide here, then use the inspector below to edit it.</p>
+							</div>
+						{/if}
+					</div>
+					<p>Live 1280×720 canvas that stays visible while you edit.</p>
+				</div>
+				<div class="preview-toolbar">
+					<div class="modal-navigation preview-navigation" aria-label="Slide navigation">
+						<button
+							class="nav-icon-button"
+							type="button"
+							onclick={() => navigateEvent(-1)}
+							disabled={activeEventIndex <= 0}
+							aria-label="Previous event"
+						>
+							<span aria-hidden="true">←</span>
+						</button>
+						<span class="modal-count">
+							{activeEventIndex >= 0 ? activeEventIndex + 1 : 0} / {project.events.length}
+						</span>
+						<button
+							class="nav-icon-button"
+							type="button"
+							onclick={() => navigateEvent(1)}
+							disabled={activeEventIndex < 0 || activeEventIndex >= project.events.length - 1}
+							aria-label="Next event"
+						>
+							<span aria-hidden="true">→</span>
+						</button>
+					</div>
+					<button
+						class="secondary-button compact-button"
+						type="button"
+						onclick={openPreviewModal}
+						disabled={!activeEvent}
+					>
+						Open image
+					</button>
+				</div>
+			</div>
+
+			<div class="preview-stage preview-stage-large" bind:this={previewViewport}>
+				{#if activeEvent && activeTheme}
+					<button
+						type="button"
+						class="preview-click-target"
+						onclick={openPreviewModal}
+						aria-label="Open rendered preview image"
+					>
+						<div class="preview-stage-inner" style={`height: ${720 * previewScale}px;`}>
+							<div
+								class="thumbnail-export-root"
+								style={`transform: scale(${previewScale}); transform-origin: top left;`}
+							>
+								<activeTheme.component event={activeEvent} />
+							</div>
+						</div>
+						<span class="preview-click-hint">Click preview to inspect the rendered image</span>
+					</button>
+				{:else}
+					<div class="preview-empty">Upload or load JSON to begin.</div>
+				{/if}
+			</div>
+
+			<div class="preview-footnotes">
+				<p class="panel-caption">
+					Exports use
+					`{activeEvent ? buildThumbnailFilename(activeEvent, 'png') : 'id-event-name.png'}`.
+				</p>
+				<p class="panel-caption">
+					Remote image URLs can preview successfully but still fail during browser export if the host
+					disallows cross-origin rendering.
+				</p>
+			</div>
+		</section>
+	</main>
+
 	<aside class="editor-pane">
 		<section class="panel-surface editor-panel">
-			<div class="editor-head">
-				<div class="editor-title-block">
-					<p class="sidebar-kicker">AI Collective Design System</p>
-					<h1>Thumbnail Studio</h1>
-					<p class="sidebar-copy">
-						Edit one slice at a time while the preview stays on screen.
-					</p>
-				</div>
+			<div class="editor-head compact-editor-head">
+				<div class="editor-appbar">
+					<div class="editor-appbar-copy">
+						<p class="sidebar-kicker">AI Collective Design System</p>
+						<h1>Thumbnail Studio</h1>
+					</div>
 
-				<div class="editor-actions">
-					<label class="toolbar-field">
-						<span>Theme</span>
-						<select
-							value={selectedThemeId}
-							onchange={(changeEvent) =>
-								updateProjectTheme((changeEvent.currentTarget as HTMLSelectElement).value)}
-						>
-							{#each thumbnailThemes as theme}
-								<option value={theme.meta.id}>{theme.meta.name}</option>
-							{/each}
-						</select>
-					</label>
-					<label class="file-button compact-button">
-						<input type="file" accept=".json,application/json" onchange={importJsonFile} />
-						<span>Upload JSON</span>
-					</label>
-					<button class="secondary-button compact-button" type="button" onclick={loadSampleProject}>
-						Load sample
-					</button>
-					<button class="secondary-button compact-button" type="button" onclick={saveProjectJson}>
-						Save JSON
-					</button>
-					<button
-						class="secondary-button compact-button"
-						type="button"
-						onclick={() => exportCurrent('png')}
-						disabled={isExporting || !activeEvent}
-					>
-						Save PNG
-					</button>
-					<button
-						class="secondary-button compact-button"
-						type="button"
-						onclick={() => exportCurrent('jpg')}
-						disabled={isExporting || !activeEvent}
-					>
-						Save JPG
-					</button>
-					<button
-						class="primary-button compact-button"
-						type="button"
-						onclick={() => exportAll('png')}
-						disabled={isExporting || project.events.length === 0}
-					>
-						Save all PNGs
-					</button>
-					<button
-						class="primary-button compact-button"
-						type="button"
-						onclick={() => exportAll('jpg')}
-						disabled={isExporting || project.events.length === 0}
-					>
-						Save all JPGs
-					</button>
+					<div class="editor-appbar-controls">
+						<label class="toolbar-field theme-field">
+							<span>Theme</span>
+							<select
+								value={selectedThemeId}
+								onchange={(changeEvent) =>
+									updateProjectTheme((changeEvent.currentTarget as HTMLSelectElement).value)}
+							>
+								{#each thumbnailThemes as theme}
+									<option value={theme.meta.id}>{theme.meta.name}</option>
+								{/each}
+							</select>
+						</label>
+
+						<div class="menu-shell">
+							<button
+								class="secondary-button compact-button"
+								type="button"
+								aria-expanded={openAppMenu === 'actions'}
+								onclick={() => toggleAppMenu('actions')}
+							>
+								Actions
+							</button>
+
+							{#if openAppMenu === 'actions'}
+								<div class="floating-menu action-menu">
+									<label class="file-button menu-button">
+										<input type="file" accept=".json,application/json" onchange={importJsonFile} />
+										<span>Upload JSON</span>
+									</label>
+									<button class="menu-button" type="button" onclick={loadSampleProject}>
+										Load sample
+									</button>
+									<button class="menu-button" type="button" onclick={saveProjectJson}>
+										Save JSON
+									</button>
+								</div>
+							{/if}
+						</div>
+
+						<div class="menu-shell">
+							<button
+								class="primary-button compact-button"
+								type="button"
+								aria-expanded={openAppMenu === 'export'}
+								onclick={() => toggleAppMenu('export')}
+								disabled={!activeEvent && project.events.length === 0}
+							>
+								Export
+							</button>
+
+							{#if openAppMenu === 'export'}
+								<div class="floating-menu action-menu">
+									<button
+										class="menu-button"
+										type="button"
+										onclick={() => exportCurrent('png')}
+										disabled={isExporting || !activeEvent}
+									>
+										Current PNG
+									</button>
+									<button
+										class="menu-button"
+										type="button"
+										onclick={() => exportCurrent('jpg')}
+										disabled={isExporting || !activeEvent}
+									>
+										Current JPG
+									</button>
+									<button
+										class="menu-button"
+										type="button"
+										onclick={() => exportAll('png')}
+										disabled={isExporting || project.events.length === 0}
+									>
+										All PNGs
+									</button>
+									<button
+										class="menu-button"
+										type="button"
+										onclick={() => exportAll('jpg')}
+										disabled={isExporting || project.events.length === 0}
+									>
+										All JPGs
+									</button>
+								</div>
+							{/if}
+						</div>
+					</div>
 				</div>
 
 				{#if importError}
@@ -721,257 +959,275 @@
 				{/if}
 			</div>
 
-			<div class="editor-toolbar">
-				<div class="event-navigation">
-					<button
-						class="nav-icon-button"
-						type="button"
-						onclick={() => navigateEvent(-1)}
-						disabled={activeEventIndex <= 0}
-						aria-label="Previous event"
-					>
-						<span aria-hidden="true">←</span>
-					</button>
-
-					<label class="toolbar-field event-picker">
-						<span>Editing</span>
-						<select
-							value={selectedEventId}
-							onchange={(changeEvent) =>
-								selectEvent((changeEvent.currentTarget as HTMLSelectElement).value)}
-						>
-							{#each project.events as event}
-								<option value={`${event.id}`}>
-									#{event.id} {event.title}
-								</option>
-							{/each}
-						</select>
-					</label>
-
-					<button
-						class="nav-icon-button"
-						type="button"
-						onclick={() => navigateEvent(1)}
-						disabled={activeEventIndex < 0 || activeEventIndex >= project.events.length - 1}
-						aria-label="Next event"
-					>
-						<span aria-hidden="true">→</span>
-					</button>
-				</div>
-
-				<div class="section-tabs" role="tablist" aria-label="Editor sections">
-					{#each visibleEditorSections as section}
-						<button
-							type="button"
-							class:active={openEditorSection === section.id}
-							class="section-tab"
-							role="tab"
-							aria-selected={openEditorSection === section.id}
-							onclick={() => setEditorSection(section.id)}
-						>
-							{section.label}
-						</button>
-					{/each}
-				</div>
-			</div>
-
-			<div class="event-summary">
-				<div>
-					<p class="panel-label">Current Event</p>
-					<h2>{activeEvent?.title ?? 'Select an event'}</h2>
-					{#if activeTheme}
-						<p class="panel-caption">{activeTheme.meta.description}</p>
-					{/if}
-				</div>
-				<div class="event-summary-meta">
-					<span>#{activeEvent?.id ?? '–'}</span>
-					{#if activeEvent?.day !== undefined && activeEvent?.day !== null && `${activeEvent.day}`.trim() !== ''}
-						<span>Day {activeEvent.day}</span>
-					{/if}
-					{#if activeTheme}
-						<span>{activeTheme.meta.name}</span>
-					{/if}
-					{#if activeEvent}
-						<span>{activeEvent.thumbnail.people.length} people</span>
-					{/if}
-				</div>
-			</div>
-
-			<div class="editor-body">
+			<div class="editor-body compact-editor-body">
 				{#if activeEvent}
-					{#if openEditorSection === 'event'}
+					<section class="event-summary-card">
+						<div class="event-summary-compact">
+							<div class="event-summary-main">
+								<p class="panel-label">Current Event</p>
+								<h2>{activeEvent.title}</h2>
+							</div>
+							<button
+								class="ghost-button compact-button"
+								type="button"
+								aria-expanded={isEventSummaryExpanded}
+								onclick={() => {
+									isEventSummaryExpanded = !isEventSummaryExpanded;
+								}}
+							>
+								{isEventSummaryExpanded ? 'Hide details' : 'Show details'}
+							</button>
+						</div>
+						<div class="event-summary-meta">
+							<span>#{activeEvent.id}</span>
+							{#if activeEvent.day !== undefined && activeEvent.day !== null && `${activeEvent.day}`.trim() !== ''}
+								<span>Day {activeEvent.day}</span>
+							{/if}
+							{#if activeTheme}
+								<span>{activeTheme.meta.name}</span>
+							{/if}
+							<span>{activeEvent.thumbnail.people.length} people</span>
+						</div>
+
+						{#if isEventSummaryExpanded}
+							<div class="event-summary-expanded">
+								{#if activeTheme}
+									<p class="panel-caption">{activeTheme.meta.description}</p>
+								{/if}
+								<p class="panel-caption">
+									Editing slide {activeEventIndex >= 0 ? activeEventIndex + 1 : 0} of {project.events.length}.
+								</p>
+							</div>
+						{/if}
+					</section>
+
+					<div class="editor-toolbar compact-toolbar">
+						<div class="section-tabs" role="tablist" aria-label="Editor sections">
+							{#each visibleEditorSections as section}
+								<button
+									type="button"
+									class:active={openEditorSection === section.id}
+									class="section-tab"
+									role="tab"
+									aria-selected={openEditorSection === section.id}
+									onclick={() => setEditorSection(section.id)}
+								>
+									{section.label}
+								</button>
+							{/each}
+						</div>
+
+						{#if visibleEditorSubsections.length > 1}
+							<div class="subsection-tabs" role="tablist" aria-label="Editor subsections">
+								{#each visibleEditorSubsections as subsection}
+									<button
+										type="button"
+										class:active={openEditorSubsection === subsection.id}
+										class="subsection-tab"
+										role="tab"
+										aria-selected={openEditorSubsection === subsection.id}
+										onclick={() => setEditorSubsection(subsection.id)}
+									>
+										{subsection.label}
+									</button>
+								{/each}
+							</div>
+						{/if}
+					</div>
+
+					{#if openEditorSection === 'content'}
 						<section class="editor-section">
-							<div class="editor-section-head">
+							<div class="editor-section-head compact-section-head">
 								<div>
-									<p class="panel-label">Event</p>
-									<h3>Title and structure</h3>
+									<p class="panel-label">Content</p>
+									<h3>{openEditorSubsection === 'supporting' ? 'Supporting text' : 'Primary title'}</h3>
 								</div>
 							</div>
 
 							<div class="form-grid compact-form-grid">
-								<label class="field-block field-block-full">
-									<span>Event title</span>
-									<input
-										type="text"
-										value={activeEvent.title}
-										oninput={(inputEvent) =>
-											updateActiveEventField(
-												'title',
-												(inputEvent.currentTarget as HTMLInputElement).value
-											)}
-									/>
-								</label>
-
-								{#if themeSupportsTextField('eventFields', 'variantLabel')}
-									<label class="field-block">
-										<span>Variant label</span>
+								{#if openEditorSubsection === 'title'}
+									<label class="field-block field-block-full">
+										<span>Event title</span>
 										<input
 											type="text"
-											value={activeEvent.thumbnail.variantLabel}
+											value={activeEvent.title}
 											oninput={(inputEvent) =>
-												updateActiveThumbnailField(
-													'variantLabel',
+												updateActiveEventField(
+													'title',
 													(inputEvent.currentTarget as HTMLInputElement).value
 												)}
 										/>
 									</label>
-								{/if}
+								{:else}
+									{#if themeSupportsTextField('eventFields', 'variantLabel')}
+										<label class="field-block">
+											<span>Variant label</span>
+											<input
+												type="text"
+												value={activeEvent.thumbnail.variantLabel}
+												oninput={(inputEvent) =>
+													updateActiveThumbnailField(
+														'variantLabel',
+														(inputEvent.currentTarget as HTMLInputElement).value
+													)}
+											/>
+										</label>
+									{/if}
 
-								{#if themeSupportsTextField('eventFields', 'eyebrow')}
-									<label class="field-block">
-										<span>Eyebrow</span>
-										<input
-											type="text"
-											value={activeEvent.thumbnail.eyebrow}
-											oninput={(inputEvent) =>
-												updateActiveThumbnailField(
-													'eyebrow',
-													(inputEvent.currentTarget as HTMLInputElement).value
-												)}
-										/>
-									</label>
+									{#if themeSupportsTextField('eventFields', 'eyebrow')}
+										<label class="field-block">
+											<span>Eyebrow</span>
+											<input
+												type="text"
+												value={activeEvent.thumbnail.eyebrow}
+												oninput={(inputEvent) =>
+													updateActiveThumbnailField(
+														'eyebrow',
+														(inputEvent.currentTarget as HTMLInputElement).value
+													)}
+											/>
+										</label>
+									{/if}
 								{/if}
 							</div>
 						</section>
-					{:else if openEditorSection === 'branding'}
+					{:else if openEditorSection === 'style'}
 						<section class="editor-section">
-							<div class="editor-section-head">
+							<div class="editor-section-head compact-section-head">
 								<div>
-									<p class="panel-label">Branding</p>
-									<h3>Background, logo, and CTA</h3>
+									<p class="panel-label">Style</p>
+									<h3>{openEditorSubsection === 'overlays' ? 'Text overlays' : 'Image sources'}</h3>
 								</div>
 							</div>
 
 							<div class="form-grid compact-form-grid">
-								{#if themeSupportsTextField('brandingFields', 'backgroundImageUrl')}
-									<label class="field-block field-block-full">
-										<span>Background image URL</span>
-										<input
-											type="url"
-											value={activeEvent.thumbnail.backgroundImageUrl}
-											oninput={(inputEvent) =>
-												updateActiveThumbnailField(
-													'backgroundImageUrl',
-													(inputEvent.currentTarget as HTMLInputElement).value
-												)}
-										/>
-										<small>{statusLabel[getUrlStatus(activeEvent.thumbnail.backgroundImageUrl)]}</small>
-									</label>
-								{/if}
+								{#if openEditorSubsection === 'imagery'}
+									{#if themeSupportsTextField('brandingFields', 'backgroundImageUrl')}
+										<label class="field-block field-block-full">
+											<span>Background image URL</span>
+											<input
+												type="url"
+												value={activeEvent.thumbnail.backgroundImageUrl}
+												oninput={(inputEvent) =>
+													updateActiveThumbnailField(
+														'backgroundImageUrl',
+														(inputEvent.currentTarget as HTMLInputElement).value
+													)}
+											/>
+											<small>{statusLabel[getUrlStatus(activeEvent.thumbnail.backgroundImageUrl)]}</small>
+										</label>
+									{/if}
 
-								{#if themeSupportsTextField('brandingFields', 'eventLogoUrl')}
-									<label class="field-block field-block-full">
-										<span>Event logo URL</span>
-										<input
-											type="url"
-											value={activeEvent.thumbnail.eventLogoUrl}
-											oninput={(inputEvent) =>
-												updateActiveThumbnailField(
-													'eventLogoUrl',
-													(inputEvent.currentTarget as HTMLInputElement).value
-												)}
-										/>
-										<small>{statusLabel[getUrlStatus(activeEvent.thumbnail.eventLogoUrl)]}</small>
-									</label>
-								{/if}
+									{#if themeSupportsTextField('brandingFields', 'eventLogoUrl')}
+										<label class="field-block field-block-full">
+											<span>Event logo URL</span>
+											<input
+												type="url"
+												value={activeEvent.thumbnail.eventLogoUrl}
+												oninput={(inputEvent) =>
+													updateActiveThumbnailField(
+														'eventLogoUrl',
+														(inputEvent.currentTarget as HTMLInputElement).value
+													)}
+											/>
+											<small>{statusLabel[getUrlStatus(activeEvent.thumbnail.eventLogoUrl)]}</small>
+										</label>
+									{/if}
+								{:else}
+									{#if themeSupportsTextField('brandingFields', 'producerCredit')}
+										<label class="field-block">
+											<span>Producer credit</span>
+											<input
+												type="text"
+												value={activeEvent.thumbnail.producerCredit}
+												oninput={(inputEvent) =>
+													updateActiveThumbnailField(
+														'producerCredit',
+														(inputEvent.currentTarget as HTMLInputElement).value
+													)}
+											/>
+										</label>
+									{/if}
 
-								{#if themeSupportsTextField('brandingFields', 'producerCredit')}
-									<label class="field-block">
-										<span>Producer credit</span>
-										<input
-											type="text"
-											value={activeEvent.thumbnail.producerCredit}
-											oninput={(inputEvent) =>
-												updateActiveThumbnailField(
-													'producerCredit',
-													(inputEvent.currentTarget as HTMLInputElement).value
-												)}
-										/>
-									</label>
-								{/if}
-
-								{#if themeSupportsTextField('brandingFields', 'ctaText')}
-									<label class="field-block">
-										<span>CTA text</span>
-										<input
-											type="text"
-											value={activeEvent.thumbnail.ctaText}
-											oninput={(inputEvent) =>
-												updateActiveThumbnailField(
-													'ctaText',
-													(inputEvent.currentTarget as HTMLInputElement).value
-												)}
-										/>
-									</label>
+									{#if themeSupportsTextField('brandingFields', 'ctaText')}
+										<label class="field-block">
+											<span>CTA text</span>
+											<input
+												type="text"
+												value={activeEvent.thumbnail.ctaText}
+												oninput={(inputEvent) =>
+													updateActiveThumbnailField(
+														'ctaText',
+														(inputEvent.currentTarget as HTMLInputElement).value
+													)}
+											/>
+										</label>
+									{/if}
 								{/if}
 							</div>
 						</section>
 					{:else}
 						<section class="editor-section">
-							<div class="editor-section-head">
+							<div class="editor-section-head compact-section-head">
 								<div>
 									<p class="panel-label">People</p>
-									<h3>Focused person editor</h3>
+									<h3>{openEditorSubsection === 'roster' ? 'Roster and focus' : 'Focused person editor'}</h3>
 								</div>
 								<p class="panel-caption">
 									Shared edits still sync automatically by exact name or company match.
 								</p>
 							</div>
 
-							<div class="people-toolbar">
-								<label class="toolbar-field person-picker">
-									<span>Person</span>
-									<select
-										value={openPersonId}
-										onchange={(changeEvent) => {
-											openPersonId = (changeEvent.currentTarget as HTMLSelectElement).value;
-										}}
-										disabled={activeEvent.thumbnail.people.length === 0}
-									>
-										{#each activeEvent.thumbnail.people as person}
-											<option value={person.id}>
-												{person.name || 'New person'} · {person.role || 'Panelist'}
-											</option>
-										{/each}
-									</select>
-								</label>
+							{#if openEditorSubsection === 'roster'}
+								<div class="people-toolbar compact-people-toolbar">
+									<label class="toolbar-field person-picker">
+										<span>Person</span>
+										<select
+											value={openPersonId}
+											onchange={(changeEvent) => {
+												openPersonId = (changeEvent.currentTarget as HTMLSelectElement).value;
+												openEditorSubsection = 'details';
+											}}
+											disabled={activeEvent.thumbnail.people.length === 0}
+										>
+											{#each activeEvent.thumbnail.people as person}
+												<option value={person.id}>
+													{person.name || 'New person'} · {person.role || 'Panelist'}
+												</option>
+											{/each}
+										</select>
+									</label>
 
-								<div class="people-toolbar-actions">
-									<button class="secondary-button compact-button" type="button" onclick={addPerson}>
-										Add person
-									</button>
-									<button
-										class="ghost-button compact-button"
-										type="button"
-										onclick={() => activePerson && removePerson(activePerson.id)}
-										disabled={!activePerson}
-									>
-										Remove
-									</button>
+									<div class="people-toolbar-actions compact-people-actions">
+										<button class="secondary-button compact-button" type="button" onclick={addPerson}>
+											Add person
+										</button>
+										<button
+											class="ghost-button compact-button"
+											type="button"
+											onclick={() => activePerson && removePerson(activePerson.id)}
+											disabled={!activePerson}
+										>
+											Remove
+										</button>
+									</div>
 								</div>
-							</div>
 
-							{#if activePerson}
+								{#if activePerson}
+									<div class="focused-person-summary">
+										<p class="panel-caption">
+											Editing {activePerson.name || 'new person'} with {activePerson.role || 'no role yet'}.
+										</p>
+										<button
+											class="secondary-button compact-button"
+											type="button"
+											onclick={() => setEditorSubsection('details')}
+										>
+											Edit details
+										</button>
+									</div>
+								{/if}
+							{:else if activePerson}
 								<div class="form-grid compact-form-grid">
 									{#if themeSupportsPersonField('role')}
 										<label class="field-block">
@@ -1125,58 +1381,6 @@
 			</div>
 		</section>
 	</aside>
-
-	<main class="preview-workspace">
-		<section class="panel-surface preview-panel-large">
-			<div class="workspace-top">
-				<div class="workspace-copy">
-					<p class="workspace-kicker">Preview</p>
-					<h2>{activeEvent?.title ?? 'Select an event'}</h2>
-					<p>
-						The preview stays visible while you edit. Click it any time to open the rendered
-						image.
-					</p>
-				</div>
-				<div class="preview-toolbar">
-					<span class="panel-caption">1280×720 live canvas</span>
-				</div>
-			</div>
-
-			<div class="preview-stage preview-stage-large" bind:this={previewViewport}>
-				{#if activeEvent && activeTheme}
-					<button
-						type="button"
-						class="preview-click-target"
-						onclick={openPreviewModal}
-						aria-label="Open rendered preview image"
-					>
-						<div class="preview-stage-inner" style={`height: ${720 * previewScale}px;`}>
-							<div
-								class="thumbnail-export-root"
-								style={`transform: scale(${previewScale}); transform-origin: top left;`}
-							>
-								<activeTheme.component event={activeEvent} />
-							</div>
-						</div>
-						<span class="preview-click-hint">Open rendered image</span>
-					</button>
-				{:else}
-					<div class="preview-empty">Upload or load JSON to begin.</div>
-				{/if}
-			</div>
-
-			<div class="preview-footnotes">
-				<p class="panel-caption">
-					Exports use
-					`{activeEvent ? buildThumbnailFilename(activeEvent, 'png') : 'id-event-name.png'}`.
-				</p>
-				<p class="panel-caption">
-					Remote image URLs can preview successfully but still fail during browser export if the host
-					disallows cross-origin rendering.
-				</p>
-			</div>
-		</section>
-	</main>
 </div>
 
 {#if activeEvent && activeTheme}
