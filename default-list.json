@@ -198,13 +198,13 @@
         "name": "Carl Fritjofsson",
         "company": "Creandum",
         "photo_url": "https://media.licdn.com/dms/image/v2/D4E03AQG1hSAPpESUxQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1693928670387?e=1778716800&v=beta&t=BYefPyUZuTYSKzvSaLqmlEOnJRa1cJCwIdPC9aIF58I",
-        "company_logo_url": "https://media.licdn.com/dms/image/v2/D4E0BAQE19vQfoBh_Hg/company-logo_100_100/B4EZsHrX58KgAQ-/0/1765360369726/creandum_logo?e=1778716800&v=beta&t=DUJDChghWSJVV3v69LaSdmG-5S5JYnW5AdBddHfCuEU"
+        "company_logo_url": "https://s3-us-west-2.amazonaws.com/cbi-image-service-prd/original/9ff93943-4ee9-4aca-8d70-fc87c533b329.png"
       },
       {
         "name": "Ghazwa Khalatbari",
         "company": "Creandum",
         "photo_url": "https://media.licdn.com/dms/image/v2/D4E03AQEDKX8MvjK1GQ/profile-displayphoto-crop_800_800/B4EZ1uHkRFJcAI-/0/1775668973219?e=1778716800&v=beta&t=i9Np1I4UIvChfPeKCyO0Nx9NOUt_vwibLiDkwZSPvsY",
-        "company_logo_url": "https://media.licdn.com/dms/image/v2/D4E0BAQE19vQfoBh_Hg/company-logo_100_100/B4EZsHrX58KgAQ-/0/1765360369726/creandum_logo?e=1778716800&v=beta&t=DUJDChghWSJVV3v69LaSdmG-5S5JYnW5AdBddHfCuEU"
+        "company_logo_url": "https://s3-us-west-2.amazonaws.com/cbi-image-service-prd/original/9ff93943-4ee9-4aca-8d70-fc87c533b329.png"
       }
     ]
   },
@@ -319,26 +319,26 @@
       {
         "name": "Rie Yano",
         "company": "Coral Capital",
-        "photo_url": "",
+        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQE5UifbwFMy4Q/profile-displayphoto-crop_800_800/B56ZrwzHj.LAAI-/0/1764976524031?e=1778716800&v=beta&t=V-j1yfyMvUc7X-L9X6kLe1u0IbBxBF-8krLyrr2LuFE",
         "company_logo_url": "https://cdn.prod.website-files.com/6703bfea14477e3ce2f16eca/67a5be0cc2c76aa32f9370e9_Coral.png"
       },
       {
         "name": "Murray Newlands",
         "company": "IA Seed Capital",
-        "photo_url": "",
+        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQH-7P4FzuAVnA/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1714845614116?e=1778716800&v=beta&t=fKV-zLL2RHB4d80JFa-8XLN2wAPAQ0k_qyzaA-hwFYc",
         "company_logo_url": "https://iasv.co/wp-content/uploads/2022/08/IA-seeds-1.png"
       },
       {
         "name": "Vaibhav Agrawal",
         "company": "Odd Bird VC",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQGC0kSkUo2XHQ/profile-displayphoto-crop_800_800/B56ZvdXG1dKwAQ-/0/1768945381151",
-        "company_logo_url": "https://media.licdn.com/dms/image/v2/D560BAQHpU3tDXYGZLQ/company-logo_200_200/company-logo_200_200/0/1718166187207/dia_vc_logo"
+        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQGC0kSkUo2XHQ/profile-displayphoto-crop_800_800/B56ZvdXG1dKwAQ-/0/1768945381151?e=1778716800&v=beta&t=JfVNy_Kiyn6S2wMlXPQoS-etBGUtsxmScjHoGs8RU98",
+        "company_logo_url": "https://media.licdn.com/dms/image/v2/D560BAQHpU3tDXYGZLQ/company-logo_100_100/company-logo_100_100/0/1718166187207/dia_vc_logo?e=1778716800&v=beta&t=ZQeFVuWfURnu-XPpYN1VU0nxi1rC6klSbJ_dxT6TAqs"
       },
       {
         "name": "Vik Ghai",
         "company": "G2C Ventures",
-        "photo_url": "",
-        "company_logo_url": "https://cdn.prod.website-files.com/631fef7bf9733bf3e5529a4a/682dcf41d6cab75af8e6e69b_Screenshot%202025-05-21%20at%204.03.49"
+        "photo_url": "https://images.crunchbase.com/image/upload/c_thumb,h_256,w_256,f_auto,g_face,z_0.7,q_auto:eco,dpr_1/1767bc9c655c411f8d3271a90161a38e?ik-sanitizeSvg=true",
+        "company_logo_url": "https://media.licdn.com/dms/image/v2/D560BAQFIEbnT1d5j_w/company-logo_100_100/B56Zp_z7B9HQAQ-/0/1763080909207/g2c_venture_partners_logo?e=1778716800&v=beta&t=MWGz0WwtER0Q_0OOILvmPLcUUaE_Ri8amtcgKv8r9N4"
       }
     ]
   },
@@ -350,8 +350,8 @@
       {
         "name": "Bhola Chhetri",
         "company": "Broadcom",
-        "photo_url": "",
-        "company_logo_url": "https://upload.wikimedia.org/wikipedia/commons/4/47/Broadcom_logo_%281991-2016%29.svg"
+        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQFfK_HCq4RRWg/profile-displayphoto-crop_800_800/B56ZfH3XqEHoAI-/0/1751404871085?e=1778716800&v=beta&t=nB-W0uoy-6NMNkqeUjblNnt5PT8uIAcav4a95io2YvA",
+        "company_logo_url": "https://media.licdn.com/dms/image/v2/C4E0BAQGDwy-AGAu-Hg/company-logo_100_100/company-logo_100_100/0/1631307574919?e=1778716800&v=beta&t=QeyZhwHtmatAzKemHYvPpNweWC2sM77m-uYBIdTjicA"
       }
     ],
     "confirmed_speakers": [
@@ -359,13 +359,13 @@
         "name": "Mohammad Islam",
         "company": "Threshold VC",
         "photo_url": "https://signal-api.nfx.com/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBd2lXQVE9PSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--a7bd91116b7776c5edbd21cab44b9629fef36537/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBPZ2hxY0djNkUzSmxjMmw2WlY5MGIxOW1hV3hzV3dkcEFsZ0NhUUpZQWc9PSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--f8e22238db523e6e5e5a8ae643921849c4b207bd/0",
-        "company_logo_url": "https://media.licdn.com/dms/image/v2/C4E0BAQHKuca51ugXrg/company-logo_200_200/company-logo_200_200/0/1630563785329/thresholdvc_logo"
+        "company_logo_url": "https://www.threshold.vc/images/Group.svg"
       },
       {
         "name": "Nikhil Choudhary",
         "company": "Nirman Ventures",
-        "photo_url": "",
-        "company_logo_url": "https://media.licdn.com/dms/image/v2/D4E0BAQHmcltpEo26xQ/company-logo_200_200/company-logo_200_200/0/1700106095559/nirmanvc_logo"
+        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQEUHLuCNUwhPQ/profile-displayphoto-crop_800_800/B56Z2ts4.VKIAI-/0/1776735722376?e=1778716800&v=beta&t=yrgzvxNG3jcKd09OuHngb73VaW_5MhK8lbPqM2gGUAA",
+        "company_logo_url": "https://media.licdn.com/dms/image/v2/D4E0BAQHmcltpEo26xQ/company-logo_100_100/company-logo_100_100/0/1700106095559/nirmanvc_logo?e=1778716800&v=beta&t=Rs0MWbURO7BAoPyKd5BU-ipHd-OFk6T1R-KTQLvvURs"
       }
     ]
   },
@@ -509,8 +509,8 @@
       {
         "name": "Bhola Chhetri",
         "company": "Broadcom",
-        "photo_url": "",
-        "company_logo_url": "https://upload.wikimedia.org/wikipedia/commons/4/47/Broadcom_logo_%281991-2016%29.svg"
+        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQFfK_HCq4RRWg/profile-displayphoto-crop_800_800/B56ZfH3XqEHoAI-/0/1751404871085?e=1778716800&v=beta&t=nB-W0uoy-6NMNkqeUjblNnt5PT8uIAcav4a95io2YvA",
+        "company_logo_url": "https://media.licdn.com/dms/image/v2/C4E0BAQGDwy-AGAu-Hg/company-logo_100_100/company-logo_100_100/0/1631307574919?e=1778716800&v=beta&t=QeyZhwHtmatAzKemHYvPpNweWC2sM77m-uYBIdTjicA"
       }
     ],
     "confirmed_speakers": []
