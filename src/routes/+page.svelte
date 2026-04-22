@@ -10,9 +10,10 @@
 	import { browser } from '$app/environment';
 	import { tick } from 'svelte';
 	import sampleEvents from '../../default-list.json';
+	import { resolveRenderableImageUrl } from '$lib/image';
 	import {
-		applyThemeToProject,
 		applyThemeToThumbnail,
+		applyThemeToProject,
 		cloneProject,
 		createEmptyPerson,
 		normalizeProject,
@@ -547,16 +548,26 @@
 		urlStatuses = { ...urlStatuses, [url]: status };
 	}
 
+	function getRenderableUrl(url: string) {
+		if (!activeEvent) {
+			return url;
+		}
+
+		return resolveRenderableImageUrl(url, activeEvent.thumbnail.templateId);
+	}
+
 	function ensureUrlStatus(url: string) {
 		if (!browser || !url || urlStatuses[url] === 'valid' || urlStatuses[url] === 'loading') {
 			return;
 		}
 
+		const renderableUrl = getRenderableUrl(url);
 		markUrl(url, 'loading');
 		const image = new Image();
 		image.onload = () => markUrl(url, 'valid');
 		image.onerror = () => markUrl(url, 'failed');
-		image.src = url;
+		image.crossOrigin = 'anonymous';
+		image.src = renderableUrl;
 	}
 
 	$effect(() => {
@@ -841,8 +852,8 @@
 					`{activeEvent ? buildThumbnailFilename(activeEvent, 'png') : 'id-event-name.png'}`.
 				</p>
 				<p class="panel-caption">
-					Remote image URLs can preview successfully but still fail during browser export if the host
-					disallows cross-origin rendering.
+					AI Collective remote images are proxied at render time to keep logos and headshots exportable
+					across more hosts.
 				</p>
 			</div>
 		</section>

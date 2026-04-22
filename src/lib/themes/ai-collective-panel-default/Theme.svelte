@@ -2,7 +2,10 @@
 	import { onMount, tick } from 'svelte';
 	import fallbackLogoUrl from './assets/AIC-Logo-White-cropped.png';
 	import wordmarkUrl from './assets/Wordmark-White.png';
+	import { resolveRenderableImageUrl } from '$lib/image';
 	import type { ThumbnailEvent, ThumbnailPerson } from '$lib/types';
+
+	const THEME_ID = 'ai-collective-panel-default';
 
 	const TITLE_MAX_FONT_SIZE = 84;
 	const TITLE_MIN_FONT_SIZE = 24;
@@ -40,6 +43,10 @@
 
 	function hasImageUrl(value: string) {
 		return value.trim().length > 0;
+	}
+
+	function getImageSrc(value: string) {
+		return resolveRenderableImageUrl(value, THEME_ID);
 	}
 
 	function splitTitleAccent(title: string) {
@@ -136,7 +143,7 @@
 <div class="thumbnail-frame">
 	<div class="thumbnail-bg">
 		{#if hasImageUrl(event.thumbnail.backgroundImageUrl)}
-			<img src={event.thumbnail.backgroundImageUrl} alt="" crossorigin="anonymous" />
+			<img src={getImageSrc(event.thumbnail.backgroundImageUrl)} alt="" crossorigin="anonymous" />
 		{/if}
 	</div>
 	<div class="thumbnail-overlay"></div>
@@ -182,8 +189,9 @@
 							<div class="speaker-avatar">
 								{#if hasImageUrl(person.photoUrl)}
 									<img
-										src={person.photoUrl}
+										src={getImageSrc(person.photoUrl)}
 										alt={person.name || 'Speaker photo'}
+										crossorigin="anonymous"
 										style={`object-position: ${person.photoPositionX}% ${person.photoPositionY}%;`}
 									/>
 								{:else}
@@ -201,8 +209,9 @@
 								{#if hasImageUrl(person.companyLogoUrl)}
 									<img
 										class="speaker-logo"
-										src={person.companyLogoUrl}
+										src={getImageSrc(person.companyLogoUrl)}
 										alt={person.company || 'Company logo'}
+										crossorigin="anonymous"
 										style={`transform: scale(${person.logoScale / 100});`}
 									/>
 								{:else}
@@ -220,7 +229,7 @@
 				<div class="event-lockup-label">Presented at</div>
 				<div class="event-lockup-logo">
 					{#if hasImageUrl(event.thumbnail.eventLogoUrl)}
-						<img src={event.thumbnail.eventLogoUrl} alt="Event logo" />
+						<img src={getImageSrc(event.thumbnail.eventLogoUrl)} alt="Event logo" crossorigin="anonymous" />
 					{:else}
 						<div class="event-lockup-placeholder">Add event logo</div>
 					{/if}
