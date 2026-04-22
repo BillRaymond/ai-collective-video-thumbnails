@@ -80,6 +80,7 @@
 	align-items: center;
 	gap: 2rem;
 	min-height: 0;
+	overflow: hidden;
 }
 
 .title-column {
@@ -88,12 +89,15 @@
 	justify-content: center;
 	align-self: stretch;
 	min-width: 0;
+	min-height: 0;
 	height: 100%;
-	padding-block: 10%;
+	box-sizing: border-box;
+	padding-block: clamp(18px, 7%, 40px);
+	overflow: hidden;
 }
 
 .thumbnail-title-box {
-	flex: 1;
+	flex: 0 1 auto;
 	min-height: 0;
 	overflow: hidden;
 }
@@ -127,18 +131,22 @@
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
+	align-self: stretch;
+	min-height: 0;
+	gap: 12px;
+	overflow: hidden;
 }
 
 .speaker-card {
 	display: flex;
 	align-items: center;
 	gap: 14px;
-	margin-top: 12px;
 	padding: 12px 18px 12px 12px;
 	border-radius: 999px;
 	background: rgba(255, 255, 255, 0.08);
 	border: 1px solid rgba(255, 255, 255, 0.14);
 	backdrop-filter: blur(8px);
+	flex: 0 0 auto;
 }
 
 .speaker-card-empty {
@@ -241,9 +249,13 @@
 	padding-block: 12px;
 }
 
+.people-column.speaker-count-4,
+.people-column.speaker-count-5 {
+	gap: 10px;
+}
+
 .speaker-count-4 .speaker-card,
 .speaker-count-5 .speaker-card {
-	margin-top: 10px;
 	padding: 10px 16px 10px 10px;
 }
 
@@ -258,8 +270,11 @@
 	font-size: 18px;
 }
 
+.people-column.speaker-count-6plus {
+	gap: 8px;
+}
+
 .speaker-count-6plus .speaker-card {
-	margin-top: 8px;
 	padding: 8px 14px 8px 8px;
 }
 

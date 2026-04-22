@@ -12,7 +12,9 @@
 	const TITLE_FIT_HEIGHT_RATIO = 0.98;
 
 	let { event }: { event: ThumbnailEvent } = $props();
+	let titleColumn: HTMLDivElement | null = null;
 	let titleBox: HTMLDivElement | null = null;
+	let eyebrowElement: HTMLParagraphElement | null = null;
 	let titleElement: HTMLHeadingElement | null = null;
 	let resizeObserver: ResizeObserver | null = null;
 	let fitRequest = 0;
@@ -129,12 +131,17 @@
 	}
 
 	function fitTitleToBounds() {
-		if (!titleBox || !titleElement) {
+		if (!titleColumn || !titleBox || !titleElement) {
 			return;
 		}
 
 		const availableWidth = Math.floor(titleBox.clientWidth);
-		const availableHeight = Math.floor(titleBox.clientHeight * TITLE_FIT_HEIGHT_RATIO);
+		const eyebrowStyles = eyebrowElement ? getComputedStyle(eyebrowElement) : null;
+		const eyebrowHeight = eyebrowElement?.offsetHeight ?? 0;
+		const eyebrowMarginBottom = eyebrowStyles ? parseFloat(eyebrowStyles.marginBottom) || 0 : 0;
+		const availableHeight = Math.floor(
+			(titleColumn.clientHeight - eyebrowHeight - eyebrowMarginBottom) * TITLE_FIT_HEIGHT_RATIO
+		);
 
 		if (availableWidth <= 0 || availableHeight <= 0) {
 			return;
@@ -215,9 +222,9 @@
 			</div>
 		</div>
 
-		<div class="thumbnail-main">
-			<div class="title-column">
-				<p class="thumbnail-eyebrow">{event.thumbnail.eyebrow}</p>
+			<div class="thumbnail-main">
+			<div class="title-column" bind:this={titleColumn}>
+				<p class="thumbnail-eyebrow" bind:this={eyebrowElement}>{event.thumbnail.eyebrow}</p>
 				<div class="thumbnail-title-box" bind:this={titleBox}>
 					<h1 class="thumbnail-title" bind:this={titleElement}>
 						{titleParts.prefix}
