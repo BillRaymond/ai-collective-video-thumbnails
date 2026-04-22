@@ -52,12 +52,6 @@
         "company_logo_url": "https://upload.wikimedia.org/wikipedia/commons/5/53/Bubble_Logo_no_code.svg"
       },
       {
-        "name": "Adelina Martiniuc",
-        "company": "RoryPlans",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQFsDq4SEyKN4Q/profile-displayphoto-crop_800_800/B56ZisBL3JG4AI-/0/1755232649479",
-        "company_logo_url": "https://www.roryplans.ai/_next/image?url=%2Fimages%2Frory-logo.png&w=3840&q=75"
-      },
-      {
         "name": "Dmytro Spodarets",
         "company": "Data Phoenix",
         "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQFZpcRKXniPDw/profile-displayphoto-crop_800_800/B56ZmmD5LvHAAI-/0/1759427663036",
@@ -158,12 +152,6 @@
         "company": "Drata",
         "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQHVCgPBy8yMeA/profile-displayphoto-crop_800_800/B56Z1HjWtLGwAI-/0/1775021945247",
         "company_logo_url": "https://asset.brandfetch.io/idQSKHq3LU/id70baVbJ-.png"
-      },
-      {
-        "name": "Adelina Martiniuc",
-        "company": "RoryPlans",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQFsDq4SEyKN4Q/profile-displayphoto-crop_800_800/B56ZisBL3JG4AI-/0/1755232649479",
-        "company_logo_url": "https://www.roryplans.ai/_next/image?url=%2Fimages%2Frory-logo.png&w=3840&q=75"
       },
       {
         "name": "Vidhya Bhat",
@@ -281,12 +269,6 @@
       }
     ],
     "confirmed_speakers": [
-      {
-        "name": "AJ Green",
-        "company": "The AI Collective",
-        "photo_url": "https://images.lumacdn.com/cdn-cgi/image/format%3Dauto%2Cfit%3Dcover%2Cdpr%3D2%2Canim%3Dfalse%2Cbackground%3Dwhite%2Cquality%3D75%2Cwidth%3D112%2Cheight%3D112/avatars/cq/91f4d7f7-fe76-4203-8399-1ba9dea2612d.jpg",
-        "company_logo_url": "https://platform.aicollective.com/_next/image?url=%2Flogo.png&w=256&q=75"
-      },
       {
         "name": "Shekhar Natarajan",
         "company": "Orchestra.ai",
@@ -411,12 +393,6 @@
         "company": "Palo Alto Networks",
         "photo_url": "",
         "company_logo_url": "https://upload.wikimedia.org/wikipedia/commons/0/0b/PaloAltoNetworks_2020_Logo.svg"
-      },
-      {
-        "name": "Adelina Martiniuc",
-        "company": "RoryPlans",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQFsDq4SEyKN4Q/profile-displayphoto-crop_800_800/B56ZisBL3JG4AI-/0/1755232649479",
-        "company_logo_url": "https://www.roryplans.ai/_next/image?url=%2Fimages%2Frory-logo.png&w=3840&q=75"
       },
       {
         "name": "Felicia Popa",
@@ -596,12 +572,6 @@
         "company": "Neo4j",
         "photo_url": "",
         "company_logo_url": "https://dist.neo4j.com/wp-content/uploads/neo4j_logo_globe.png"
-      },
-      {
-        "name": "Adelina Martiniuc",
-        "company": "RoryPlans",
-        "photo_url": "https://media.licdn.com/dms/image/v2/D5603AQFsDq4SEyKN4Q/profile-displayphoto-crop_800_800/B56ZisBL3JG4AI-/0/1755232649479",
-        "company_logo_url": "https://www.roryplans.ai/_next/image?url=%2Fimages%2Frory-logo.png&w=3840&q=75"
       },
       {
         "name": "Florent De Goriainoff",
