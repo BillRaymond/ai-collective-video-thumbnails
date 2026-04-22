@@ -46,7 +46,7 @@
 		return value.trim().length > 0;
 	}
 
-	function splitPeopleIntoRows(people: ThumbnailPerson[], maxPerRow = 4) {
+	function splitPeopleIntoRows(people: ThumbnailPerson[], maxPerRow = 3) {
 		if (people.length === 0) {
 			return [];
 		}
@@ -345,7 +345,7 @@
 	}
 
 	.phoenix-people {
-		--phoenix-card-width: 246px;
+		--phoenix-card-width: 320px;
 		width: fit-content;
 		max-width: 80%;
 		display: flex;
@@ -393,9 +393,10 @@
 
 	.phoenix-person {
 		display: grid;
-		flex: 0 1 var(--phoenix-card-width);
+		flex: 0 0 var(--phoenix-card-width);
 		width: var(--phoenix-card-width);
 		max-width: 100%;
+		min-width: 0;
 		grid-template-columns: 46px minmax(0, 1fr);
 		grid-template-areas:
 			'role role'
@@ -403,7 +404,7 @@
 		align-items: center;
 		column-gap: 10px;
 		row-gap: 6px;
-		min-height: 74px;
+		min-height: 90px;
 		padding: 9px 10px 10px;
 		border-radius: 16px;
 		background: linear-gradient(180deg, rgba(46, 28, 98, 0.7), rgba(19, 11, 46, 0.92));
@@ -452,9 +453,8 @@
 		font-size: 19px;
 		font-weight: 700;
 		line-height: 1.05;
+		text-transform: uppercase;
 		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
 	}
 
 	.phoenix-company {
@@ -474,38 +474,15 @@
 	}
 
 	.phoenix-count-3 {
-		--phoenix-card-width: 246px;
+		--phoenix-card-width: 320px;
 	}
 
 	.phoenix-count-4 {
-		--phoenix-card-width: 234px;
+		--phoenix-card-width: 320px;
 	}
 
 	.phoenix-count-5plus {
-		--phoenix-card-width: 234px;
-	}
-
-	.phoenix-count-5plus .phoenix-person {
-		grid-template-columns: 40px minmax(0, 1fr);
-		grid-template-areas:
-			'role role'
-			'avatar copy';
-		min-height: 54px;
-		padding: 8px 10px;
-	}
-
-	.phoenix-count-5plus .phoenix-avatar {
-		width: 40px;
-		height: 40px;
-	}
-
-	.phoenix-count-5plus .phoenix-role,
-	.phoenix-count-5plus .phoenix-company {
-		font-size: 10px;
-	}
-
-	.phoenix-count-5plus .phoenix-name {
-		font-size: 16px;
+		--phoenix-card-width: 320px;
 	}
 
 	.phoenix-meta-row {
