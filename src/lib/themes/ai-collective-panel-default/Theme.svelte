@@ -16,6 +16,7 @@
 	let titleElement: HTMLHeadingElement | null = null;
 	let resizeObserver: ResizeObserver | null = null;
 	let fitRequest = 0;
+	let failedPhotoKeys = $state<Record<string, boolean>>({});
 	let titleParts = $derived(splitTitleAccent(event.title));
 
 	function getInitials(name: string) {
@@ -47,6 +48,30 @@
 
 	function getImageSrc(value: string) {
 		return resolveRenderableImageUrl(value, THEME_ID);
+	}
+
+	function getPersonPhotoKey(person: ThumbnailPerson) {
+		return `${person.id}:${person.photoUrl.trim()}`;
+	}
+
+	function isPersonPhotoFailed(person: ThumbnailPerson) {
+		return Boolean(failedPhotoKeys[getPersonPhotoKey(person)]);
+	}
+
+	function markPersonPhotoFailed(person: ThumbnailPerson) {
+		const key = getPersonPhotoKey(person);
+		failedPhotoKeys = { ...failedPhotoKeys, [key]: true };
+	}
+
+	function clearPersonPhotoFailed(person: ThumbnailPerson) {
+		const key = getPersonPhotoKey(person);
+
+		if (!failedPhotoKeys[key]) {
+			return;
+		}
+
+		const { [key]: _, ...rest } = failedPhotoKeys;
+		failedPhotoKeys = rest;
 	}
 
 	function splitTitleAccent(title: string) {
@@ -186,13 +211,17 @@
 				{:else}
 					{#each event.thumbnail.people as person (person.id)}
 						<div class="speaker-card">
-							<div class="speaker-avatar">
+							<div class={`speaker-avatar ${isPersonPhotoFailed(person) ? 'photo-failed' : ''}`}>
 								{#if hasImageUrl(person.photoUrl)}
+									<div class="speaker-avatar-fallback">{getInitials(person.name)}</div>
 									<img
 										src={getImageSrc(person.photoUrl)}
 										alt={person.name || 'Speaker photo'}
 										crossorigin="anonymous"
+										data-load-failed={isPersonPhotoFailed(person) ? 'true' : undefined}
 										style={`object-position: ${person.photoPositionX}% ${person.photoPositionY}%;`}
+										onload={() => clearPersonPhotoFailed(person)}
+										onerror={() => markPersonPhotoFailed(person)}
 									/>
 								{:else}
 									<div class="speaker-avatar-fallback">{getInitials(person.name)}</div>

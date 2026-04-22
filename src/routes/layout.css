@@ -659,6 +659,8 @@ optgroup {
 .error-text {
 	margin: 0;
 	color: var(--color-danger);
+	overflow-wrap: anywhere;
+	word-break: break-word;
 }
 
 .modal-backdrop {
@@ -757,6 +759,8 @@ optgroup {
 
 .modal-status {
 	color: rgba(255, 255, 255, 0.78);
+	max-width: min(100%, 70rem);
+	text-wrap: pretty;
 }
 
 @media (max-width: 1280px) {

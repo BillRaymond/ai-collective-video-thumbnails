@@ -124,6 +124,10 @@ function humanizeRenderError(error: unknown) {
 		const source = target ?? currentTarget;
 
 		if (source instanceof HTMLImageElement && source.src) {
+			if (source.src.startsWith('data:')) {
+				return 'The browser could not render one of the generated image assets. A remote source likely failed to load or decode during export.';
+			}
+
 			return `The browser could not render remote image assets. A failing image source appears to be: ${source.src}`;
 		}
 
@@ -165,7 +169,31 @@ function isInvalidImageSource(image: HTMLImageElement) {
 	return false;
 }
 
-function buildSanitizedRenderClone(node: ExportableNode) {
+function isFailedRenderedImage(image: HTMLImageElement) {
+	return image.dataset.loadFailed === 'true' || (image.complete && image.naturalWidth === 0);
+}
+
+function blobToDataUrl(blob: Blob) {
+	return new Promise<string>((resolve, reject) => {
+		const reader = new FileReader();
+		reader.onload = () => resolve(String(reader.result));
+		reader.onerror = () => reject(reader.error ?? new Error('Failed to read image blob.'));
+		reader.readAsDataURL(blob);
+	});
+}
+
+async function inlineCloneImageSource(cloneImage: HTMLImageElement, sourceUrl: string) {
+	const response = await fetch(sourceUrl, { mode: 'cors', credentials: 'omit' });
+
+	if (!response.ok) {
+		throw new Error(`Image fetch failed with status ${response.status}`);
+	}
+
+	const blob = await response.blob();
+	cloneImage.src = await blobToDataUrl(blob);
+}
+
+async function buildSanitizedRenderClone(node: ExportableNode) {
 	const clone = node.cloneNode(true) as HTMLElement;
 	clone.style.position = 'relative';
 	clone.style.left = '0';
@@ -173,14 +201,36 @@ function buildSanitizedRenderClone(node: ExportableNode) {
 	clone.style.transform = 'none';
 	clone.style.opacity = '1';
 
-	for (const image of clone.querySelectorAll('img')) {
+	const originalImages = Array.from(node.querySelectorAll('img'));
+	const cloneImages = Array.from(clone.querySelectorAll('img'));
+
+	for (const [index, image] of cloneImages.entries()) {
+		const originalImage = originalImages[index];
 		const rawSrc = image.getAttribute('src')?.trim() ?? '';
 
 		if (rawSrc) {
 			image.setAttribute('src', rawSrc);
 		}
 
-		if (isInvalidImageSource(image)) {
+		if (
+			image.dataset.loadFailed === 'true' ||
+			isInvalidImageSource(image) ||
+			(originalImage instanceof HTMLImageElement && isFailedRenderedImage(originalImage))
+		) {
+			image.remove();
+			continue;
+		}
+
+		const sourceUrl =
+			originalImage instanceof HTMLImageElement ? originalImage.currentSrc || originalImage.src : image.src;
+
+		if (!sourceUrl || sourceUrl.startsWith('data:')) {
+			continue;
+		}
+
+		try {
+			await inlineCloneImageSource(image, sourceUrl);
+		} catch {
 			image.remove();
 		}
 	}
@@ -189,7 +239,7 @@ function buildSanitizedRenderClone(node: ExportableNode) {
 }
 
 async function renderWithSanitizedClone<T>(node: ExportableNode, renderer: (clone: HTMLElement) => Promise<T>) {
-	const clone = buildSanitizedRenderClone(node);
+	const clone = await buildSanitizedRenderClone(node);
 	const sandbox = document.createElement('div');
 	sandbox.style.position = 'fixed';
 	sandbox.style.inset = '0';

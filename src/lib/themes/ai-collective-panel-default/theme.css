@@ -164,6 +164,7 @@
 }
 
 .speaker-avatar {
+	position: relative;
 	width: 76px;
 	height: 76px;
 	border-radius: 50%;
@@ -179,10 +180,14 @@
 }
 
 .speaker-avatar img {
+	position: relative;
+	z-index: 1;
 	object-fit: cover;
 }
 
 .speaker-avatar-fallback {
+	position: absolute;
+	inset: 0;
 	display: grid;
 	place-items: center;
 	background:
@@ -191,6 +196,10 @@
 	font-size: 1.25rem;
 	font-weight: 700;
 	letter-spacing: 0.06em;
+}
+
+.speaker-avatar.photo-failed img {
+	display: none;
 }
 
 .speaker-copy {
