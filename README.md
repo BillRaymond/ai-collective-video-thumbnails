@@ -61,6 +61,8 @@ The app accepts either:
 
 When you save the edited project JSON, the app preserves source event fields and adds a `thumbnail` block per event.
 
+The saved JSON is intended to stay theme-agnostic. It stores shared thumbnail data and feature values that any theme may choose to use, ignore, or reinterpret at render time.
+
 ```json
 {
   "version": "1.0",
@@ -156,7 +158,13 @@ Each theme package owns:
 - `assets/` for theme-specific fonts and imagery
 - `defaults.ts` for theme-aware fallback values
 
-The event JSON still stores `thumbnail.templateId` for backward compatibility. Internally, that value is treated as the selected theme ID.
+### Theme behavior and JSON expectations
+
+- The project JSON is theme-agnostic and should be treated as shared content/configuration, not as a theme-specific document format.
+- A theme decides which fields from `thumbnail` it uses, ignores, or renders differently.
+- The editor theme should remain stable while you move between slides; slide navigation should not unexpectedly swap themes.
+- The event JSON still stores `thumbnail.templateId` for backward compatibility with saved projects and imports.
+- Treat `thumbnail.templateId` as compatibility metadata, not as the source of truth for whether the underlying JSON is tied to a single theme forever.
 
 ### Theme package rules
 

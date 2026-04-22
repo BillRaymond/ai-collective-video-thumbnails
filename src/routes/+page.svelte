@@ -12,6 +12,7 @@
 	import sampleEvents from '../../default-list.json';
 	import {
 		applyThemeToProject,
+		applyThemeToThumbnail,
 		cloneProject,
 		createEmptyPerson,
 		normalizeProject,
@@ -233,7 +234,6 @@
 		}
 
 		selectedEventId = `${activeEvent.id}`;
-		selectedThemeId = activeEvent.thumbnail.templateId;
 
 		if (!activeEvent.thumbnail.people.some((person) => person.id === openPersonId)) {
 			openPersonId = activeEvent.thumbnail.people[0]?.id ?? '';
@@ -251,6 +251,17 @@
 
 	$effect(() => {
 		syncActiveSelections();
+	});
+
+	$effect(() => {
+		if (!activeEvent || !selectedThemeId || activeEvent.thumbnail.templateId === selectedThemeId) {
+			return;
+		}
+
+		updateEvent(`${activeEvent.id}`, (event) => ({
+			...event,
+			thumbnail: applyThemeToThumbnail(event, event.thumbnail, selectedThemeId)
+		}));
 	});
 
 	$effect(() => {
@@ -774,7 +785,6 @@
 							</div>
 						{/if}
 					</div>
-					<p>Live 1280×720 canvas that stays visible while you edit.</p>
 				</div>
 				<div class="preview-toolbar">
 					<div class="modal-navigation preview-navigation" aria-label="Slide navigation">
@@ -800,14 +810,6 @@
 							<span aria-hidden="true">→</span>
 						</button>
 					</div>
-					<button
-						class="secondary-button compact-button"
-						type="button"
-						onclick={openPreviewModal}
-						disabled={!activeEvent}
-					>
-						Open image
-					</button>
 				</div>
 			</div>
 
@@ -858,7 +860,6 @@
 
 					<div class="editor-appbar-controls">
 						<label class="toolbar-field theme-field">
-							<span>Theme</span>
 							<select
 								value={selectedThemeId}
 								onchange={(changeEvent) =>
