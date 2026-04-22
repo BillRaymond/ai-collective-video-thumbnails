@@ -9,12 +9,9 @@
 
 	const TITLE_MAX_FONT_SIZE = 84;
 	const TITLE_MIN_FONT_SIZE = 24;
-	const TITLE_FIT_HEIGHT_RATIO = 0.98;
 
 	let { event }: { event: ThumbnailEvent } = $props();
-	let titleColumn: HTMLDivElement | null = null;
 	let titleBox: HTMLDivElement | null = null;
-	let eyebrowElement: HTMLParagraphElement | null = null;
 	let titleElement: HTMLHeadingElement | null = null;
 	let resizeObserver: ResizeObserver | null = null;
 	let fitRequest = 0;
@@ -130,20 +127,29 @@
 		titleElement?.style.setProperty('--thumbnail-title-size', `${size}px`);
 	}
 
+	function titleFits() {
+		if (!titleBox || !titleElement) {
+			return true;
+		}
+
+		const titleRect = titleElement.getBoundingClientRect();
+		const boxRect = titleBox.getBoundingClientRect();
+		const clippedHorizontally =
+			Math.ceil(titleElement.scrollWidth) > Math.floor(titleBox.clientWidth) + 1 ||
+			titleRect.right > boxRect.right + 1;
+		const clippedVertically =
+			Math.ceil(titleElement.scrollHeight) > Math.floor(titleBox.clientHeight) + 1 ||
+			titleRect.bottom > boxRect.bottom + 1;
+
+		return !clippedHorizontally && !clippedVertically;
+	}
+
 	function fitTitleToBounds() {
-		if (!titleColumn || !titleBox || !titleElement) {
+		if (!titleBox || !titleElement) {
 			return;
 		}
 
-		const availableWidth = Math.floor(titleBox.clientWidth);
-		const eyebrowStyles = eyebrowElement ? getComputedStyle(eyebrowElement) : null;
-		const eyebrowHeight = eyebrowElement?.offsetHeight ?? 0;
-		const eyebrowMarginBottom = eyebrowStyles ? parseFloat(eyebrowStyles.marginBottom) || 0 : 0;
-		const availableHeight = Math.floor(
-			(titleColumn.clientHeight - eyebrowHeight - eyebrowMarginBottom) * TITLE_FIT_HEIGHT_RATIO
-		);
-
-		if (availableWidth <= 0 || availableHeight <= 0) {
+		if (titleBox.clientWidth <= 0 || titleBox.clientHeight <= 0) {
 			return;
 		}
 
@@ -155,9 +161,7 @@
 			const mid = Math.floor((low + high) / 2);
 			applyTitleSize(mid);
 
-			const fits =
-				titleElement.scrollWidth <= availableWidth + 1 &&
-				titleElement.scrollHeight <= availableHeight;
+			const fits = titleFits();
 
 			if (fits) {
 				best = mid;
@@ -168,6 +172,11 @@
 		}
 
 		applyTitleSize(best);
+
+		while (best > TITLE_MIN_FONT_SIZE && !titleFits()) {
+			best -= 1;
+			applyTitleSize(best);
+		}
 	}
 
 	function scheduleTitleFit() {
@@ -223,8 +232,8 @@
 		</div>
 
 			<div class="thumbnail-main">
-			<div class="title-column" bind:this={titleColumn}>
-				<p class="thumbnail-eyebrow" bind:this={eyebrowElement}>{event.thumbnail.eyebrow}</p>
+			<div class="title-column">
+				<p class="thumbnail-eyebrow">{event.thumbnail.eyebrow}</p>
 				<div class="thumbnail-title-box" bind:this={titleBox}>
 					<h1 class="thumbnail-title" bind:this={titleElement}>
 						{titleParts.prefix}
