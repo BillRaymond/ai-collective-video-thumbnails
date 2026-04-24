@@ -81,6 +81,8 @@
 	let exportMessage = $state('');
 	let isExporting = $state(false);
 	let exportRenderNode = $state<HTMLElement | null>(null);
+	let exportSavedNotice = $state('');
+	let exportSavedTimeout: ReturnType<typeof setTimeout> | null = null;
 	let previewViewport = $state<HTMLElement | null>(null);
 	let previewScale = $state(1);
 	let urlStatuses = $state<Record<string, ImageStatus>>({});
@@ -243,8 +245,25 @@
 			if (previewImageUrl.startsWith('blob:')) {
 				URL.revokeObjectURL(previewImageUrl);
 			}
+
+			if (exportSavedTimeout) {
+				clearTimeout(exportSavedTimeout);
+			}
 		};
 	});
+
+	function showExportSavedNotice(message: string) {
+		exportSavedNotice = message;
+
+		if (exportSavedTimeout) {
+			clearTimeout(exportSavedTimeout);
+		}
+
+		exportSavedTimeout = setTimeout(() => {
+			exportSavedNotice = '';
+			exportSavedTimeout = null;
+		}, 1800);
+	}
 
 	$effect(() => {
 		if (!browser || !isPreviewModalOpen) {
@@ -630,12 +649,14 @@
 		isExporting = true;
 		exportError = '';
 		exportMessage = `Exporting ${buildThumbnailFilename(activeEvent, format)}...`;
+		exportSavedNotice = '';
 
 		try {
 			await tick();
 			await new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
 			await downloadSingleThumbnail(exportRenderNode, activeEvent, format);
-			exportMessage = `Saved ${buildThumbnailFilename(activeEvent, format)}.`;
+			exportMessage = '';
+			showExportSavedNotice(`Saved ${format.toUpperCase()}`);
 		} catch (error) {
 			exportError =
 				error instanceof Error ? error.message : 'The thumbnail could not be exported.';
@@ -953,6 +974,18 @@
 					</div>
 				</div>
 
+				<div class="export-status-row" aria-live="polite">
+					{#if exportMessage}
+						<p class="panel-caption export-status-text">{exportMessage}</p>
+					{:else if exportSavedNotice}
+						<p class="export-saved-pill">{exportSavedNotice}</p>
+					{:else if activeEvent}
+						<p class="panel-caption export-status-text">
+							Exports current slide as `{buildThumbnailFilename(activeEvent, 'png')}` or `.jpg`.
+						</p>
+					{/if}
+				</div>
+
 				{#if !dev}
 					<p class="read-only-notice">
 						⚠ This is a published site, edits are not saved. To request changes, <a href="https://www.cambermast.com/contact" target="_blank" rel="noopener noreferrer">contact Bill Raymond</a>.
@@ -970,9 +1003,6 @@
 							</ul>
 						{/if}
 					</div>
-				{/if}
-				{#if exportMessage}
-					<p class="panel-caption">{exportMessage}</p>
 				{/if}
 				{#if exportError}
 					<p class="error-text">{exportError}</p>
@@ -1373,9 +1403,11 @@
 
 {#if activeEvent && activeTheme}
 	<div class="offscreen-render-shell" aria-hidden="true">
-		<div class="thumbnail-export-root" bind:this={exportRenderNode}>
-			<activeTheme.component event={activeEvent} />
-		</div>
+		{#key `${selectedThemeId}:${activeEvent.id}`}
+			<div class="thumbnail-export-root" bind:this={exportRenderNode}>
+				<activeTheme.component event={activeEvent} />
+			</div>
+		{/key}
 	</div>
 {/if}
 
