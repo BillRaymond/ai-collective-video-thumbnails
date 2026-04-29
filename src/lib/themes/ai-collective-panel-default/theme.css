@@ -225,7 +225,6 @@
 	font-size: 14px;
 	font-weight: 700;
 	letter-spacing: 0.05em;
-	text-transform: uppercase;
 }
 
 .speaker-logo-wrap {
@@ -239,11 +238,23 @@
 	padding-left: 12px;
 }
 
+.speaker-logo-scale {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transform-origin: center center;
+}
+
 .speaker-logo {
 	max-width: 120px;
 	max-height: 30px;
 	object-fit: contain;
-	transform-origin: center center;
+}
+
+.speaker-logo-has-background {
+	padding: var(--logo-bg-padding, 1px);
+	background: #ffffff;
+	box-sizing: content-box;
 }
 
 .speaker-logo-fallback {

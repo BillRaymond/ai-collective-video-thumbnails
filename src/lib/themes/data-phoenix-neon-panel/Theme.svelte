@@ -71,6 +71,16 @@
 		photoFailureTracker.clearFailed(person);
 	}
 
+	function getDisplayPersonName(person: ThumbnailPerson) {
+		const name = person.name || 'Unnamed speaker';
+		return event.thumbnail.capitalizePersonNames ? name.toUpperCase() : name;
+	}
+
+	function getDisplayCompanyName(person: ThumbnailPerson) {
+		const company = person.company || ' ';
+		return event.thumbnail.capitalizeCompanyNames ? company.toUpperCase() : company;
+	}
+
 	function personCountClass(people: ThumbnailPerson[]) {
 		if (people.length <= 1) {
 			return 'phoenix-count-1';
@@ -213,8 +223,8 @@
 											</div>
 
 											<div class="phoenix-person-copy">
-												<div class="phoenix-name">{person.name || 'Unnamed speaker'}</div>
-												<div class="phoenix-company">{person.company || ' '}</div>
+												<div class="phoenix-name">{getDisplayPersonName(person)}</div>
+												<div class="phoenix-company">{getDisplayCompanyName(person)}</div>
 											</div>
 										</div>
 									{/each}
@@ -515,7 +525,6 @@
 		font-size: 19px;
 		font-weight: 700;
 		line-height: 1.05;
-		text-transform: uppercase;
 		white-space: nowrap;
 	}
 
@@ -524,7 +533,6 @@
 		font-size: 12px;
 		font-weight: 700;
 		letter-spacing: 0.09em;
-		text-transform: uppercase;
 		color: rgba(236, 238, 255, 0.8);
 		white-space: nowrap;
 		overflow: hidden;

@@ -33,10 +33,11 @@ export const theme: ThumbnailThemeDefinition = {
 				...event.moderators.map((m, i) => ({
 					id: createId('moderator', i),
 					role: 'Moderator',
-					name: m.name.toUpperCase(),
+					name: m.name,
 					company: m.company,
 					photoUrl: m.photo_url,
 					companyLogoUrl: m.company_logo_url || '',
+					companyLogoHasBackground: false,
 					photoPositionX: 50,
 					photoPositionY: 50,
 					logoScale: 100
@@ -44,10 +45,11 @@ export const theme: ThumbnailThemeDefinition = {
 				...event.confirmed_speakers.map((s, i) => ({
 					id: createId('panelist', i),
 					role: 'Panelist',
-					name: s.name.toUpperCase(),
+					name: s.name,
 					company: s.company,
 					photoUrl: s.photo_url,
 					companyLogoUrl: s.company_logo_url || '',
+					companyLogoHasBackground: false,
 					photoPositionX: 50,
 					photoPositionY: 50,
 					logoScale: 100
@@ -57,7 +59,16 @@ export const theme: ThumbnailThemeDefinition = {
 	},
 	editor: {
 		brandingFields: ['eventLogoUrl', 'producerCredit', 'ctaText'],
-		personFields: ['role', 'name', 'company', 'photoUrl', 'companyLogoUrl', 'photoPosition', 'logoScale']
+		personFields: [
+			'role',
+			'name',
+			'company',
+			'photoUrl',
+			'companyLogoUrl',
+			'companyLogoHasBackground',
+			'photoPosition',
+			'logoScale'
+		]
 	},
 	assets,
 	legacyAssetUrls: {

@@ -93,6 +93,16 @@
 		return hasImageUrl(person.companyLogoUrl) && !isPersonCompanyLogoFailed(person);
 	}
 
+	function getDisplayPersonName(person: ThumbnailPerson) {
+		const name = person.name || 'Unnamed speaker';
+		return event.thumbnail.capitalizePersonNames ? name.toUpperCase() : name;
+	}
+
+	function getDisplayCompanyName(person: ThumbnailPerson) {
+		const company = person.company || ' ';
+		return event.thumbnail.capitalizeCompanyNames ? company.toUpperCase() : company;
+	}
+
 	function shouldRenderEventLogo() {
 		return hasImageUrl(getLocationLogoUrl()) && !eventLogoFailed;
 	}
@@ -115,6 +125,10 @@
 		}
 
 		return getLocationLabel();
+	}
+
+	function getLogoBackgroundPadding(logoScale: number) {
+		return 100 / Math.max(logoScale, 1);
 	}
 
 	function fitTitleToBounds() {
@@ -224,22 +238,27 @@
 
 							<div class="speaker-copy">
 								<div class="speaker-role">{person.role || 'Panelist'}</div>
-								<div class="speaker-name">{person.name || 'Unnamed speaker'}</div>
-								<div class="speaker-company">{person.company || ' '}</div>
+								<div class="speaker-name">{getDisplayPersonName(person)}</div>
+								<div class="speaker-company">{getDisplayCompanyName(person)}</div>
 							</div>
 
 							{#if shouldRenderCompanyLogo(person)}
 								<div class="speaker-logo-wrap">
-									<img
-										class="speaker-logo"
-										src={getImageSrc(person.companyLogoUrl)}
-										alt={person.company || 'Company logo'}
-										crossorigin="anonymous"
-										data-load-failed={isPersonCompanyLogoFailed(person) ? 'true' : undefined}
-										style={`transform: scale(${person.logoScale / 100});`}
-										onload={() => clearPersonCompanyLogoFailed(person)}
-										onerror={() => markPersonCompanyLogoFailed(person)}
-									/>
+									<div
+										class="speaker-logo-scale"
+										style={`--logo-bg-padding: ${getLogoBackgroundPadding(person.logoScale)}px; transform: scale(${person.logoScale / 100});`}
+									>
+										<img
+											class="speaker-logo"
+											class:speaker-logo-has-background={person.companyLogoHasBackground}
+											src={getImageSrc(person.companyLogoUrl)}
+											alt={person.company || 'Company logo'}
+											crossorigin="anonymous"
+											data-load-failed={isPersonCompanyLogoFailed(person) ? 'true' : undefined}
+											onload={() => clearPersonCompanyLogoFailed(person)}
+											onerror={() => markPersonCompanyLogoFailed(person)}
+										/>
+									</div>
 								</div>
 							{/if}
 						</div>
