@@ -19,6 +19,7 @@
 	let { event }: { event: ThumbnailEvent } = $props();
 	let titleBox: HTMLDivElement | null = null;
 	let titleElement: HTMLHeadingElement | null = null;
+	let eyebrowElement: HTMLParagraphElement | null = $state(null);
 	let resizeObserver: ResizeObserver | null = null;
 	let fitRequest = 0;
 	let failedPhotoKeys = $state<Record<string, boolean>>({});
@@ -131,12 +132,17 @@
 	}
 
 	function fitTitleToBounds() {
+		const eyebrowOffset = eyebrowElement
+			? eyebrowElement.offsetHeight +
+				parseFloat(getComputedStyle(eyebrowElement).marginBottom || '0')
+			: 0;
 		fitTitleFontSize({
 			box: titleBox,
 			element: titleElement,
 			cssVariableName: '--thumbnail-title-size',
 			min: TITLE_MIN_FONT_SIZE,
-			max: TITLE_MAX_FONT_SIZE
+			max: TITLE_MAX_FONT_SIZE,
+			heightOffset: eyebrowOffset
 		});
 	}
 
@@ -170,6 +176,8 @@
 
 	$effect(() => {
 		event.title;
+		event.day;
+		event.location;
 		tick().then(() => {
 			scheduleTitleFit();
 		});
@@ -194,10 +202,10 @@
 
 			<div class="thumbnail-main">
 			<div class="title-column">
-				{#if getEyebrow(event.day)}
-					<p class="thumbnail-eyebrow">{getEyebrow(event.day)}</p>
-				{/if}
 				<div class="thumbnail-title-box" bind:this={titleBox}>
+					{#if getEyebrow(event.day)}
+						<p class="thumbnail-eyebrow" bind:this={eyebrowElement}>{getEyebrow(event.day)}</p>
+					{/if}
 					<h1 class="thumbnail-title" bind:this={titleElement}>
 						{titleParts.prefix}
 						{#if titleParts.accent}
