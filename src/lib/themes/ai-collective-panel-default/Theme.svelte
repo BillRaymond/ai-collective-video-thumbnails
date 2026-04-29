@@ -13,8 +13,6 @@
 
 	const THEME_ID = 'ai-collective-panel-default';
 	const DEFAULT_VARIANT_LABEL = 'Panel Discussion';
-	const DEFAULT_EYEBROW_SUFFIX = 'The AI Collective';
-
 	const TITLE_MAX_FONT_SIZE = 84;
 	const TITLE_MIN_FONT_SIZE = 24;
 
@@ -116,15 +114,16 @@
 	}
 
 	function getLocationLabel() {
-		return event.location || DEFAULT_EYEBROW_SUFFIX;
+		return event.location ?? '';
 	}
 
 	function getEyebrow(day: ThumbnailEvent['day']) {
-		if (day !== undefined && day !== null && `${day}`.trim() !== '') {
-			return `Day ${day} · ${getLocationLabel()}`;
-		}
-
-		return getLocationLabel();
+		const loc = getLocationLabel();
+		const hasDay = day !== undefined && day !== null && `${day}`.trim() !== '';
+		const hasLoc = loc.trim() !== '';
+		if (!hasDay && !hasLoc) return '';
+		if (hasDay) return `Day ${day}${hasLoc ? ` · ${loc}` : ''}`;
+		return loc;
 	}
 
 	function getLogoBackgroundPadding(logoScale: number) {
@@ -195,7 +194,9 @@
 
 			<div class="thumbnail-main">
 			<div class="title-column">
-				<p class="thumbnail-eyebrow">{getEyebrow(event.day)}</p>
+				{#if getEyebrow(event.day)}
+					<p class="thumbnail-eyebrow">{getEyebrow(event.day)}</p>
+				{/if}
 				<div class="thumbnail-title-box" bind:this={titleBox}>
 					<h1 class="thumbnail-title" bind:this={titleElement}>
 						{titleParts.prefix}

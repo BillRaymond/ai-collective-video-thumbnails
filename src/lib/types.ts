@@ -29,8 +29,8 @@ export interface EventSource {
 	day?: number | string | null;
 	title: string;
 	type: string;
-	location: string;
-	location_logo_url: string;
+	location?: string;
+	location_logo_url?: string;
 	moderators: EventPersonSource[];
 	confirmed_speakers: EventPersonSource[];
 }

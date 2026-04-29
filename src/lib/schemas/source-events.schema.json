@@ -20,7 +20,7 @@
     "sourceEvent": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "title", "type", "location", "location_logo_url"],
+      "required": ["id", "title", "type"],
       "properties": {
         "id": {
           "anyOf": [

@@ -585,7 +585,7 @@
 	}
 
 	function updateActiveEventField(
-		field: 'title' | 'type' | 'location' | 'location_logo_url',
+		field: 'title' | 'type' | 'location' | 'location_logo_url' | 'day',
 		value: string
 	) {
 		if (!activeEvent) {
@@ -594,7 +594,14 @@
 
 		updateEvent(`${activeEvent.id}`, (event) => ({
 			...event,
-			[field]: field === 'location_logo_url' ? resolveAppImageUrl(value) : value
+			[field]:
+				field === 'location_logo_url'
+					? resolveAppImageUrl(value)
+					: field === 'day'
+						? value.trim() === ''
+							? undefined
+							: value.trim()
+						: value
 		}));
 	}
 
@@ -894,7 +901,7 @@
 			activeEvent.thumbnail.eventLogoUrl,
 			activeEvent.location_logo_url,
 			...activeEvent.thumbnail.people.flatMap((person) => [person.photoUrl, person.companyLogoUrl])
-		].filter(Boolean);
+		].filter((url): url is string => Boolean(url));
 
 		for (const url of urls) {
 			ensureUrlStatus(url);
@@ -1452,10 +1459,24 @@
 								</label>
 
 								<label class="field-block">
+									<span>Day</span>
+									<input
+										type="text"
+										placeholder="e.g. 1"
+										value={activeEvent.day ?? ''}
+										oninput={(inputEvent) =>
+											updateActiveEventField(
+												'day',
+												(inputEvent.currentTarget as HTMLInputElement).value
+											)}
+									/>
+								</label>
+
+								<label class="field-block">
 									<span>Location</span>
 									<input
 										type="text"
-										value={activeEvent.location}
+										value={activeEvent.location ?? ''}
 										oninput={(inputEvent) =>
 											updateActiveEventField(
 												'location',
@@ -1475,7 +1496,7 @@
 												(inputEvent.currentTarget as HTMLInputElement).value
 											)}
 									/>
-									<small>{statusLabel[getUrlStatus(activeEvent.location_logo_url)]}</small>
+									<small>{statusLabel[getUrlStatus(activeEvent.location_logo_url ?? '')]}</small>
 								</label>
 
 								<label class="checkbox-field field-block-full">

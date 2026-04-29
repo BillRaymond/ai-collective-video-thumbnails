@@ -52,7 +52,7 @@
 	}
 
 	function getLocationLabel() {
-		return event.location || 'Event location';
+		return event.location ?? '';
 	}
 
 	function getLocationLogoUrl() {
