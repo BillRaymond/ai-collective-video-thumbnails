@@ -314,9 +314,9 @@ button {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	min-height: 2rem;
-	padding: 0.5rem 0.78rem;
-	border-radius: 0.8rem;
+	min-height: 1.9rem;
+	padding: 0.44rem 0.68rem;
+	border-radius: 0.5rem;
 	border: 1px solid rgba(255, 255, 255, 0.14);
 	text-decoration: none;
 	font-size: 0.84rem;
@@ -332,10 +332,10 @@ button {
 
 .compact-button,
 .menu-button {
-	min-height: 1.85rem;
-	padding: 0.45rem 0.7rem;
-	border-radius: 0.72rem;
-	font-size: 0.8rem;
+	min-height: 1.72rem;
+	padding: 0.38rem 0.62rem;
+	border-radius: 0.5rem;
+	font-size: 0.78rem;
 }
 
 .menu-button {
@@ -431,11 +431,24 @@ button {
 	box-shadow: none;
 }
 
+.primary-button:focus-visible,
+.secondary-button:focus-visible,
+.ghost-button:focus-visible,
+.nav-icon-button:focus-visible,
+.menu-button:focus-visible,
+.section-tab:focus-visible,
+.subsection-tab:focus-visible,
+.event-launcher:focus-visible {
+	outline: 0;
+	border-color: rgba(249, 115, 22, 0.72);
+	box-shadow: inset 0 0 0 1px rgba(249, 115, 22, 0.72);
+}
+
 .editor-toolbar {
 	display: flex;
 	flex-direction: column;
-	gap: 0.65rem;
-	padding: 0.85rem 0;
+	gap: 0.38rem;
+	padding: 0.62rem 0;
 }
 
 .compact-toolbar {
@@ -446,7 +459,7 @@ button {
 .subsection-tabs,
 .people-toolbar {
 	display: flex;
-	gap: 0.65rem;
+	gap: 0.35rem;
 	align-items: center;
 }
 
@@ -455,9 +468,30 @@ button {
 	flex-wrap: wrap;
 }
 
+.section-tabs {
+	padding: 0.2rem;
+	border-radius: 0.5rem;
+	background: rgba(255, 255, 255, 0.04);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.section-tab {
+	flex: 1 1 4.5rem;
+	border-color: transparent;
+	background: transparent;
+}
+
+.subsection-tabs {
+	gap: 0.3rem;
+	padding-inline: 0.12rem;
+}
+
 .subsection-tab {
 	background: rgba(255, 255, 255, 0.03);
-	font-size: 0.78rem;
+	min-height: 1.45rem;
+	padding: 0.28rem 0.5rem;
+	border-radius: 0.45rem;
+	font-size: 0.74rem;
 }
 
 .toolbar-field {
@@ -474,9 +508,9 @@ button {
 
 .toolbar-field select {
 	width: 100%;
-	padding: 0.7rem 0.8rem;
+	padding: 0.52rem 0.62rem;
 	border: 1px solid rgba(255, 255, 255, 0.12);
-	border-radius: 0.8rem;
+	border-radius: 0.5rem;
 	background: rgba(255, 255, 255, 0.06);
 	color: var(--color-white);
 }
@@ -528,14 +562,14 @@ button {
 .editor-body {
 	flex: 1;
 	min-height: 0;
-	padding-top: 0.85rem;
+	padding-top: 0.62rem;
 	overflow: auto;
 }
 
 .editor-section {
 	display: flex;
 	flex-direction: column;
-	gap: 0.85rem;
+	gap: 0.62rem;
 }
 
 .editor-section-head {
@@ -550,9 +584,10 @@ button {
 }
 
 .people-toolbar,
-.focused-person-summary {
-	padding: 0.8rem;
-	border-radius: 1rem;
+.focused-person-summary,
+.person-roster-row {
+	padding: 0.58rem;
+	border-radius: 0.5rem;
 	background: rgba(255, 255, 255, 0.03);
 	border: 1px solid rgba(255, 255, 255, 0.08);
 }
@@ -568,6 +603,217 @@ button {
 	align-items: center;
 	justify-content: space-between;
 	gap: 0.65rem;
+}
+
+.people-roster {
+	display: flex;
+	flex-direction: column;
+	gap: 0.45rem;
+}
+
+.person-roster-row {
+	position: relative;
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr) auto;
+	grid-template-areas:
+		"handle name actions"
+		"meta meta meta";
+	align-items: start;
+	gap: 0.35rem 0.52rem;
+}
+
+.person-roster-row.active {
+	border-color: rgba(249, 115, 22, 0.34);
+	background: rgba(249, 115, 22, 0.08);
+}
+
+.person-roster-row.dragging {
+	opacity: 0.58;
+}
+
+.person-roster-row.drop-before::before,
+.person-roster-row.drop-after::after {
+	content: '';
+	position: absolute;
+	left: 0.58rem;
+	right: 0.58rem;
+	height: 2px;
+	border-radius: 999px;
+	background: var(--color-orange-400);
+	box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.22);
+}
+
+.person-roster-row.drop-before::before {
+	top: -0.28rem;
+}
+
+.person-roster-row.drop-after::after {
+	bottom: -0.28rem;
+}
+
+.person-drag-handle {
+	grid-area: handle;
+	align-self: start;
+	width: 1.5rem;
+	min-height: 2rem;
+	padding: 0;
+	border-color: transparent;
+	background: transparent;
+	color: rgba(255, 255, 255, 0.48);
+	cursor: grab;
+	font-size: 0.92rem;
+	letter-spacing: -0.16em;
+}
+
+.person-drag-handle:hover,
+.person-drag-handle:focus-visible {
+	color: var(--color-white);
+	background: rgba(255, 255, 255, 0.06);
+	border-color: rgba(255, 255, 255, 0.14);
+}
+
+.person-drag-handle:active {
+	cursor: grabbing;
+}
+
+.person-name-field {
+	grid-area: name;
+	min-width: 0;
+}
+
+.person-name-field span {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
+}
+
+.person-name-field input {
+	width: 100%;
+	min-width: 0;
+	height: 2rem;
+	padding: 0 0.52rem;
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	border-radius: 0.45rem;
+	background: rgba(255, 255, 255, 0.06);
+	color: var(--color-white);
+	font: inherit;
+	font-size: 0.9rem;
+	font-weight: 700;
+}
+
+.person-name-field input:focus {
+	outline: 0;
+	border-color: rgba(249, 115, 22, 0.72);
+	box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.28);
+}
+
+.person-roster-meta {
+	grid-area: meta;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+	min-width: 0;
+	color: rgba(255, 255, 255, 0.62);
+	font-size: 0.76rem;
+}
+
+.person-roster-meta span {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.person-row-actions {
+	grid-area: actions;
+	display: flex;
+	align-items: center;
+	align-self: start;
+	gap: 0.32rem;
+	min-height: 2rem;
+}
+
+.roster-icon-button {
+	position: relative;
+	width: 2rem;
+	min-height: 2rem;
+}
+
+.roster-icon-button svg {
+	width: 1rem;
+	height: 1rem;
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 1.9;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+.roster-tooltip {
+	position: absolute;
+	right: 50%;
+	bottom: calc(100% + 0.42rem);
+	z-index: 2;
+	padding: 0.34rem 0.48rem;
+	border-radius: 0.42rem;
+	background: rgba(8, 17, 34, 0.96);
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	color: var(--color-white);
+	font-size: 0.72rem;
+	font-weight: 650;
+	line-height: 1;
+	pointer-events: none;
+	opacity: 0;
+	transform: translateX(50%) translateY(0.18rem);
+	transition:
+		opacity 150ms ease,
+		transform 150ms ease;
+	white-space: nowrap;
+}
+
+.roster-icon-button:hover .roster-tooltip,
+.roster-icon-button:focus-visible .roster-tooltip {
+	opacity: 1;
+	transform: translateX(50%) translateY(0);
+}
+
+.org-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0.55rem;
+}
+
+.org-row {
+	display: flex;
+	flex-direction: column;
+	gap: 0.55rem;
+	padding: 0.62rem;
+	border-radius: 0.5rem;
+	background: rgba(255, 255, 255, 0.03);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.org-row-head {
+	display: flex;
+	align-items: start;
+	justify-content: space-between;
+	gap: 0.75rem;
+}
+
+.org-row-head h4 {
+	margin: 0;
+	font-size: 0.9rem;
+	font-weight: 650;
+	line-height: 1.2;
+}
+
+.org-row-head span {
+	flex: 0 0 auto;
+	color: rgba(255, 255, 255, 0.68);
+	font-size: 0.75rem;
 }
 
 .editor-empty-state {
@@ -687,17 +933,17 @@ button {
 .form-grid {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 0.75rem;
+	gap: 0.55rem;
 }
 
 .compact-form-grid {
-	gap: 0.68rem;
+	gap: 0.5rem;
 }
 
 .field-block {
 	display: flex;
 	flex-direction: column;
-	gap: 0.38rem;
+	gap: 0.26rem;
 	min-width: 0;
 }
 
@@ -709,9 +955,10 @@ button {
 .field-block select {
 	width: 100%;
 	min-width: 0;
-	padding: 0.68rem 0.78rem;
+	min-height: 2rem;
+	padding: 0.44rem 0.56rem;
 	border: 1px solid rgba(255, 255, 255, 0.12);
-	border-radius: 0.8rem;
+	border-radius: 0.5rem;
 	background: rgba(255, 255, 255, 0.06);
 	color: var(--color-white);
 }
@@ -737,6 +984,44 @@ button {
 	accent-color: var(--color-orange-500);
 }
 
+.display-option-field {
+	min-height: 1.72rem;
+	padding: 0.38rem 0.5rem;
+	border-radius: 0.5rem;
+	background: rgba(255, 255, 255, 0.03);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	line-height: 1;
+}
+
+.display-options-stack {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: 0.4rem;
+}
+
+.display-option-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.4rem;
+}
+
+.display-option-action {
+	width: auto;
+	gap: 0.35rem;
+}
+
+.display-option-action svg {
+	width: 0.9rem;
+	height: 0.9rem;
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 2;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
 option,
 optgroup {
 	background: var(--color-gray-900);
@@ -746,8 +1031,9 @@ optgroup {
 .field-block input:focus,
 .field-block select:focus,
 .toolbar-field select:focus {
-	outline: 2px solid rgba(249, 115, 22, 0.72);
-	outline-offset: 2px;
+	outline: 0;
+	border-color: rgba(249, 115, 22, 0.72);
+	box-shadow: inset 0 0 0 1px rgba(249, 115, 22, 0.72);
 }
 
 .error-text {

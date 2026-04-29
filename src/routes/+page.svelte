@@ -15,6 +15,7 @@
 	import { isAppLocalImagePath, resolveAppImageUrl, resolveRenderableImageUrl } from '$lib/image';
 	import {
 		applyThemeToProject,
+		buildThemeBackedThumbnailDefaults,
 		cloneProject,
 		createEmptyPerson,
 		ProjectImportError,
@@ -41,7 +42,7 @@
 		ThumbnailThemeTextField
 	} from '$lib/types';
 
-	type EditorSection = 'content' | 'style' | 'people';
+	type EditorSection = 'content' | 'style' | 'people' | 'orgs';
 	type EditorSubsection =
 		| 'title'
 		| 'imagery'
@@ -49,6 +50,15 @@
 		| 'roster'
 		| 'details';
 	type AppMenu = 'none' | 'actions' | 'export' | 'events';
+	type DropPlacement = 'before' | 'after';
+	type OrgField = 'company' | 'companyLogoUrl' | 'companyLogoHasBackground';
+	type OrgRow = {
+		key: string;
+		company: string;
+		companyLogoUrl: string;
+		companyLogoHasBackground: boolean;
+		peopleCount: number;
+	};
 
 	const sampleProject = parseProjectImport(sampleEvents);
 	const initialSelectedEventId = `${sampleProject.events[0]?.id ?? ''}`;
@@ -57,7 +67,8 @@
 	const editorSections: Array<{ id: EditorSection; label: string }> = [
 		{ id: 'content', label: 'Content' },
 		{ id: 'style', label: 'Style' },
-		{ id: 'people', label: 'People' }
+		{ id: 'people', label: 'People' },
+		{ id: 'orgs', label: 'Orgs' }
 	];
 
 	const statusLabel: Record<ImageStatus, string> = {
@@ -94,6 +105,10 @@
 	let previewImageKind = $state<PreviewRenderResult['kind']>('raster');
 	let previewImageLoaded = $state(false);
 	let previewModalEventId = $state('');
+	let draggedPersonId = $state('');
+	let dragOverPersonId = $state('');
+	let dragOverPlacement = $state<DropPlacement>('before');
+	let peopleOrderSnapshots = $state<Record<string, string[]>>({});
 
 	function getActiveEvent() {
 		return project.events.find((event) => `${event.id}` === selectedEventId) ?? project.events[0] ?? null;
@@ -120,13 +135,25 @@
 				return activeTheme.editor.brandingFields.length > 0;
 			}
 
-			return activeTheme.editor.personFields.length > 0;
+			if (section.id === 'people') {
+				return activeTheme.editor.personFields.length > 0;
+			}
+
+			return (
+				activeTheme.editor.personFields.includes('company') ||
+				activeTheme.editor.personFields.includes('companyLogoUrl') ||
+				activeTheme.editor.personFields.includes('companyLogoHasBackground')
+			);
 		})
 	);
 	let activePerson = $derived(
 		activeEvent?.thumbnail.people.find((person) => person.id === openPersonId) ??
 			activeEvent?.thumbnail.people[0] ??
 			null
+	);
+	let activeOrgs = $derived(buildOrgRows(activeEvent));
+	let activePeopleOrderChanged = $derived(
+		activeEvent ? Boolean(peopleOrderSnapshots[`${activeEvent.id}`]) : false
 	);
 	let visibleEditorSubsections = $derived(getEditorSubsections(openEditorSection));
 
@@ -180,10 +207,47 @@
 			return subsections;
 		}
 
+		if (section === 'orgs') {
+			return [];
+		}
+
 		return [
 			{ id: 'roster', label: 'Roster' },
 			{ id: 'details', label: 'Details' }
 		];
+	}
+
+	function buildOrgRows(event: ThumbnailEvent | null): OrgRow[] {
+		if (!event) {
+			return [];
+		}
+
+		const orgs = new Map<string, OrgRow>();
+
+		for (const person of event.thumbnail.people) {
+			const key = normalizeMatchKey(person.company);
+
+			if (!key) {
+				continue;
+			}
+
+			const existing = orgs.get(key);
+
+			if (existing) {
+				existing.peopleCount += 1;
+				continue;
+			}
+
+			orgs.set(key, {
+				key,
+				company: person.company,
+				companyLogoUrl: person.companyLogoUrl,
+				companyLogoHasBackground: person.companyLogoHasBackground,
+				peopleCount: 1
+			});
+		}
+
+		return [...orgs.values()].sort((left, right) => left.company.localeCompare(right.company));
 	}
 
 	function toggleAppMenu(menu: Exclude<AppMenu, 'none'>) {
@@ -401,7 +465,11 @@
 		}));
 	}
 
-	function updatePersonField(personId: string, field: keyof ThumbnailPerson, value: string | number) {
+	function updatePersonField(
+		personId: string,
+		field: keyof ThumbnailPerson,
+		value: string | number | boolean
+	) {
 		const source = findPerson(personId);
 		if (!source) {
 			return;
@@ -467,7 +535,53 @@
 			return;
 		}
 
+		if (field === 'companyLogoHasBackground') {
+			const companyKey = normalizeMatchKey(source.person.company);
+
+			if (!companyKey) {
+				updatePersonLocal(personId, (person) => ({
+					...person,
+					companyLogoHasBackground: Boolean(value)
+				}));
+				return;
+			}
+
+			updateAllPeople(
+				(person) => normalizeMatchKey(person.company) === companyKey,
+				(person) => ({ ...person, companyLogoHasBackground: Boolean(value) })
+			);
+			return;
+		}
+
 		updatePersonLocal(personId, (person) => ({ ...person, [field]: value }));
+	}
+
+	function updateOrgField(orgKey: string, field: OrgField, value: string | boolean) {
+		if (!activeEvent) {
+			return;
+		}
+
+		updateEvent(`${activeEvent.id}`, (event) => ({
+			...event,
+			thumbnail: {
+				...event.thumbnail,
+				people: event.thumbnail.people.map((person) => {
+					if (normalizeMatchKey(person.company) !== orgKey) {
+						return person;
+					}
+
+					if (field === 'company') {
+						return { ...person, company: String(value) };
+					}
+
+					if (field === 'companyLogoUrl') {
+						return { ...person, companyLogoUrl: String(value) };
+					}
+
+					return { ...person, companyLogoHasBackground: Boolean(value) };
+				})
+			}
+		}));
 	}
 
 	function updateActiveEventField(
@@ -533,7 +647,60 @@
 		selectEvent(`${project.events[nextIndex]?.id ?? ''}`);
 	}
 
-	function addPerson() {
+	function createNextEventId() {
+		const numericIds = project.events
+			.map((event) => Number(event.id))
+			.filter((id) => Number.isFinite(id));
+
+		if (numericIds.length > 0) {
+			return Math.max(...numericIds) + 1;
+		}
+
+		return `event-${project.events.length + 1}`;
+	}
+
+	function createBlankEvent(): ThumbnailEvent {
+		const id = createNextEventId();
+		const sourceEvent = {
+			id,
+			title: 'Untitled Event',
+			type: '',
+			location: '',
+			location_logo_url: '',
+			moderators: [],
+			confirmed_speakers: []
+		};
+		const themeDefaults = buildThemeBackedThumbnailDefaults(sourceEvent, selectedThemeId);
+
+		return {
+			...sourceEvent,
+			thumbnail: {
+				eventLogoUrl: themeDefaults.eventLogoUrl,
+				backgroundImageUrl: themeDefaults.backgroundImageUrl,
+				producerCredit: themeDefaults.producerCredit,
+				ctaText: themeDefaults.ctaText,
+				locationLogoHasBackground: themeDefaults.locationLogoHasBackground,
+				capitalizePersonNames: themeDefaults.capitalizePersonNames,
+				capitalizeCompanyNames: themeDefaults.capitalizeCompanyNames,
+				people: []
+			}
+		};
+	}
+
+	function addBlankEvent() {
+		const newEvent = createBlankEvent();
+
+		setProject({
+			...project,
+			events: [...project.events, newEvent]
+		});
+		selectedEventId = `${newEvent.id}`;
+		openEditorSection = 'content';
+		openEditorSubsection = 'title';
+		openPersonId = '';
+	}
+
+	function addPerson(nextSubsection: EditorSubsection = 'details') {
 		if (!activeEvent) {
 			return;
 		}
@@ -547,7 +714,7 @@
 			}
 		}));
 		openEditorSection = 'people';
-		openEditorSubsection = 'details';
+		openEditorSubsection = nextSubsection;
 		openPersonId = newPerson.id;
 	}
 
@@ -556,6 +723,7 @@
 			return;
 		}
 
+		const removedPersonIndex = activeEvent.thumbnail.people.findIndex((person) => person.id === personId);
 		const remainingPeople = activeEvent.thumbnail.people.filter((person) => person.id !== personId);
 		updateEvent(`${activeEvent.id}`, (event) => ({
 			...event,
@@ -564,7 +732,119 @@
 				people: remainingPeople
 			}
 		}));
-		openPersonId = remainingPeople[0]?.id ?? '';
+		openPersonId = remainingPeople.some((person) => person.id === openPersonId)
+			? openPersonId
+			: (remainingPeople[Math.max(0, removedPersonIndex - 1)]?.id ?? remainingPeople[0]?.id ?? '');
+	}
+
+	function startPersonDrag(dragEvent: DragEvent, personId: string) {
+		draggedPersonId = personId;
+		dragOverPersonId = personId;
+		dragOverPlacement = 'before';
+		openPersonId = personId;
+		dragEvent.dataTransfer?.setData('text/plain', personId);
+		if (dragEvent.dataTransfer) {
+			dragEvent.dataTransfer.effectAllowed = 'move';
+		}
+	}
+
+	function updatePersonDropTarget(dragEvent: DragEvent, personId: string) {
+		if (!draggedPersonId || draggedPersonId === personId) {
+			return;
+		}
+
+		dragEvent.preventDefault();
+		if (dragEvent.dataTransfer) {
+			dragEvent.dataTransfer.dropEffect = 'move';
+		}
+
+		const row = dragEvent.currentTarget as HTMLElement;
+		const { top, height } = row.getBoundingClientRect();
+		dragOverPersonId = personId;
+		dragOverPlacement = dragEvent.clientY > top + height / 2 ? 'after' : 'before';
+	}
+
+	function reorderPerson(personId: string, targetPersonId: string, placement: DropPlacement) {
+		if (!activeEvent || personId === targetPersonId) {
+			return;
+		}
+
+		const eventId = `${activeEvent.id}`;
+		const people = [...activeEvent.thumbnail.people];
+		const fromIndex = people.findIndex((person) => person.id === personId);
+		const targetIndex = people.findIndex((person) => person.id === targetPersonId);
+
+		if (fromIndex < 0 || targetIndex < 0) {
+			return;
+		}
+
+		const [movedPerson] = people.splice(fromIndex, 1);
+		if (!movedPerson) {
+			return;
+		}
+
+		const adjustedTargetIndex = people.findIndex((person) => person.id === targetPersonId);
+		const insertIndex = placement === 'after' ? adjustedTargetIndex + 1 : adjustedTargetIndex;
+		people.splice(insertIndex, 0, movedPerson);
+
+		if (!peopleOrderSnapshots[eventId]) {
+			peopleOrderSnapshots = {
+				...peopleOrderSnapshots,
+				[eventId]: activeEvent.thumbnail.people.map((person) => person.id)
+			};
+		}
+
+		updateEvent(eventId, (event) => ({
+			...event,
+			thumbnail: {
+				...event.thumbnail,
+				people
+			}
+		}));
+		openPersonId = personId;
+	}
+
+	function resetPersonOrder() {
+		if (!activeEvent) {
+			return;
+		}
+
+		const eventId = `${activeEvent.id}`;
+		const snapshot = peopleOrderSnapshots[eventId];
+		if (!snapshot) {
+			return;
+		}
+
+		const peopleById = new Map(activeEvent.thumbnail.people.map((person) => [person.id, person] as const));
+		const restoredPeople = snapshot
+			.map((personId) => peopleById.get(personId))
+			.filter((person): person is ThumbnailPerson => Boolean(person));
+		const restoredIds = new Set(restoredPeople.map((person) => person.id));
+		const newPeople = activeEvent.thumbnail.people.filter((person) => !restoredIds.has(person.id));
+
+		updateEvent(eventId, (event) => ({
+			...event,
+			thumbnail: {
+				...event.thumbnail,
+				people: [...restoredPeople, ...newPeople]
+			}
+		}));
+
+		const { [eventId]: _removed, ...remainingSnapshots } = peopleOrderSnapshots;
+		peopleOrderSnapshots = remainingSnapshots;
+	}
+
+	function dropPerson(dragEvent: DragEvent, targetPersonId: string) {
+		dragEvent.preventDefault();
+		const personId = draggedPersonId || dragEvent.dataTransfer?.getData('text/plain') || '';
+		reorderPerson(personId, targetPersonId, dragOverPlacement);
+		clearPersonDrag();
+	}
+
+	function clearPersonDrag() {
+		draggedPersonId = '';
+		dragOverPersonId = '';
+		dragOverPlacement = 'before';
 	}
 
 	function markUrl(url: string, status: ImageStatus) {
@@ -956,6 +1236,9 @@
 										<input type="file" accept=".json,application/json" onchange={importJsonFile} />
 										<span>Upload JSON</span>
 									</label>
+									<button class="menu-button" type="button" onclick={() => runMenuAction(addBlankEvent)}>
+										New event
+									</button>
 									<button class="menu-button" type="button" onclick={() => runMenuAction(loadSampleProject)}>
 										Load sample
 									</button>
@@ -1083,6 +1366,7 @@
 								<span>{activeTheme.meta.name}</span>
 							{/if}
 							<span>{activeEvent.thumbnail.people.length} people</span>
+							<span>{activeOrgs.length} orgs</span>
 						</div>
 
 						{#if isEventSummaryExpanded}
@@ -1283,65 +1567,152 @@
 								{/if}
 							</div>
 						</section>
-					{:else}
+					{:else if openEditorSection === 'people'}
 						<section class="editor-section">
 							<div class="editor-section-head compact-section-head">
 								<div>
 									<p class="panel-label">People</p>
-									<h3>{openEditorSubsection === 'roster' ? 'Roster and focus' : 'Focused person editor'}</h3>
+									{#if openEditorSubsection !== 'roster'}
+										<h3>Person details</h3>
+									{/if}
 								</div>
-								<p class="panel-caption">
-									Shared edits still sync automatically by exact name or company match.
-								</p>
 							</div>
 
 							{#if openEditorSubsection === 'roster'}
-								<div class="people-toolbar compact-people-toolbar">
-									<label class="toolbar-field person-picker">
-										<span>Person</span>
-										<select
-											value={openPersonId}
-											onchange={(changeEvent) => {
-												openPersonId = (changeEvent.currentTarget as HTMLSelectElement).value;
-												openEditorSubsection = 'details';
-											}}
-											disabled={activeEvent.thumbnail.people.length === 0}
-										>
-											{#each activeEvent.thumbnail.people as person}
-												<option value={person.id}>
-													{person.name || 'New person'} · {person.role || 'Panelist'}
-												</option>
-											{/each}
-										</select>
+								<div class="display-options-stack">
+									<label class="checkbox-field display-option-field">
+										<input
+											type="checkbox"
+											checked={activeEvent.thumbnail.capitalizePersonNames}
+											onchange={(inputEvent) =>
+												updateActiveThumbnailField(
+													'capitalizePersonNames',
+													(inputEvent.currentTarget as HTMLInputElement).checked
+												)}
+										/>
+										<span>All-caps names</span>
 									</label>
 
-									<div class="people-toolbar-actions compact-people-actions">
-										<button class="secondary-button compact-button" type="button" onclick={addPerson}>
-											Add person
-										</button>
+									<div class="display-option-actions">
 										<button
-											class="ghost-button compact-button"
+											class="secondary-button compact-button display-option-action"
 											type="button"
-											onclick={() => activePerson && removePerson(activePerson.id)}
-											disabled={!activePerson}
+											onclick={() => addPerson('roster')}
 										>
-											Remove
+											<svg viewBox="0 0 24 24" aria-hidden="true">
+												<path d="M12 5v14" />
+												<path d="M5 12h14" />
+											</svg>
+											<span>Add</span>
 										</button>
+
+										{#if activePeopleOrderChanged}
+											<button
+												class="ghost-button compact-button display-option-action"
+												type="button"
+												onclick={resetPersonOrder}
+											>
+												<svg viewBox="0 0 24 24" aria-hidden="true">
+													<path d="M4 7h11a5 5 0 1 1-3.5 8.5" />
+													<path d="M4 7l4-4" />
+													<path d="M4 7l4 4" />
+												</svg>
+												<span>Reset order</span>
+											</button>
+										{/if}
 									</div>
 								</div>
 
-								{#if activePerson}
-									<div class="focused-person-summary">
-										<p class="panel-caption">
-											Editing {activePerson.name || 'new person'} with {activePerson.role || 'no role yet'}.
-										</p>
-										<button
-											class="secondary-button compact-button"
-											type="button"
-											onclick={() => setEditorSubsection('details')}
-										>
-											Edit details
-										</button>
+								{#if activeEvent.thumbnail.people.length > 0}
+									<div class="people-roster" aria-label="People roster" role="list">
+										{#each activeEvent.thumbnail.people as person (person.id)}
+											<div
+												class:active={person.id === openPersonId}
+												class:dragging={draggedPersonId === person.id}
+												class:drop-before={dragOverPersonId === person.id && dragOverPlacement === 'before'}
+												class:drop-after={dragOverPersonId === person.id && dragOverPlacement === 'after'}
+												class="person-roster-row"
+												role="listitem"
+												ondragover={(dragEvent) => updatePersonDropTarget(dragEvent, person.id)}
+												ondrop={(dragEvent) => dropPerson(dragEvent, person.id)}
+												ondragleave={() => {
+													if (dragOverPersonId === person.id) {
+														dragOverPersonId = '';
+													}
+												}}
+											>
+												<button
+													class="person-drag-handle"
+													type="button"
+													draggable="true"
+													aria-label={`Drag ${person.name || 'person'} to reorder`}
+													title="Drag to reorder"
+													ondragstart={(dragEvent) => startPersonDrag(dragEvent, person.id)}
+													ondragend={clearPersonDrag}
+												>
+													<span aria-hidden="true">⋮⋮</span>
+												</button>
+												<label class="person-name-field">
+													<span>Name</span>
+													<input
+														type="text"
+														value={person.name}
+														placeholder="New person"
+														onfocus={() => (openPersonId = person.id)}
+														oninput={(inputEvent) =>
+															updatePersonField(
+																person.id,
+																'name',
+																(inputEvent.currentTarget as HTMLInputElement).value
+															)}
+													/>
+												</label>
+												<div class="person-roster-meta">
+													<span>{person.role || 'Panelist'}</span>
+													{#if person.company}
+														<span>{person.company}</span>
+													{/if}
+												</div>
+												<div class="person-row-actions">
+													<button
+														class="nav-icon-button roster-icon-button"
+														type="button"
+														aria-label={`Edit ${person.name || 'person'} details`}
+														title="Edit details"
+														onclick={() => {
+															openPersonId = person.id;
+															setEditorSubsection('details');
+														}}
+													>
+														<span class="roster-tooltip">Edit details</span>
+														<svg viewBox="0 0 24 24" aria-hidden="true">
+															<path d="M4 20h4l11-11-4-4L4 16v4Z" />
+															<path d="m14 6 4 4" />
+														</svg>
+													</button>
+													<button
+														class="nav-icon-button roster-icon-button"
+														type="button"
+														aria-label={`Remove ${person.name || 'person'}`}
+														title="Remove"
+														onclick={() => removePerson(person.id)}
+													>
+														<span class="roster-tooltip">Remove person</span>
+														<svg viewBox="0 0 24 24" aria-hidden="true">
+															<path d="M4 7h16" />
+															<path d="M10 11v6" />
+															<path d="M14 11v6" />
+															<path d="m6 7 1 14h10l1-14" />
+															<path d="M9 7V4h6v3" />
+														</svg>
+													</button>
+												</div>
+											</div>
+										{/each}
+									</div>
+								{:else}
+									<div class="editor-empty-state">
+										<p>No people on this event yet.</p>
 									</div>
 								{/if}
 							{:else if activePerson}
@@ -1428,6 +1799,22 @@
 										</label>
 									{/if}
 
+									{#if themeSupportsPersonField('companyLogoHasBackground')}
+										<label class="checkbox-field field-block-full">
+											<input
+												type="checkbox"
+												checked={activePerson.companyLogoHasBackground}
+												onchange={(inputEvent) =>
+													updatePersonField(
+														activePerson.id,
+														'companyLogoHasBackground',
+														(inputEvent.currentTarget as HTMLInputElement).checked
+													)}
+											/>
+											<span>White box behind logo</span>
+										</label>
+									{/if}
+
 									{#if themeSupportsPersonField('photoPosition')}
 										<label class="field-block">
 											<span>Photo X</span>
@@ -1483,9 +1870,106 @@
 							{:else}
 								<div class="editor-empty-state">
 									<p>No people on this event yet.</p>
-									<button class="secondary-button compact-button" type="button" onclick={addPerson}>
+									<button
+										class="secondary-button compact-button"
+										type="button"
+										onclick={() => addPerson('details')}
+									>
 										Add first person
 									</button>
+								</div>
+							{/if}
+						</section>
+					{:else}
+						<section class="editor-section">
+							<div class="editor-section-head compact-section-head">
+								<div>
+									<p class="panel-label">Orgs</p>
+									<h3>Company logos</h3>
+								</div>
+							</div>
+
+							<label class="checkbox-field display-option-field">
+								<input
+									type="checkbox"
+									checked={activeEvent.thumbnail.capitalizeCompanyNames}
+									onchange={(inputEvent) =>
+										updateActiveThumbnailField(
+											'capitalizeCompanyNames',
+											(inputEvent.currentTarget as HTMLInputElement).checked
+										)}
+								/>
+								<span>Capitalize org names in output</span>
+							</label>
+
+							{#if activeOrgs.length > 0}
+								<div class="org-list">
+									{#each activeOrgs as org (org.key)}
+										<div class="org-row">
+											<div class="org-row-head">
+												<div>
+													<p class="panel-label">Org</p>
+													<h4>{org.company}</h4>
+												</div>
+												<span>{org.peopleCount} {org.peopleCount === 1 ? 'person' : 'people'}</span>
+											</div>
+
+											<div class="form-grid compact-form-grid">
+												{#if themeSupportsPersonField('company')}
+													<label class="field-block">
+														<span>Company name</span>
+														<input
+															type="text"
+															value={org.company}
+															oninput={(inputEvent) =>
+																updateOrgField(
+																	org.key,
+																	'company',
+																	(inputEvent.currentTarget as HTMLInputElement).value
+																)}
+														/>
+													</label>
+												{/if}
+
+												{#if themeSupportsPersonField('companyLogoUrl')}
+													<label class="field-block">
+														<span>Logo URL</span>
+														<input
+															type="url"
+															value={org.companyLogoUrl}
+															oninput={(inputEvent) =>
+																updateOrgField(
+																	org.key,
+																	'companyLogoUrl',
+																	(inputEvent.currentTarget as HTMLInputElement).value
+																)}
+														/>
+														<small>{statusLabel[getUrlStatus(org.companyLogoUrl)]}</small>
+													</label>
+												{/if}
+
+												{#if themeSupportsPersonField('companyLogoHasBackground')}
+													<label class="checkbox-field field-block-full">
+														<input
+															type="checkbox"
+															checked={org.companyLogoHasBackground}
+															onchange={(inputEvent) =>
+																updateOrgField(
+																	org.key,
+																	'companyLogoHasBackground',
+																	(inputEvent.currentTarget as HTMLInputElement).checked
+																)}
+														/>
+														<span>White box behind logo</span>
+													</label>
+												{/if}
+											</div>
+										</div>
+									{/each}
+								</div>
+							{:else}
+								<div class="editor-empty-state">
+									<p>No companies on this event yet.</p>
 								</div>
 							{/if}
 						</section>
