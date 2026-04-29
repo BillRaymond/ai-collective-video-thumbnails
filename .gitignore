@@ -2,9 +2,11 @@ node_modules/
 
 # Build output
 build/
+build.stale.*/
 dist/
 .output/
 .svelte-kit/
+.svelte-kit.stale.*/
 .vercel/
 .netlify/
 .wrangler/
