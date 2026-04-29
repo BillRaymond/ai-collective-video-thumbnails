@@ -56,6 +56,7 @@
         "company": { "type": "string" },
         "photoUrl": { "type": "string" },
         "companyLogoUrl": { "type": "string" },
+        "companyLogoHasBackground": { "type": "boolean" },
         "photoPositionX": { "type": "number" },
         "photoPositionY": { "type": "number" },
         "logoScale": { "type": "number" }
@@ -77,6 +78,8 @@
         "producerCredit": { "type": "string" },
         "ctaText": { "type": "string" },
         "locationLogoHasBackground": { "type": "boolean" },
+        "capitalizePersonNames": { "type": "boolean", "default": true },
+        "capitalizeCompanyNames": { "type": "boolean", "default": true },
         "people": {
           "type": "array",
           "items": { "$ref": "#/definitions/thumbnailPerson" }

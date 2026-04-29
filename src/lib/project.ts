@@ -85,11 +85,13 @@ function buildBaseThumbnailDefaults(): Omit<ThumbnailConfig, 'people'> {
 		backgroundImageUrl: '',
 		producerCredit: '',
 		ctaText: '',
-		locationLogoHasBackground: false
+		locationLogoHasBackground: false,
+		capitalizePersonNames: true,
+		capitalizeCompanyNames: true
 	};
 }
 
-function buildThemeBackedThumbnailDefaults(event: EventSource, themeId: string) {
+export function buildThemeBackedThumbnailDefaults(event: EventSource, themeId: string) {
 	const theme = getThemeById(themeId);
 	const baseDefaults = buildBaseThumbnailDefaults();
 	const themeDefaults = theme?.defaults(event) ?? {};
@@ -106,6 +108,10 @@ function buildThemeBackedThumbnailDefaults(event: EventSource, themeId: string) 
 		ctaText: withFallback(themeDefaults.ctaText, baseDefaults.ctaText),
 		locationLogoHasBackground:
 			themeDefaults.locationLogoHasBackground ?? baseDefaults.locationLogoHasBackground,
+		capitalizePersonNames:
+			themeDefaults.capitalizePersonNames ?? baseDefaults.capitalizePersonNames,
+		capitalizeCompanyNames:
+			themeDefaults.capitalizeCompanyNames ?? baseDefaults.capitalizeCompanyNames,
 		people: themeDefaults.people as ThumbnailPerson[] | undefined
 	};
 }
@@ -118,6 +124,7 @@ export function buildPeopleFromSource(event: EventSource): ThumbnailPerson[] {
 		company: person.company,
 		photoUrl: person.photo_url,
 		companyLogoUrl: person.company_logo_url,
+		companyLogoHasBackground: false,
 		photoPositionX: 50,
 		photoPositionY: 50,
 		logoScale: 100
@@ -130,6 +137,7 @@ export function buildPeopleFromSource(event: EventSource): ThumbnailPerson[] {
 		company: person.company,
 		photoUrl: person.photo_url,
 		companyLogoUrl: person.company_logo_url,
+		companyLogoHasBackground: false,
 		photoPositionX: 50,
 		photoPositionY: 50,
 		logoScale: 100
@@ -148,6 +156,10 @@ function normalizePerson(eventId: EventSource['id'], value: unknown, index: numb
 		company: asString(safePerson.company),
 		photoUrl: resolveAppImageUrl(asString(safePerson.photoUrl)),
 		companyLogoUrl: resolveAppImageUrl(asString(safePerson.companyLogoUrl)),
+		companyLogoHasBackground:
+			typeof safePerson.companyLogoHasBackground === 'boolean'
+				? safePerson.companyLogoHasBackground
+				: false,
 		photoPositionX:
 			typeof safePerson.photoPositionX === 'number' ? safePerson.photoPositionX : 50,
 		photoPositionY:
@@ -220,6 +232,14 @@ function normalizeThumbnail(event: EventSource, thumbnailValue: unknown): Thumbn
 			typeof safeThumbnail.locationLogoHasBackground === 'boolean'
 				? safeThumbnail.locationLogoHasBackground
 				: (themeDefaults.locationLogoHasBackground ?? false),
+		capitalizePersonNames:
+			typeof safeThumbnail.capitalizePersonNames === 'boolean'
+				? safeThumbnail.capitalizePersonNames
+				: themeDefaults.capitalizePersonNames,
+		capitalizeCompanyNames:
+			typeof safeThumbnail.capitalizeCompanyNames === 'boolean'
+				? safeThumbnail.capitalizeCompanyNames
+				: themeDefaults.capitalizeCompanyNames,
 		people: normalizedPeople
 	};
 }
@@ -405,6 +425,7 @@ export function createEmptyPerson(eventId: EventSource['id'], peopleCount: numbe
 		company: '',
 		photoUrl: '',
 		companyLogoUrl: '',
+		companyLogoHasBackground: false,
 		photoPositionX: 50,
 		photoPositionY: 50,
 		logoScale: 100

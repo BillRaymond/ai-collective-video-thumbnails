@@ -104,6 +104,7 @@ The saved JSON is intended to stay theme-agnostic. It stores shared thumbnail da
             "company": "The AI Collective",
             "photoUrl": "",
             "companyLogoUrl": "https://example.com/logo.png",
+            "companyLogoHasBackground": false,
             "photoPositionX": 50,
             "photoPositionY": 50,
             "logoScale": 100

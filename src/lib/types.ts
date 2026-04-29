@@ -13,6 +13,7 @@ export type ThumbnailThemePersonField =
 	| 'company'
 	| 'photoUrl'
 	| 'companyLogoUrl'
+	| 'companyLogoHasBackground'
 	| 'photoPosition'
 	| 'logoScale';
 
@@ -41,6 +42,7 @@ export interface ThumbnailPerson {
 	company: string;
 	photoUrl: string;
 	companyLogoUrl: string;
+	companyLogoHasBackground: boolean;
 	photoPositionX: number;
 	photoPositionY: number;
 	logoScale: number;
@@ -52,6 +54,8 @@ export interface ThumbnailConfig {
 	producerCredit: string;
 	ctaText: string;
 	locationLogoHasBackground: boolean;
+	capitalizePersonNames: boolean;
+	capitalizeCompanyNames: boolean;
 	people: ThumbnailPerson[];
 }
 
