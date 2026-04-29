@@ -67,6 +67,9 @@ function normalizeEventSource(value: unknown): EventSource {
 		day:
 			typeof safeEvent.day === 'number' || typeof safeEvent.day === 'string' ? safeEvent.day : undefined,
 		title: asString(safeEvent.title, 'Untitled Event'),
+		type: asString(safeEvent.type),
+		location: asString(safeEvent.location),
+		location_logo_url: resolveAppImageUrl(asString(safeEvent.location_logo_url)),
 		moderators: asPeople(safeEvent.moderators),
 		confirmed_speakers: asPeople(safeEvent.confirmed_speakers)
 	};
@@ -81,7 +84,8 @@ function buildBaseThumbnailDefaults(): Omit<ThumbnailConfig, 'people'> {
 		eventLogoUrl: '',
 		backgroundImageUrl: '',
 		producerCredit: '',
-		ctaText: ''
+		ctaText: '',
+		locationLogoHasBackground: false
 	};
 }
 
@@ -100,6 +104,8 @@ function buildThemeBackedThumbnailDefaults(event: EventSource, themeId: string) 
 		),
 		producerCredit: withFallback(themeDefaults.producerCredit, baseDefaults.producerCredit),
 		ctaText: withFallback(themeDefaults.ctaText, baseDefaults.ctaText),
+		locationLogoHasBackground:
+			themeDefaults.locationLogoHasBackground ?? baseDefaults.locationLogoHasBackground,
 		people: themeDefaults.people as ThumbnailPerson[] | undefined
 	};
 }
@@ -197,7 +203,10 @@ function normalizeThumbnail(event: EventSource, thumbnailValue: unknown): Thumbn
 
 	return {
 		eventLogoUrl: resolveLegacyAssetUrl(
-			withFallback(asOptionalString(safeThumbnail.eventLogoUrl), themeDefaults.eventLogoUrl)
+			withFallback(
+				asOptionalString(safeThumbnail.eventLogoUrl),
+				withFallback(event.location_logo_url, themeDefaults.eventLogoUrl)
+			)
 		),
 		backgroundImageUrl: resolveLegacyAssetUrl(
 			withFallback(asOptionalString(safeThumbnail.backgroundImageUrl), themeDefaults.backgroundImageUrl)
@@ -207,6 +216,10 @@ function normalizeThumbnail(event: EventSource, thumbnailValue: unknown): Thumbn
 			themeDefaults.producerCredit
 		),
 		ctaText: withFallback(asOptionalString(safeThumbnail.ctaText), themeDefaults.ctaText),
+		locationLogoHasBackground:
+			typeof safeThumbnail.locationLogoHasBackground === 'boolean'
+				? safeThumbnail.locationLogoHasBackground
+				: (themeDefaults.locationLogoHasBackground ?? false),
 		people: normalizedPeople
 	};
 }

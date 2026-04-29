@@ -20,7 +20,7 @@
     "sourceEvent": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "title"],
+      "required": ["id", "title", "type", "location", "location_logo_url"],
       "properties": {
         "id": {
           "anyOf": [
@@ -36,6 +36,9 @@
           ]
         },
         "title": { "type": "string" },
+        "type": { "type": "string" },
+        "location": { "type": "string" },
+        "location_logo_url": { "type": "string" },
         "moderators": {
           "type": "array",
           "items": { "$ref": "#/definitions/eventPersonSource" }

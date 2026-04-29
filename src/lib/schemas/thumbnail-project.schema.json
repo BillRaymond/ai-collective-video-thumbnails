@@ -76,6 +76,7 @@
         "backgroundImageUrl": { "type": "string" },
         "producerCredit": { "type": "string" },
         "ctaText": { "type": "string" },
+        "locationLogoHasBackground": { "type": "boolean" },
         "people": {
           "type": "array",
           "items": { "$ref": "#/definitions/thumbnailPerson" }
@@ -88,6 +89,9 @@
       "required": [
         "id",
         "title",
+        "type",
+        "location",
+        "location_logo_url",
         "moderators",
         "confirmed_speakers",
         "thumbnail"
@@ -107,6 +111,9 @@
           ]
         },
         "title": { "type": "string" },
+        "type": { "type": "string" },
+        "location": { "type": "string" },
+        "location_logo_url": { "type": "string" },
         "moderators": {
           "type": "array",
           "items": { "$ref": "#/definitions/eventPersonSource" }

@@ -27,6 +27,9 @@ export interface EventSource {
 	id: number | string;
 	day?: number | string | null;
 	title: string;
+	type: string;
+	location: string;
+	location_logo_url: string;
 	moderators: EventPersonSource[];
 	confirmed_speakers: EventPersonSource[];
 }
@@ -48,6 +51,7 @@ export interface ThumbnailConfig {
 	backgroundImageUrl: string;
 	producerCredit: string;
 	ctaText: string;
+	locationLogoHasBackground: boolean;
 	people: ThumbnailPerson[];
 }
 

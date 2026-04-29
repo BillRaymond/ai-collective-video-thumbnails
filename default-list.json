@@ -24,7 +24,10 @@
         "photo_url": "/images/speakers/photos/josh-haas.jpg",
         "company_logo_url": "/images/speakers/logos/bubble.svg"
       }
-    ]
+    ],
+    "type": "panel discussion",
+    "location": "HumanX",
+    "location_logo_url": ""
   },
   {
     "id": 2,
@@ -57,7 +60,10 @@
         "photo_url": "/images/speakers/photos/dmytro-spodarets.jpg",
         "company_logo_url": "/images/speakers/logos/data-phoenix.png"
       }
-    ]
+    ],
+    "type": "panel discussion",
+    "location": "HumanX",
+    "location_logo_url": ""
   },
   {
     "id": 3,
@@ -84,7 +90,10 @@
         "photo_url": "/images/speakers/photos/manmit-shrimali.jpg",
         "company_logo_url": "/images/speakers/logos/turing-labs.png"
       }
-    ]
+    ],
+    "type": "panel discussion",
+    "location": "HumanX",
+    "location_logo_url": ""
   },
   {
     "id": 4,
@@ -123,7 +132,10 @@
         "photo_url": "/images/speakers/photos/dan-pechi.jpg",
         "company_logo_url": "/images/speakers/logos/databricks.png"
       }
-    ]
+    ],
+    "type": "panel discussion",
+    "location": "HumanX",
+    "location_logo_url": ""
   },
   {
     "id": 5,
@@ -150,7 +162,10 @@
         "photo_url": "/images/speakers/photos/vidhya-bhat.jpg",
         "company_logo_url": "/images/speakers/logos/snowflake.png"
       }
-    ]
+    ],
+    "type": "panel discussion",
+    "location": "HumanX",
+    "location_logo_url": ""
   },
   {
     "id": 6,
@@ -170,7 +185,10 @@
         "company_logo_url": "/images/speakers/logos/the-ai-collective.png"
       }
     ],
-    "confirmed_speakers": []
+    "confirmed_speakers": [],
+    "type": "panel discussion",
+    "location": "HumanX",
+    "location_logo_url": ""
   },
   {
     "id": 7,
@@ -197,7 +215,10 @@
         "photo_url": "/images/speakers/photos/ghazwa-khalatbari.png",
         "company_logo_url": "/images/speakers/logos/creandum.jpg"
       }
-    ]
+    ],
+    "type": "panel discussion",
+    "location": "HumanX",
+    "location_logo_url": ""
   },
   {
     "id": 8,
@@ -224,7 +245,10 @@
         "photo_url": "/images/speakers/photos/dhruva-reddy.jpg",
         "company_logo_url": "/images/speakers/logos/vapi.svg"
       }
-    ]
+    ],
+    "type": "panel discussion",
+    "location": "HumanX",
+    "location_logo_url": ""
   },
   {
     "id": 9,
@@ -245,7 +269,10 @@
         "photo_url": "/images/speakers/photos/craig-mcluckie.jpg",
         "company_logo_url": "/images/speakers/logos/stacklok.png"
       }
-    ]
+    ],
+    "type": "panel discussion",
+    "location": "HumanX",
+    "location_logo_url": ""
   },
   {
     "id": 10,
@@ -272,7 +299,10 @@
         "photo_url": "/images/speakers/photos/matthew-zeiler.jpg",
         "company_logo_url": "/images/speakers/logos/clarifai.png"
       }
-    ]
+    ],
+    "type": "panel discussion",
+    "location": "HumanX",
+    "location_logo_url": ""
   },
   {
     "id": 11,
@@ -292,7 +322,10 @@
         "company_logo_url": "/images/speakers/logos/the-ai-collective.png"
       }
     ],
-    "confirmed_speakers": []
+    "confirmed_speakers": [],
+    "type": "panel discussion",
+    "location": "HumanX",
+    "location_logo_url": ""
   },
   {
     "id": 12,
@@ -331,7 +364,10 @@
         "photo_url": "/images/speakers/photos/vik-ghai.jpg",
         "company_logo_url": "/images/speakers/logos/g2c-ventures.jpg"
       }
-    ]
+    ],
+    "type": "panel discussion",
+    "location": "HumanX",
+    "location_logo_url": ""
   },
   {
     "id": 13,
@@ -358,7 +394,10 @@
         "photo_url": "/images/speakers/photos/nikhil-choudhary.png",
         "company_logo_url": "/images/speakers/logos/nirman-ventures.jpg"
       }
-    ]
+    ],
+    "type": "panel discussion",
+    "location": "HumanX",
+    "location_logo_url": ""
   },
   {
     "id": 14,
@@ -391,7 +430,10 @@
         "photo_url": "/images/speakers/photos/felicia-popa.jpg",
         "company_logo_url": "/images/speakers/logos/visa.jpg"
       }
-    ]
+    ],
+    "type": "panel discussion",
+    "location": "HumanX",
+    "location_logo_url": ""
   },
   {
     "id": 15,
@@ -430,7 +472,10 @@
         "photo_url": "/images/speakers/photos/vivek-ravisankar.jpg",
         "company_logo_url": "/images/speakers/logos/hackerrank.jpg"
       }
-    ]
+    ],
+    "type": "panel discussion",
+    "location": "HumanX",
+    "location_logo_url": ""
   },
   {
     "id": 16,
@@ -463,7 +508,10 @@
         "photo_url": "/images/speakers/photos/lloyd-spencer.jpg",
         "company_logo_url": "/images/speakers/logos/workforce-mentor.jpg"
       }
-    ]
+    ],
+    "type": "panel discussion",
+    "location": "HumanX",
+    "location_logo_url": ""
   },
   {
     "id": 17,
@@ -490,7 +538,10 @@
         "photo_url": "/images/speakers/photos/anubhav-maheshwari.jpg",
         "company_logo_url": "/images/speakers/logos/nebius.jpg"
       }
-    ]
+    ],
+    "type": "panel discussion",
+    "location": "HumanX",
+    "location_logo_url": ""
   },
   {
     "id": 18,
@@ -504,7 +555,10 @@
         "company_logo_url": "/images/speakers/logos/broadcom.jpg"
       }
     ],
-    "confirmed_speakers": []
+    "confirmed_speakers": [],
+    "type": "panel discussion",
+    "location": "HumanX",
+    "location_logo_url": ""
   },
   {
     "id": 19,
@@ -537,7 +591,10 @@
         "photo_url": "/images/speakers/photos/nikhil-gupta.jpg",
         "company_logo_url": "/images/speakers/logos/vapi.svg"
       }
-    ]
+    ],
+    "type": "panel discussion",
+    "location": "HumanX",
+    "location_logo_url": ""
   },
   {
     "id": 20,
@@ -570,6 +627,9 @@
         "photo_url": "/images/speakers/photos/florent-de-goriainoff.png",
         "company_logo_url": "/images/speakers/logos/fluents.jpg"
       }
-    ]
+    ],
+    "type": "panel discussion",
+    "location": "HumanX",
+    "location_logo_url": ""
   }
 ]

@@ -42,6 +42,9 @@ Unexpected fields are rejected. For example, adding a `thumbnail` block to a raw
     "id": 1,
     "day": 1,
     "title": "Building the AI-Powered Enterprise",
+    "type": "panel discussion",
+    "location": "HumanX",
+    "location_logo_url": "",
     "moderators": [
       {
         "name": "Catherine McMillan",
@@ -59,6 +62,9 @@ Unexpected fields are rejected. For example, adding a `thumbnail` block to a raw
 
 - `id`: required for stable editing and filenames
 - `title`: required for preview/export naming
+- `type`: required; shown as the session type badge/label
+- `location`: required; shown as the venue/location label
+- `location_logo_url`: required; shown as the venue/location logo when provided
 - `day`: optional; omitted from filenames when absent
 - `moderators`: optional array
 - `confirmed_speakers`: optional array
@@ -80,6 +86,9 @@ The saved JSON is intended to stay theme-agnostic. It stores shared thumbnail da
       "id": 1,
       "day": 1,
       "title": "Building the AI-Powered Enterprise",
+      "type": "panel discussion",
+      "location": "HumanX",
+      "location_logo_url": "",
       "moderators": [],
       "confirmed_speakers": [],
       "thumbnail": {
