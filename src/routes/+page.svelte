@@ -10,6 +10,7 @@
 	import { browser, dev } from '$app/environment';
 	import { tick } from 'svelte';
 	import sampleEvents from '../../default-list.json';
+	import sourceEventsSchema from '$lib/schemas/source-events.schema.json';
 	import { CANVAS_HEIGHT, CANVAS_WIDTH } from '$lib/constants';
 	import { isAppLocalImagePath, resolveAppImageUrl, resolveRenderableImageUrl } from '$lib/image';
 	import {
@@ -193,6 +194,11 @@
 		openAppMenu = 'none';
 	}
 
+	function runMenuAction(action: () => void | Promise<void>) {
+		closeMenus();
+		void action();
+	}
+
 	function setPreviewImageUrl(nextUrl: string) {
 		if (previewImageUrl.startsWith('blob:') && previewImageUrl !== nextUrl) {
 			URL.revokeObjectURL(previewImageUrl);
@@ -250,6 +256,25 @@
 				clearTimeout(exportSavedTimeout);
 			}
 		};
+	});
+
+	$effect(() => {
+		if (!browser || openAppMenu === 'none') {
+			return;
+		}
+
+		const handlePointerDown = (event: PointerEvent) => {
+			const target = event.target;
+
+			if (target instanceof Element && target.closest('.menu-shell')) {
+				return;
+			}
+
+			closeMenus();
+		};
+
+		document.addEventListener('pointerdown', handlePointerDown);
+		return () => document.removeEventListener('pointerdown', handlePointerDown);
 	});
 
 	function showExportSavedNotice(message: string) {
@@ -326,6 +351,7 @@
 	}
 
 	function updateProjectTheme(themeId: string) {
+		closeMenus();
 		selectedThemeId = themeId;
 		setProject(applyThemeToProject(project, themeId));
 	}
@@ -444,18 +470,24 @@
 		updatePersonLocal(personId, (person) => ({ ...person, [field]: value }));
 	}
 
-	function updateActiveEventField(field: keyof ThumbnailEvent, value: string) {
-		if (!activeEvent || field !== 'title') {
+	function updateActiveEventField(
+		field: 'title' | 'type' | 'location' | 'location_logo_url',
+		value: string
+	) {
+		if (!activeEvent) {
 			return;
 		}
 
 		updateEvent(`${activeEvent.id}`, (event) => ({
 			...event,
-			title: value
+			[field]: field === 'location_logo_url' ? resolveAppImageUrl(value) : value
 		}));
 	}
 
-	function updateActiveThumbnailField(field: keyof ThumbnailEvent['thumbnail'], value: string) {
+	function updateActiveThumbnailField(
+		field: keyof ThumbnailEvent['thumbnail'],
+		value: string | boolean
+	) {
 		if (!activeEvent) {
 			return;
 		}
@@ -477,15 +509,18 @@
 	}
 
 	function setEditorSection(section: EditorSection) {
+		closeMenus();
 		openEditorSection = section;
 		openEditorSubsection = getEditorSubsections(section)[0]?.id ?? 'title';
 	}
 
 	function setEditorSubsection(subsection: EditorSubsection) {
+		closeMenus();
 		openEditorSubsection = subsection;
 	}
 
 	function navigateEvent(direction: -1 | 1) {
+		closeMenus();
 		if (activeEventIndex < 0) {
 			return;
 		}
@@ -577,6 +612,7 @@
 		const urls = [
 			activeEvent.thumbnail.backgroundImageUrl,
 			activeEvent.thumbnail.eventLogoUrl,
+			activeEvent.location_logo_url,
 			...activeEvent.thumbnail.people.flatMap((person) => [person.photoUrl, person.companyLogoUrl])
 		].filter(Boolean);
 
@@ -594,6 +630,7 @@
 	}
 
 	async function importJsonFile(event: Event) {
+		closeMenus();
 		const input = event.currentTarget as HTMLInputElement;
 		const file = input.files?.[0];
 
@@ -639,6 +676,12 @@
 	function saveProjectJson() {
 		const blob = new Blob([projectToJson(project)], { type: 'application/json' });
 		triggerDownload(blob, `${projectName || 'ai-collective-events'}-thumbnail-project.json`);
+	}
+
+	function downloadSourceSchema() {
+		const schemaJson = JSON.stringify(sourceEventsSchema, null, 2);
+		const blob = new Blob([schemaJson], { type: 'application/schema+json' });
+		triggerDownload(blob, 'source-events.schema.json');
 	}
 
 	async function exportCurrent(format: ExportFormat) {
@@ -913,11 +956,14 @@
 										<input type="file" accept=".json,application/json" onchange={importJsonFile} />
 										<span>Upload JSON</span>
 									</label>
-									<button class="menu-button" type="button" onclick={loadSampleProject}>
+									<button class="menu-button" type="button" onclick={() => runMenuAction(loadSampleProject)}>
 										Load sample
 									</button>
-									<button class="menu-button" type="button" onclick={saveProjectJson}>
+									<button class="menu-button" type="button" onclick={() => runMenuAction(saveProjectJson)}>
 										Save JSON
+									</button>
+									<button class="menu-button" type="button" onclick={() => runMenuAction(downloadSourceSchema)}>
+										Download schema
 									</button>
 								</div>
 							{/if}
@@ -939,7 +985,7 @@
 									<button
 										class="menu-button"
 										type="button"
-										onclick={() => exportCurrent('png')}
+										onclick={() => runMenuAction(() => exportCurrent('png'))}
 										disabled={isExporting || !activeEvent}
 									>
 										Current PNG
@@ -947,7 +993,7 @@
 									<button
 										class="menu-button"
 										type="button"
-										onclick={() => exportCurrent('jpg')}
+										onclick={() => runMenuAction(() => exportCurrent('jpg'))}
 										disabled={isExporting || !activeEvent}
 									>
 										Current JPG
@@ -955,7 +1001,7 @@
 									<button
 										class="menu-button"
 										type="button"
-										onclick={() => exportAll('png')}
+										onclick={() => runMenuAction(() => exportAll('png'))}
 										disabled={isExporting || project.events.length === 0}
 									>
 										All PNGs
@@ -963,7 +1009,7 @@
 									<button
 										class="menu-button"
 										type="button"
-										onclick={() => exportAll('jpg')}
+										onclick={() => runMenuAction(() => exportAll('jpg'))}
 										disabled={isExporting || project.events.length === 0}
 									>
 										All JPGs
@@ -1105,7 +1151,60 @@
 												'title',
 												(inputEvent.currentTarget as HTMLInputElement).value
 											)}
+										/>
+								</label>
+
+								<label class="field-block">
+									<span>Type</span>
+									<input
+										type="text"
+										value={activeEvent.type}
+										oninput={(inputEvent) =>
+											updateActiveEventField(
+												'type',
+												(inputEvent.currentTarget as HTMLInputElement).value
+											)}
 									/>
+								</label>
+
+								<label class="field-block">
+									<span>Location</span>
+									<input
+										type="text"
+										value={activeEvent.location}
+										oninput={(inputEvent) =>
+											updateActiveEventField(
+												'location',
+												(inputEvent.currentTarget as HTMLInputElement).value
+											)}
+									/>
+								</label>
+
+								<label class="field-block field-block-full">
+									<span>Location logo URL</span>
+									<input
+										type="url"
+										value={activeEvent.location_logo_url}
+										oninput={(inputEvent) =>
+											updateActiveEventField(
+												'location_logo_url',
+												(inputEvent.currentTarget as HTMLInputElement).value
+											)}
+									/>
+									<small>{statusLabel[getUrlStatus(activeEvent.location_logo_url)]}</small>
+								</label>
+
+								<label class="checkbox-field field-block-full">
+									<input
+										type="checkbox"
+										checked={activeEvent.thumbnail.locationLogoHasBackground}
+										onchange={(inputEvent) =>
+											updateActiveThumbnailField(
+												'locationLogoHasBackground',
+												(inputEvent.currentTarget as HTMLInputElement).checked
+											)}
+									/>
+									<span>White background behind location logo</span>
 								</label>
 							</div>
 						</section>

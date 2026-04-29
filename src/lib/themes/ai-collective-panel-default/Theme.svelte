@@ -94,15 +94,27 @@
 	}
 
 	function shouldRenderEventLogo() {
-		return hasImageUrl(event.thumbnail.eventLogoUrl) && !eventLogoFailed;
+		return hasImageUrl(getLocationLogoUrl()) && !eventLogoFailed;
+	}
+
+	function getLocationLogoUrl() {
+		return event.location_logo_url || event.thumbnail.eventLogoUrl;
+	}
+
+	function getTypeLabel() {
+		return event.type || DEFAULT_VARIANT_LABEL;
+	}
+
+	function getLocationLabel() {
+		return event.location || DEFAULT_EYEBROW_SUFFIX;
 	}
 
 	function getEyebrow(day: ThumbnailEvent['day']) {
 		if (day !== undefined && day !== null && `${day}`.trim() !== '') {
-			return `Day ${day} · ${DEFAULT_EYEBROW_SUFFIX}`;
+			return `Day ${day} · ${getLocationLabel()}`;
 		}
 
-		return DEFAULT_EYEBROW_SUFFIX;
+		return getLocationLabel();
 	}
 
 	function fitTitleToBounds() {
@@ -163,7 +175,7 @@
 			</div>
 			<div class="badge-pill">
 				<div class="badge-pill-dot"></div>
-				<span>{DEFAULT_VARIANT_LABEL}</span>
+				<span>{getTypeLabel()}</span>
 			</div>
 		</div>
 
@@ -238,20 +250,21 @@
 
 		<div class="thumbnail-bottom">
 			<div class="event-lockup">
-				<div class="event-lockup-label">Presented at</div>
+				<div class="event-lockup-label">Location</div>
 				<div class="event-lockup-logo">
 					{#if shouldRenderEventLogo()}
 						<img
-							src={getImageSrc(event.thumbnail.eventLogoUrl)}
-							alt="Event logo"
+							class:location-logo-has-background={event.thumbnail.locationLogoHasBackground}
+							src={getImageSrc(getLocationLogoUrl())}
+							alt={getLocationLabel()}
 							crossorigin="anonymous"
 							data-load-failed={eventLogoFailed ? 'true' : undefined}
 							onload={() => (eventLogoFailed = false)}
 							onerror={() => (eventLogoFailed = true)}
 						/>
 					{:else}
-						{#if !hasImageUrl(event.thumbnail.eventLogoUrl)}
-							<div class="event-lockup-placeholder">Add event logo</div>
+						{#if !hasImageUrl(getLocationLogoUrl())}
+							<div class="event-lockup-placeholder">{getLocationLabel()}</div>
 						{/if}
 					{/if}
 				</div>

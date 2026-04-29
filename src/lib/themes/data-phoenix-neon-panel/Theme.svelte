@@ -47,6 +47,18 @@
 		return resolveRenderableImageUrl(value, THEME_ID);
 	}
 
+	function getTypeLabel() {
+		return event.type || SESSION_LABEL;
+	}
+
+	function getLocationLabel() {
+		return event.location || 'Event location';
+	}
+
+	function getLocationLogoUrl() {
+		return event.location_logo_url || event.thumbnail.eventLogoUrl;
+	}
+
 	function isPersonPhotoFailed(person: ThumbnailPerson) {
 		return photoFailureTracker.isFailed(person);
 	}
@@ -162,7 +174,7 @@
 		<div class="phoenix-lower">
 			<div class="phoenix-people-wrap">
 				<div class={`phoenix-people ${personCountClass(event.thumbnail.people)}`}>
-					<div class="phoenix-people-title">{SESSION_LABEL}</div>
+					<div class="phoenix-people-title">{getTypeLabel()}</div>
 
 					<div class="phoenix-people-grid">
 						{#if event.thumbnail.people.length === 0}
@@ -216,10 +228,16 @@
 			<div class="phoenix-meta-row">
 				<div class="phoenix-footer-logo-lockup">
 					<div class="phoenix-footer-logo">
-						{#if hasImageUrl(event.thumbnail.eventLogoUrl)}
-							<img src={getImageSrc(event.thumbnail.eventLogoUrl)} alt="Event logo" crossorigin="anonymous" />
+						{#if hasImageUrl(getLocationLogoUrl())}
+							<img
+								class="phoenix-location-logo"
+								class:location-logo-has-background={event.thumbnail.locationLogoHasBackground}
+								src={getImageSrc(getLocationLogoUrl())}
+								alt={getLocationLabel()}
+								crossorigin="anonymous"
+							/>
 						{:else}
-							<div class="phoenix-footer-mark">Add event logo</div>
+							<div class="phoenix-footer-mark">{getLocationLabel()}</div>
 						{/if}
 					</div>
 
@@ -351,6 +369,13 @@
 		max-width: 100%;
 		height: 30px;
 		object-fit: contain;
+	}
+
+	.phoenix-footer-logo img.phoenix-location-logo.location-logo-has-background {
+		padding: 6px 10px;
+		border-radius: 8px;
+		background: #ffffff;
+		box-sizing: content-box;
 	}
 
 	.phoenix-footer-logo-secondary {
