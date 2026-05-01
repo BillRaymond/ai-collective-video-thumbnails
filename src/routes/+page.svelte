@@ -59,6 +59,28 @@
 		companyLogoHasBackground: boolean;
 		peopleCount: number;
 	};
+	type AssetFinderTargetType =
+		| 'personPhoto'
+		| 'companyLogo'
+		| 'eventLogo'
+		| 'locationLogo'
+		| 'backgroundImage';
+	type AssetFinderTarget = {
+		id: string;
+		type: AssetFinderTargetType;
+		label: string;
+		detail: string;
+		jsonPath: string;
+		currentUrl: string;
+		searchQuery: string;
+		sourceQuery: string;
+		personId?: string;
+		orgKey?: string;
+	};
+	type AssetSearchLink = {
+		label: string;
+		url: string;
+	};
 
 	const sampleProject = parseProjectImport(sampleEvents);
 	const initialSelectedEventId = `${sampleProject.events[0]?.id ?? ''}`;
@@ -110,6 +132,14 @@
 	let dragOverPersonId = $state('');
 	let dragOverPlacement = $state<DropPlacement>('before');
 	let peopleOrderSnapshots = $state<Record<string, string[]>>({});
+	let isAssetFinderOpen = $state(false);
+	let assetFinderTargetId = $state('');
+	let assetFinderDraftUrl = $state('');
+	let assetFinderCandidates = $state<string[]>([]);
+	let assetFinderError = $state('');
+	let assetFinderNotice = $state('');
+	let isAssetPreviewOpen = $state(false);
+	let assetPreviewUrl = $state('');
 
 	function getActiveEvent() {
 		return project.events.find((event) => `${event.id}` === selectedEventId) ?? project.events[0] ?? null;
@@ -153,6 +183,15 @@
 			null
 	);
 	let activeOrgs = $derived(buildOrgRows(activeEvent));
+	let assetFinderTargets = $derived(buildAssetFinderTargets(activeEvent));
+	let activeAssetFinderTarget = $derived(
+		assetFinderTargets.find((target) => target.id === assetFinderTargetId) ??
+			assetFinderTargets[0] ??
+			null
+	);
+	let activeAssetSearchLinks = $derived(
+		activeAssetFinderTarget ? buildAssetSearchLinks(activeAssetFinderTarget) : []
+	);
 	let activePeopleOrderChanged = $derived(
 		activeEvent ? Boolean(peopleOrderSnapshots[`${activeEvent.id}`]) : false
 	);
@@ -251,6 +290,130 @@
 		return [...orgs.values()].sort((left, right) => left.company.localeCompare(right.company));
 	}
 
+	function joinSearchTerms(terms: Array<string | number | null | undefined>) {
+		return terms
+			.map((term) => `${term ?? ''}`.trim())
+			.filter(Boolean)
+			.join(' ');
+	}
+
+	function buildAssetFinderTargets(event: ThumbnailEvent | null): AssetFinderTarget[] {
+		if (!event) {
+			return [];
+		}
+
+		const targets: AssetFinderTarget[] = [];
+
+		for (const person of event.thumbnail.people) {
+			const name = person.name.trim() || 'Person';
+			const company = person.company.trim();
+			const detail = [person.role.trim(), company].filter(Boolean).join(' · ');
+
+			targets.push({
+				id: `person-photo:${person.id}`,
+				type: 'personPhoto',
+				label: `${name} photo`,
+				detail,
+				jsonPath: `thumbnail.people[${name}].photoUrl`,
+				currentUrl: person.photoUrl,
+				searchQuery: joinSearchTerms([person.name, company, 'headshot']),
+				sourceQuery:
+					joinSearchTerms([person.name, company, 'speaker photo profile']) ||
+					joinSearchTerms([name, 'headshot']),
+				personId: person.id
+			});
+		}
+
+		for (const org of buildOrgRows(event)) {
+			targets.push({
+				id: `company-logo:${org.key}`,
+				type: 'companyLogo',
+				label: `${org.company || 'Company'} logo`,
+				detail: `${org.peopleCount} ${org.peopleCount === 1 ? 'person' : 'people'}`,
+				jsonPath: `thumbnail.people[company=${org.company || 'Company'}].companyLogoUrl`,
+				currentUrl: org.companyLogoUrl,
+				searchQuery: joinSearchTerms([org.company, 'official logo svg png']),
+				sourceQuery: joinSearchTerms([org.company, 'brand assets logo']),
+				orgKey: org.key
+			});
+		}
+
+		for (const person of event.thumbnail.people.filter((entry) => !entry.company.trim())) {
+			const name = person.name.trim() || 'Person';
+
+			targets.push({
+				id: `company-logo:${person.id}`,
+				type: 'companyLogo',
+				label: `${name} company logo`,
+				detail: person.role,
+				jsonPath: `thumbnail.people[${name}].companyLogoUrl`,
+				currentUrl: person.companyLogoUrl,
+				searchQuery: joinSearchTerms([name, 'company official logo svg png']),
+				sourceQuery: joinSearchTerms([name, 'brand assets logo']),
+				personId: person.id
+			});
+		}
+
+		targets.push({
+			id: 'event-logo',
+			type: 'eventLogo',
+			label: 'Event logo',
+			detail: event.title,
+			jsonPath: 'thumbnail.eventLogoUrl',
+			currentUrl: event.thumbnail.eventLogoUrl,
+			searchQuery: joinSearchTerms([event.title, event.location, 'event logo']),
+			sourceQuery: joinSearchTerms([event.title, event.location, 'brand logo'])
+		});
+
+		targets.push({
+			id: 'location-logo',
+			type: 'locationLogo',
+			label: 'Location logo',
+			detail: event.location || event.title,
+			jsonPath: 'location_logo_url',
+			currentUrl: event.location_logo_url ?? '',
+			searchQuery: joinSearchTerms([event.location || event.title, 'official logo svg png']),
+			sourceQuery: joinSearchTerms([event.location || event.title, 'brand assets logo'])
+		});
+
+		targets.push({
+			id: 'background-image',
+			type: 'backgroundImage',
+			label: 'Background image',
+			detail: event.title,
+			jsonPath: 'thumbnail.backgroundImageUrl',
+			currentUrl: event.thumbnail.backgroundImageUrl,
+			searchQuery: joinSearchTerms([event.title, event.location, 'event background image']),
+			sourceQuery: joinSearchTerms([event.title, event.location, 'thumbnail background image'])
+		});
+
+		return targets;
+	}
+
+	function buildSearchUrl(baseUrl: string, query: string) {
+		return `${baseUrl}${encodeURIComponent(query)}`;
+	}
+
+	function buildAssetSearchLinks(target: AssetFinderTarget): AssetSearchLink[] {
+		const searchQuery = target.searchQuery || target.sourceQuery || target.label;
+		const sourceQuery = target.sourceQuery || searchQuery;
+
+		return [
+			{
+				label: 'Google Images',
+				url: buildSearchUrl('https://www.google.com/search?tbm=isch&q=', searchQuery)
+			},
+			{
+				label: 'Bing Images',
+				url: buildSearchUrl('https://www.bing.com/images/search?q=', searchQuery)
+			},
+			{
+				label: target.type === 'companyLogo' ? 'Brand Search' : 'Web Search',
+				url: buildSearchUrl('https://www.google.com/search?q=', sourceQuery)
+			}
+		];
+	}
+
 	function toggleAppMenu(menu: Exclude<AppMenu, 'none'>) {
 		openAppMenu = openAppMenu === menu ? 'none' : menu;
 	}
@@ -262,6 +425,182 @@
 	function runMenuAction(action: () => void | Promise<void>) {
 		closeMenus();
 		void action();
+	}
+
+	function getPreferredAssetFinderTargetId() {
+		const preferredIds = [
+			activePerson ? `person-photo:${activePerson.id}` : '',
+			activePerson?.company ? `company-logo:${normalizeMatchKey(activePerson.company)}` : '',
+			assetFinderTargets[0]?.id ?? ''
+		];
+
+		return (
+			preferredIds.find((targetId) =>
+				assetFinderTargets.some((target) => target.id === targetId)
+			) ?? ''
+		);
+	}
+
+	function resetAssetFinderForTarget(targetId: string) {
+		const target =
+			assetFinderTargets.find((entry) => entry.id === targetId) ?? assetFinderTargets[0] ?? null;
+
+		assetFinderTargetId = target?.id ?? '';
+		assetFinderDraftUrl = '';
+		assetFinderError = '';
+		assetFinderNotice = '';
+		assetFinderCandidates = target?.currentUrl.trim() ? [target.currentUrl.trim()] : [];
+	}
+
+	function openAssetFinder() {
+		if (!activeEvent || assetFinderTargets.length === 0) {
+			return;
+		}
+
+		resetAssetFinderForTarget(getPreferredAssetFinderTargetId());
+		isAssetFinderOpen = true;
+	}
+
+	function closeAssetFinder() {
+		isAssetFinderOpen = false;
+		assetFinderDraftUrl = '';
+		assetFinderError = '';
+		assetFinderNotice = '';
+		closeAssetPreview();
+	}
+
+	function selectAssetFinderTarget(targetId: string) {
+		resetAssetFinderForTarget(targetId);
+	}
+
+	function parseCandidateUrls(value: string) {
+		const lineCandidates = value
+			.split(/[\n,]+/)
+			.map((entry) => entry.trim())
+			.filter(Boolean);
+
+		if (lineCandidates.length > 1) {
+			return lineCandidates;
+		}
+
+		return (
+			value.match(/https?:\/\/[^\s,]+|data:image\/[^\s,]+|\/[^\s,]+/gi) ??
+			lineCandidates
+		)
+			.map((entry) => entry.trim())
+			.filter(Boolean);
+	}
+
+	function isCandidateUrlFormat(url: string) {
+		const trimmed = url.trim();
+
+		return (
+			isAppLocalImagePath(trimmed) ||
+			/^https?:\/\//i.test(trimmed) ||
+			/^data:image\//i.test(trimmed)
+		);
+	}
+
+	function addAssetFinderCandidates() {
+		const parsedUrls = parseCandidateUrls(assetFinderDraftUrl);
+
+		if (parsedUrls.length === 0) {
+			assetFinderError = 'Paste at least one image URL.';
+			assetFinderNotice = '';
+			return;
+		}
+
+		const existingUrls = new Set(assetFinderCandidates.map((url) => url.trim()));
+		const nextCandidates = [...assetFinderCandidates];
+
+		for (const url of parsedUrls) {
+			if (!existingUrls.has(url)) {
+				existingUrls.add(url);
+				nextCandidates.push(url);
+			}
+		}
+
+		assetFinderCandidates = nextCandidates;
+		assetFinderDraftUrl = '';
+		assetFinderError = '';
+		assetFinderNotice = '';
+	}
+
+	function removeAssetFinderCandidate(url: string) {
+		assetFinderCandidates = assetFinderCandidates.filter((candidate) => candidate !== url);
+	}
+
+	function getAssetCandidateStatus(url: string): ImageStatus {
+		if (!isCandidateUrlFormat(url)) {
+			return 'failed';
+		}
+
+		if (isAppLocalImagePath(url)) {
+			return 'valid';
+		}
+
+		return getUrlStatus(url);
+	}
+
+	function getAssetCandidateImageUrl(url: string) {
+		return isCandidateUrlFormat(url) ? getRenderableUrl(url) : '';
+	}
+
+	function getAssetCandidateOpenUrl(url: string) {
+		return isCandidateUrlFormat(url) ? resolveAppImageUrl(url) : '';
+	}
+
+	function openAssetPreview(url: string) {
+		if (getAssetCandidateStatus(url) !== 'valid') {
+			return;
+		}
+
+		assetPreviewUrl = url;
+		isAssetPreviewOpen = true;
+	}
+
+	function closeAssetPreview() {
+		isAssetPreviewOpen = false;
+		assetPreviewUrl = '';
+	}
+
+	function applyAssetFinderCandidate(url: string) {
+		const target = activeAssetFinderTarget;
+
+		if (!target) {
+			assetFinderError = 'Select an asset target first.';
+			assetFinderNotice = '';
+			return;
+		}
+
+		if (getAssetCandidateStatus(url) !== 'valid') {
+			assetFinderError = 'Choose a URL that loads successfully before applying it.';
+			assetFinderNotice = '';
+			return;
+		}
+
+		const nextUrl = url.trim();
+
+		if (target.type === 'personPhoto' && target.personId) {
+			updatePersonField(target.personId, 'photoUrl', nextUrl);
+		} else if (target.type === 'companyLogo' && target.orgKey) {
+			updateAllPeople(
+				(person) => normalizeMatchKey(person.company) === target.orgKey,
+				(person) => ({ ...person, companyLogoUrl: nextUrl })
+			);
+		} else if (target.type === 'companyLogo' && target.personId) {
+			updatePersonField(target.personId, 'companyLogoUrl', nextUrl);
+		} else if (target.type === 'eventLogo') {
+			updateActiveThumbnailField('eventLogoUrl', nextUrl);
+		} else if (target.type === 'locationLogo') {
+			updateActiveEventField('location_logo_url', nextUrl);
+		} else if (target.type === 'backgroundImage') {
+			updateActiveThumbnailField('backgroundImageUrl', nextUrl);
+		}
+
+		assetFinderError = '';
+		assetFinderNotice = `Applied ${target.label}.`;
+		ensureUrlStatus(nextUrl);
 	}
 
 	function setPreviewImageUrl(nextUrl: string) {
@@ -378,6 +717,53 @@
 
 		window.addEventListener('keydown', handleKeydown);
 		return () => window.removeEventListener('keydown', handleKeydown);
+	});
+
+	$effect(() => {
+		if (!browser || !isAssetFinderOpen) {
+			return;
+		}
+
+		const handleKeydown = (event: KeyboardEvent) => {
+			if (event.key === 'Escape') {
+				if (isAssetPreviewOpen) {
+					closeAssetPreview();
+					return;
+				}
+
+				closeAssetFinder();
+			}
+		};
+
+		window.addEventListener('keydown', handleKeydown);
+		return () => window.removeEventListener('keydown', handleKeydown);
+	});
+
+	$effect(() => {
+		if (!isAssetFinderOpen) {
+			return;
+		}
+
+		if (assetFinderTargets.length === 0) {
+			closeAssetFinder();
+			return;
+		}
+
+		if (!assetFinderTargets.some((target) => target.id === assetFinderTargetId)) {
+			resetAssetFinderForTarget(assetFinderTargets[0]?.id ?? '');
+		}
+	});
+
+	$effect(() => {
+		if (!isAssetFinderOpen) {
+			return;
+		}
+
+		for (const url of assetFinderCandidates) {
+			if (isCandidateUrlFormat(url)) {
+				ensureUrlStatus(url);
+			}
+		}
 	});
 
 	function updatePreviewScale() {
@@ -1296,6 +1682,14 @@
 									<button class="menu-button" type="button" onclick={() => runMenuAction(loadSampleProject)}>
 										Load sample
 									</button>
+									<button
+										class="menu-button"
+										type="button"
+										onclick={() => runMenuAction(openAssetFinder)}
+										disabled={!activeEvent || assetFinderTargets.length === 0}
+									>
+										Find asset URLs
+									</button>
 									<button class="menu-button" type="button" onclick={() => runMenuAction(saveProjectJson)}>
 										Save JSON
 									</button>
@@ -2061,6 +2455,228 @@
 				<activeTheme.component event={activeEvent} />
 			</div>
 		{/key}
+	</div>
+{/if}
+
+{#if isAssetFinderOpen}
+	<div class="modal-backdrop">
+		<button
+			type="button"
+			class="modal-scrim"
+			onclick={closeAssetFinder}
+			aria-label="Close asset URL finder"
+		></button>
+		<div
+			class="modal-dialog asset-finder-dialog"
+			role="dialog"
+			aria-modal="true"
+			aria-label="Find asset URLs"
+			tabindex="-1"
+		>
+			<div class="modal-head">
+				<div>
+					<p class="panel-label">Asset Finder</p>
+					<h3>{activeAssetFinderTarget?.label ?? 'Find asset URLs'}</h3>
+				</div>
+				<div class="modal-head-actions">
+					<button class="ghost-button compact-button" type="button" onclick={closeAssetFinder}>
+						Close
+					</button>
+				</div>
+			</div>
+
+			<div class="modal-body asset-finder-body">
+				{#if activeAssetFinderTarget}
+					<div class="asset-finder-grid">
+						<section class="asset-finder-panel">
+							<label class="field-block field-block-full">
+								<span>Target</span>
+								<select
+									value={activeAssetFinderTarget.id}
+									onchange={(event) =>
+										selectAssetFinderTarget((event.currentTarget as HTMLSelectElement).value)}
+								>
+									{#each assetFinderTargets as target}
+										<option value={target.id}>
+											{target.label}{target.detail ? ` · ${target.detail}` : ''}
+										</option>
+									{/each}
+								</select>
+							</label>
+
+							<div class="asset-current-block">
+								<p class="panel-label">Current URL</p>
+								{#if activeAssetFinderTarget.currentUrl}
+									<code>{activeAssetFinderTarget.currentUrl}</code>
+									<small>{statusLabel[getAssetCandidateStatus(activeAssetFinderTarget.currentUrl)]}</small>
+								{:else}
+									<small>No URL set</small>
+								{/if}
+							</div>
+
+							<div class="asset-current-block">
+								<p class="panel-label">JSON field</p>
+								<code>{activeAssetFinderTarget.jsonPath}</code>
+							</div>
+
+							<div class="asset-search-links" aria-label="Search links">
+								{#each activeAssetSearchLinks as link}
+									<a
+										class="secondary-button compact-button"
+										href={link.url}
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										{link.label}
+									</a>
+								{/each}
+							</div>
+
+							<label class="field-block field-block-full">
+								<span>Candidate URL</span>
+								<textarea
+									value={assetFinderDraftUrl}
+									rows="4"
+									placeholder="https://example.com/image.png"
+									oninput={(event) =>
+										(assetFinderDraftUrl = (event.currentTarget as HTMLTextAreaElement).value)}
+								></textarea>
+							</label>
+
+							<div class="asset-finder-actions">
+								<button
+									class="primary-button compact-button"
+									type="button"
+									onclick={addAssetFinderCandidates}
+								>
+									Add candidate
+								</button>
+							</div>
+						</section>
+
+						<section class="asset-finder-panel">
+							<div class="asset-finder-panel-head">
+								<div>
+									<p class="panel-label">Candidates</p>
+									<h4>{assetFinderCandidates.length} URLs</h4>
+								</div>
+							</div>
+
+							{#if assetFinderError}
+								<p class="error-text">{assetFinderError}</p>
+							{:else if assetFinderNotice}
+								<p class="asset-finder-notice">{assetFinderNotice}</p>
+							{/if}
+
+							{#if assetFinderCandidates.length > 0}
+								<div class="asset-candidate-list">
+									{#each assetFinderCandidates as candidateUrl (candidateUrl)}
+										<article
+											class="asset-candidate-card"
+											data-status={getAssetCandidateStatus(candidateUrl)}
+										>
+											<div class="asset-candidate-preview">
+												{#if getAssetCandidateImageUrl(candidateUrl)}
+													<img
+														src={getAssetCandidateImageUrl(candidateUrl)}
+														alt=""
+														crossorigin="anonymous"
+														onload={() => markUrl(candidateUrl, 'valid')}
+														onerror={() => markUrl(candidateUrl, 'failed')}
+													/>
+												{:else}
+													<span>Invalid URL</span>
+												{/if}
+											</div>
+											<div class="asset-candidate-copy">
+												<code>{candidateUrl}</code>
+												<small>{statusLabel[getAssetCandidateStatus(candidateUrl)]}</small>
+											</div>
+											<div class="asset-candidate-actions">
+												{#if getAssetCandidateOpenUrl(candidateUrl)}
+													<a
+														class="secondary-button compact-button"
+														href={getAssetCandidateOpenUrl(candidateUrl)}
+														target="_blank"
+														rel="noopener noreferrer"
+													>
+														Open
+													</a>
+												{/if}
+												<button
+													class="secondary-button compact-button"
+													type="button"
+													onclick={() => openAssetPreview(candidateUrl)}
+													disabled={getAssetCandidateStatus(candidateUrl) !== 'valid'}
+												>
+													Preview
+												</button>
+												<button
+													class="primary-button compact-button"
+													type="button"
+													onclick={() => applyAssetFinderCandidate(candidateUrl)}
+													disabled={getAssetCandidateStatus(candidateUrl) !== 'valid'}
+												>
+													Use URL
+												</button>
+												<button
+													class="ghost-button compact-button"
+													type="button"
+													onclick={() => removeAssetFinderCandidate(candidateUrl)}
+												>
+													Remove
+												</button>
+											</div>
+										</article>
+									{/each}
+								</div>
+							{:else}
+								<div class="editor-empty-state asset-finder-empty">
+									<p>No candidate URLs yet.</p>
+								</div>
+							{/if}
+						</section>
+					</div>
+				{:else}
+					<div class="modal-status">No editable asset targets are available for this theme.</div>
+				{/if}
+			</div>
+		</div>
+	</div>
+{/if}
+
+{#if isAssetPreviewOpen && assetPreviewUrl}
+	<div class="modal-backdrop asset-preview-backdrop">
+		<button
+			type="button"
+			class="modal-scrim"
+			onclick={closeAssetPreview}
+			aria-label="Close asset preview"
+		></button>
+		<div
+			class="modal-dialog asset-preview-dialog"
+			role="dialog"
+			aria-modal="true"
+			aria-label="Asset image preview"
+			tabindex="-1"
+		>
+			<div class="modal-head">
+				<div>
+					<p class="panel-label">Asset Preview</p>
+					<h3>{activeAssetFinderTarget?.label ?? 'Image preview'}</h3>
+				</div>
+				<button class="ghost-button compact-button" type="button" onclick={closeAssetPreview}>
+					X Close
+				</button>
+			</div>
+			<div class="asset-preview-body">
+				<img
+					src={getAssetCandidateImageUrl(assetPreviewUrl)}
+					alt={activeAssetFinderTarget?.label ?? 'Image preview'}
+					crossorigin="anonymous"
+				/>
+			</div>
+		</div>
 	</div>
 {/if}
 
