@@ -63,17 +63,24 @@ button {
 }
 
 .studio-shell {
+	--studio-gap: clamp(0.65rem, 1vw, 1rem);
+	--studio-padding: clamp(0.65rem, 1vw, 1rem);
+
 	display: grid;
-	grid-template-columns: minmax(0, 1.55fr) minmax(22rem, 27rem);
-	gap: 1rem;
-	min-height: 100vh;
-	padding: 1rem;
-	align-items: start;
+	grid-template-columns: minmax(0, 1fr) clamp(20rem, 24vw, 27rem);
+	gap: var(--studio-gap);
+	height: 100dvh;
+	min-height: 0;
+	padding: var(--studio-padding);
+	align-items: stretch;
+	overflow: hidden;
 }
 
 .editor-pane,
 .preview-workspace {
+	height: 100%;
 	min-height: 0;
+	min-width: 0;
 }
 
 .panel-surface {
@@ -85,7 +92,8 @@ button {
 
 .editor-panel,
 .preview-panel-large {
-	height: calc(100vh - 2rem);
+	height: 100%;
+	max-height: 100%;
 }
 
 .editor-panel {
@@ -97,7 +105,7 @@ button {
 
 .preview-panel-large {
 	position: sticky;
-	top: 1rem;
+	top: var(--studio-padding);
 	display: flex;
 	flex-direction: column;
 	min-height: 0;
@@ -124,6 +132,7 @@ button {
 	display: flex;
 	align-items: end;
 	justify-content: space-between;
+	flex-wrap: wrap;
 	gap: 1rem;
 }
 
@@ -191,8 +200,17 @@ button {
 	align-items: center;
 }
 
+.editor-appbar-controls {
+	flex: 1 0 100%;
+	justify-content: flex-end;
+	min-width: 0;
+	width: 100%;
+}
+
 .theme-field {
-	min-width: min(18rem, 100%);
+	flex: 1 0 100%;
+	min-width: 0;
+	width: 100%;
 }
 
 .menu-shell {
@@ -463,12 +481,13 @@ button {
 	align-items: center;
 }
 
-.section-tabs,
 .subsection-tabs {
 	flex-wrap: wrap;
 }
 
 .section-tabs {
+	display: grid;
+	grid-template-columns: repeat(var(--section-tab-count, 4), minmax(0, 1fr));
 	padding: 0.2rem;
 	border-radius: 0.5rem;
 	background: rgba(255, 255, 255, 0.04);
@@ -476,9 +495,12 @@ button {
 }
 
 .section-tab {
-	flex: 1 1 4.5rem;
+	min-width: 0;
+	padding-inline: 0.35rem;
 	border-color: transparent;
 	background: transparent;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .subsection-tabs {
@@ -535,20 +557,22 @@ button {
 .event-summary-meta {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 0.45rem;
+	gap: 0.22rem 0;
 	align-content: start;
+	color: rgba(255, 255, 255, 0.68);
+	font-size: 0.78rem;
+	line-height: 1.35;
 }
 
 .event-summary-meta span {
-	display: inline-flex;
-	align-items: center;
-	min-height: 1.65rem;
-	padding: 0.32rem 0.6rem;
-	border-radius: 999px;
-	background: rgba(255, 255, 255, 0.05);
-	border: 1px solid rgba(255, 255, 255, 0.08);
-	font-size: 0.78rem;
-	color: rgba(255, 255, 255, 0.84);
+	display: inline;
+	color: inherit;
+}
+
+.event-summary-meta span + span::before {
+	content: '•';
+	margin-inline: 0.48rem;
+	color: rgba(255, 255, 255, 0.36);
 }
 
 .event-summary-expanded {
@@ -866,7 +890,7 @@ button {
 		radial-gradient(circle at top, rgba(0, 118, 219, 0.12), transparent 35%);
 	padding: 0.75rem;
 	border: 1px solid rgba(255, 255, 255, 0.06);
-	overflow: auto;
+	overflow: hidden;
 }
 
 .preview-stage-large {
@@ -885,7 +909,9 @@ button {
 }
 
 .preview-stage-inner {
-	min-width: 100%;
+	position: relative;
+	max-width: 100%;
+	overflow: hidden;
 }
 
 .preview-click-hint {
@@ -903,6 +929,13 @@ button {
 	width: 1280px;
 	height: 720px;
 	will-change: transform;
+}
+
+.thumbnail-preview-root {
+	position: absolute;
+	top: 0;
+	left: 0;
+	transform-origin: top left;
 }
 
 .offscreen-render-shell {
@@ -938,6 +971,10 @@ button {
 
 .compact-form-grid {
 	gap: 0.5rem;
+}
+
+.org-form-grid {
+	grid-template-columns: 1fr;
 }
 
 .field-block {
@@ -1203,9 +1240,18 @@ select.nav-count-select option {
 	text-wrap: pretty;
 }
 
-@media (max-width: 1280px) {
+@media (max-width: 980px) {
 	.studio-shell {
 		grid-template-columns: 1fr;
+		height: auto;
+		min-height: 100dvh;
+		align-items: start;
+		overflow: visible;
+	}
+
+	.preview-workspace,
+	.editor-pane {
+		height: auto;
 	}
 
 	.preview-workspace {
@@ -1242,12 +1288,16 @@ select.nav-count-select option {
 	}
 
 	.editor-appbar,
-	.workspace-top,
 	.preview-toolbar,
 	.event-summary-compact,
 	.editor-section-head,
 	.modal-head {
 		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.workspace-top {
+		grid-template-columns: 1fr;
 		align-items: stretch;
 	}
 

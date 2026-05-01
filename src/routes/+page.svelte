@@ -64,6 +64,7 @@
 	const initialSelectedEventId = `${sampleProject.events[0]?.id ?? ''}`;
 	const initialOpenPersonId = sampleProject.events[0]?.thumbnail.people[0]?.id ?? '';
 	const initialThemeId = thumbnailThemes[0]?.meta.id ?? '';
+	const MIN_PREVIEW_SCALE = 0.2;
 	const editorSections: Array<{ id: EditorSection; label: string }> = [
 		{ id: 'content', label: 'Content' },
 		{ id: 'style', label: 'Style' },
@@ -385,8 +386,33 @@
 			return;
 		}
 
-		const { width } = previewViewport.getBoundingClientRect();
-		previewScale = Math.min(Math.max((width - 24) / CANVAS_WIDTH, 0.2), 1);
+		const viewportStyles = getComputedStyle(previewViewport);
+		const horizontalPadding =
+			getPixelValue(viewportStyles.paddingLeft) + getPixelValue(viewportStyles.paddingRight);
+		const verticalPadding =
+			getPixelValue(viewportStyles.paddingTop) + getPixelValue(viewportStyles.paddingBottom);
+		const clickHint = previewViewport.querySelector<HTMLElement>('.preview-click-hint');
+		const clickHintStyles = clickHint ? getComputedStyle(clickHint) : null;
+		const clickHintHeight = clickHint
+			? clickHint.getBoundingClientRect().height +
+				getPixelValue(clickHintStyles?.marginTop) +
+				getPixelValue(clickHintStyles?.marginBottom)
+			: 0;
+		const availableWidth = Math.max(previewViewport.clientWidth - horizontalPadding, 0);
+		const availableHeight = Math.max(
+			previewViewport.clientHeight - verticalPadding - clickHintHeight,
+			0
+		);
+		const fitScale = Math.min(availableWidth / CANVAS_WIDTH, availableHeight / CANVAS_HEIGHT);
+
+		previewScale = Number.isFinite(fitScale)
+			? Math.min(Math.max(fitScale, MIN_PREVIEW_SCALE), 1)
+			: 1;
+	}
+
+	function getPixelValue(value: string | undefined) {
+		const parsedValue = Number.parseFloat(value ?? '');
+		return Number.isFinite(parsedValue) ? parsedValue : 0;
 	}
 
 	$effect(() => {
@@ -394,10 +420,28 @@
 			return;
 		}
 
-		updatePreviewScale();
-		const observer = new ResizeObserver(() => updatePreviewScale());
+		let animationFrame = 0;
+		const schedulePreviewScaleUpdate = () => {
+			if (animationFrame) {
+				cancelAnimationFrame(animationFrame);
+			}
+
+			animationFrame = requestAnimationFrame(() => {
+				animationFrame = 0;
+				updatePreviewScale();
+			});
+		};
+
+		schedulePreviewScaleUpdate();
+		const observer = new ResizeObserver(schedulePreviewScaleUpdate);
 		observer.observe(previewViewport);
-		return () => observer.disconnect();
+		return () => {
+			if (animationFrame) {
+				cancelAnimationFrame(animationFrame);
+			}
+
+			observer.disconnect();
+		};
 	});
 
 	function setProject(nextProject: ThumbnailProject) {
@@ -1177,10 +1221,13 @@
 						onclick={openPreviewModal}
 						aria-label="Open rendered preview image"
 					>
-						<div class="preview-stage-inner" style={`height: ${CANVAS_HEIGHT * previewScale}px;`}>
+						<div
+							class="preview-stage-inner"
+							style={`width: ${CANVAS_WIDTH * previewScale}px; height: ${CANVAS_HEIGHT * previewScale}px;`}
+						>
 							<div
-								class="thumbnail-export-root"
-								style={`transform: scale(${previewScale}); transform-origin: top left;`}
+								class="thumbnail-export-root thumbnail-preview-root"
+								style={`transform: scale(${previewScale});`}
 							>
 								<activeTheme.component event={activeEvent} />
 							</div>
@@ -1365,12 +1412,9 @@
 							</button>
 						</div>
 						<div class="event-summary-meta">
-							<span>#{activeEvent.id}</span>
+							<span>Slide #{activeEvent.id}</span>
 							{#if activeEvent.day !== undefined && activeEvent.day !== null && `${activeEvent.day}`.trim() !== ''}
 								<span>Day {activeEvent.day}</span>
-							{/if}
-							{#if activeTheme}
-								<span>{activeTheme.meta.name}</span>
 							{/if}
 							<span>{activeEvent.thumbnail.people.length} people</span>
 							<span>{activeOrgs.length} orgs</span>
@@ -1389,7 +1433,12 @@
 					</section>
 
 					<div class="editor-toolbar compact-toolbar">
-						<div class="section-tabs" role="tablist" aria-label="Editor sections">
+						<div
+							class="section-tabs"
+							role="tablist"
+							aria-label="Editor sections"
+							style={`--section-tab-count: ${visibleEditorSections.length};`}
+						>
 							{#each visibleEditorSections as section}
 								<button
 									type="button"
@@ -1935,7 +1984,7 @@
 												<span>{org.peopleCount} {org.peopleCount === 1 ? 'person' : 'people'}</span>
 											</div>
 
-											<div class="form-grid compact-form-grid">
+											<div class="form-grid compact-form-grid org-form-grid">
 												{#if themeSupportsPersonField('company')}
 													<label class="field-block">
 														<span>Company name</span>
