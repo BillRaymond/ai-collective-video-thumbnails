@@ -10,6 +10,13 @@
 	import { browser, dev } from '$app/environment';
 	import { tick } from 'svelte';
 	import sampleEvents from '../../default-list.json';
+	import {
+		internalImageAssets,
+		internalLogoAssets,
+		internalPhotoAssets,
+		type InternalAsset,
+		type InternalAssetKind
+	} from '$lib/internal-assets';
 	import sourceEventsSchema from '$lib/schemas/source-events.schema.json';
 	import { CANVAS_HEIGHT, CANVAS_WIDTH } from '$lib/constants';
 	import { isAppLocalImagePath, resolveAppImageUrl, resolveRenderableImageUrl } from '$lib/image';
@@ -68,18 +75,40 @@
 	type AssetFinderTarget = {
 		id: string;
 		type: AssetFinderTargetType;
+		eventId: string;
 		label: string;
 		detail: string;
 		jsonPath: string;
 		currentUrl: string;
+		isHandled: boolean;
 		searchQuery: string;
 		sourceQuery: string;
+		matchText: string;
 		personId?: string;
 		orgKey?: string;
 	};
 	type AssetSearchLink = {
 		label: string;
 		url: string;
+	};
+	type InternalMatchRow = {
+		key: string;
+		label: string;
+		detail: string;
+		currentUrl: string;
+		isHandled: boolean;
+		matchText: string;
+		targetId: string;
+		asset: InternalAsset | null;
+		score: number;
+	};
+	type MissingAssetGroup = {
+		label: string;
+		targets: AssetFinderTarget[];
+	};
+	type ScoredInternalAsset = {
+		asset: InternalAsset;
+		score: number;
 	};
 
 	const sampleProject = parseProjectImport(sampleEvents);
@@ -134,12 +163,15 @@
 	let peopleOrderSnapshots = $state<Record<string, string[]>>({});
 	let isAssetFinderOpen = $state(false);
 	let assetFinderTargetId = $state('');
-	let assetFinderDraftUrl = $state('');
-	let assetFinderCandidates = $state<string[]>([]);
 	let assetFinderError = $state('');
 	let assetFinderNotice = $state('');
 	let isAssetPreviewOpen = $state(false);
 	let assetPreviewUrl = $state('');
+	let isInternalAssetMatchOpen = $state(false);
+	let replaceExistingInternalAssets = $state(false);
+	let internalAssetSearchText = $state('');
+	let internalAssetSearchKind = $state<InternalAssetKind | 'all'>('all');
+	let isMissingAssetsOpen = $state(false);
 
 	function getActiveEvent() {
 		return project.events.find((event) => `${event.id}` === selectedEventId) ?? project.events[0] ?? null;
@@ -183,7 +215,7 @@
 			null
 	);
 	let activeOrgs = $derived(buildOrgRows(activeEvent));
-	let assetFinderTargets = $derived(buildAssetFinderTargets(activeEvent));
+	let assetFinderTargets = $derived(buildAssetFinderTargets(project));
 	let activeAssetFinderTarget = $derived(
 		assetFinderTargets.find((target) => target.id === assetFinderTargetId) ??
 			assetFinderTargets[0] ??
@@ -196,6 +228,15 @@
 		activeEvent ? Boolean(peopleOrderSnapshots[`${activeEvent.id}`]) : false
 	);
 	let visibleEditorSubsections = $derived(getEditorSubsections(openEditorSection));
+	let peopleInternalMatches = $derived(buildPeopleInternalMatches());
+	let logoInternalMatches = $derived(buildLogoInternalMatches());
+	let internalAssetSearchResults = $derived(
+		searchInternalAssets(internalAssetSearchText, getInternalSearchAssets()).slice(0, 8)
+	);
+	let missingAssetGroups = $derived(buildMissingAssetGroups());
+	let missingAssetCount = $derived(
+		missingAssetGroups.reduce((total, group) => total + group.targets.length, 0)
+	);
 
 	function themeSupportsTextField(field: ThumbnailThemeTextField) {
 		return activeTheme?.editor.brandingFields.includes(field) ?? false;
@@ -297,95 +338,139 @@
 			.join(' ');
 	}
 
-	function buildAssetFinderTargets(event: ThumbnailEvent | null): AssetFinderTarget[] {
-		if (!event) {
+	function buildAssetFinderTargets(sourceProject: ThumbnailProject): AssetFinderTarget[] {
+		if (sourceProject.events.length === 0) {
 			return [];
 		}
 
 		const targets: AssetFinderTarget[] = [];
+		const orgs = new Map<string, OrgRow & { eventTitles: string[]; hasMissingLogo: boolean }>();
 
-		for (const person of event.thumbnail.people) {
-			const name = person.name.trim() || 'Person';
-			const company = person.company.trim();
-			const detail = [person.role.trim(), company].filter(Boolean).join(' · ');
+		for (const event of sourceProject.events) {
+			for (const person of event.thumbnail.people) {
+				const name = person.name.trim() || 'Person';
+				const company = person.company.trim();
+				const detail = [event.title, person.role.trim(), company].filter(Boolean).join(' · ');
+
+				targets.push({
+					id: `person-photo:${event.id}:${person.id}`,
+					type: 'personPhoto',
+					eventId: `${event.id}`,
+					label: `${name} photo`,
+					detail,
+					jsonPath: `events[${event.id}].thumbnail.people[${name}].photoUrl`,
+					currentUrl: person.photoUrl,
+					isHandled: Boolean(person.photoUrl.trim()),
+					searchQuery: joinSearchTerms([person.name, company, 'headshot']),
+					sourceQuery:
+						joinSearchTerms([person.name, company, 'speaker photo profile']) ||
+						joinSearchTerms([name, 'headshot']),
+					matchText: person.name,
+					personId: person.id
+				});
+
+				const companyKey = normalizeMatchKey(company);
+				if (companyKey) {
+					const existing = orgs.get(companyKey);
+					if (existing) {
+						existing.peopleCount += 1;
+						if (!existing.companyLogoUrl && person.companyLogoUrl) {
+							existing.companyLogoUrl = person.companyLogoUrl;
+						}
+						if (!existing.eventTitles.includes(event.title)) {
+							existing.eventTitles.push(event.title);
+						}
+						existing.hasMissingLogo = existing.hasMissingLogo || !person.companyLogoUrl.trim();
+					} else {
+						orgs.set(companyKey, {
+							key: companyKey,
+							company,
+							companyLogoUrl: person.companyLogoUrl,
+							companyLogoHasBackground: person.companyLogoHasBackground,
+							peopleCount: 1,
+							eventTitles: [event.title],
+							hasMissingLogo: !person.companyLogoUrl.trim()
+						});
+					}
+				} else {
+					targets.push({
+						id: `company-logo:${event.id}:${person.id}`,
+						type: 'companyLogo',
+						eventId: `${event.id}`,
+						label: `${name} company logo`,
+						detail,
+						jsonPath: `events[${event.id}].thumbnail.people[${name}].companyLogoUrl`,
+						currentUrl: person.companyLogoUrl,
+						isHandled: Boolean(person.companyLogoUrl.trim()),
+						searchQuery: joinSearchTerms([name, 'company official logo svg png']),
+						sourceQuery: joinSearchTerms([name, 'brand assets logo']),
+						matchText: name,
+						personId: person.id
+					});
+				}
+			}
 
 			targets.push({
-				id: `person-photo:${person.id}`,
-				type: 'personPhoto',
-				label: `${name} photo`,
-				detail,
-				jsonPath: `thumbnail.people[${name}].photoUrl`,
-				currentUrl: person.photoUrl,
-				searchQuery: joinSearchTerms([person.name, company, 'headshot']),
-				sourceQuery:
-					joinSearchTerms([person.name, company, 'speaker photo profile']) ||
-					joinSearchTerms([name, 'headshot']),
-				personId: person.id
+				id: `event-logo:${event.id}`,
+				type: 'eventLogo',
+				eventId: `${event.id}`,
+				label: `${event.title || 'Event'} event logo`,
+				detail: `Slide ${event.id}`,
+				jsonPath: `events[${event.id}].thumbnail.eventLogoUrl`,
+				currentUrl: event.thumbnail.eventLogoUrl,
+				isHandled: Boolean(event.thumbnail.eventLogoUrl.trim()),
+				searchQuery: joinSearchTerms([event.title, event.location, 'event logo']),
+				sourceQuery: joinSearchTerms([event.title, event.location, 'brand logo']),
+				matchText: event.title
+			});
+
+			targets.push({
+				id: `location-logo:${event.id}`,
+				type: 'locationLogo',
+				eventId: `${event.id}`,
+				label: `${event.location || event.title || 'Location'} logo`,
+				detail: `Slide ${event.id}`,
+				jsonPath: `events[${event.id}].location_logo_url`,
+				currentUrl: event.location_logo_url ?? '',
+				isHandled: Boolean((event.location_logo_url ?? '').trim()),
+				searchQuery: joinSearchTerms([event.location || event.title, 'official logo svg png']),
+				sourceQuery: joinSearchTerms([event.location || event.title, 'brand assets logo']),
+				matchText: event.location || event.title
+			});
+
+			targets.push({
+				id: `background-image:${event.id}`,
+				type: 'backgroundImage',
+				eventId: `${event.id}`,
+				label: `${event.title || 'Event'} background`,
+				detail: `Slide ${event.id}`,
+				jsonPath: `events[${event.id}].thumbnail.backgroundImageUrl`,
+				currentUrl: event.thumbnail.backgroundImageUrl,
+				isHandled: Boolean(event.thumbnail.backgroundImageUrl.trim()),
+				searchQuery: joinSearchTerms([event.title, event.location, 'event background image']),
+				sourceQuery: joinSearchTerms([event.title, event.location, 'thumbnail background image']),
+				matchText: event.title
 			});
 		}
 
-		for (const org of buildOrgRows(event)) {
+		for (const org of [...orgs.values()].sort((left, right) =>
+			left.company.localeCompare(right.company)
+		)) {
 			targets.push({
 				id: `company-logo:${org.key}`,
 				type: 'companyLogo',
+				eventId: 'all',
 				label: `${org.company || 'Company'} logo`,
-				detail: `${org.peopleCount} ${org.peopleCount === 1 ? 'person' : 'people'}`,
-				jsonPath: `thumbnail.people[company=${org.company || 'Company'}].companyLogoUrl`,
+				detail: `${org.peopleCount} ${org.peopleCount === 1 ? 'person' : 'people'} · ${org.eventTitles.length} ${org.eventTitles.length === 1 ? 'slide' : 'slides'}`,
+				jsonPath: `events[*].thumbnail.people[company=${org.company || 'Company'}].companyLogoUrl`,
 				currentUrl: org.companyLogoUrl,
+				isHandled: Boolean(org.companyLogoUrl.trim()) && !org.hasMissingLogo,
 				searchQuery: joinSearchTerms([org.company, 'official logo svg png']),
 				sourceQuery: joinSearchTerms([org.company, 'brand assets logo']),
+				matchText: org.company,
 				orgKey: org.key
 			});
 		}
-
-		for (const person of event.thumbnail.people.filter((entry) => !entry.company.trim())) {
-			const name = person.name.trim() || 'Person';
-
-			targets.push({
-				id: `company-logo:${person.id}`,
-				type: 'companyLogo',
-				label: `${name} company logo`,
-				detail: person.role,
-				jsonPath: `thumbnail.people[${name}].companyLogoUrl`,
-				currentUrl: person.companyLogoUrl,
-				searchQuery: joinSearchTerms([name, 'company official logo svg png']),
-				sourceQuery: joinSearchTerms([name, 'brand assets logo']),
-				personId: person.id
-			});
-		}
-
-		targets.push({
-			id: 'event-logo',
-			type: 'eventLogo',
-			label: 'Event logo',
-			detail: event.title,
-			jsonPath: 'thumbnail.eventLogoUrl',
-			currentUrl: event.thumbnail.eventLogoUrl,
-			searchQuery: joinSearchTerms([event.title, event.location, 'event logo']),
-			sourceQuery: joinSearchTerms([event.title, event.location, 'brand logo'])
-		});
-
-		targets.push({
-			id: 'location-logo',
-			type: 'locationLogo',
-			label: 'Location logo',
-			detail: event.location || event.title,
-			jsonPath: 'location_logo_url',
-			currentUrl: event.location_logo_url ?? '',
-			searchQuery: joinSearchTerms([event.location || event.title, 'official logo svg png']),
-			sourceQuery: joinSearchTerms([event.location || event.title, 'brand assets logo'])
-		});
-
-		targets.push({
-			id: 'background-image',
-			type: 'backgroundImage',
-			label: 'Background image',
-			detail: event.title,
-			jsonPath: 'thumbnail.backgroundImageUrl',
-			currentUrl: event.thumbnail.backgroundImageUrl,
-			searchQuery: joinSearchTerms([event.title, event.location, 'event background image']),
-			sourceQuery: joinSearchTerms([event.title, event.location, 'thumbnail background image'])
-		});
 
 		return targets;
 	}
@@ -429,7 +514,7 @@
 
 	function getPreferredAssetFinderTargetId() {
 		const preferredIds = [
-			activePerson ? `person-photo:${activePerson.id}` : '',
+			activeEvent && activePerson ? `person-photo:${activeEvent.id}:${activePerson.id}` : '',
 			activePerson?.company ? `company-logo:${normalizeMatchKey(activePerson.company)}` : '',
 			assetFinderTargets[0]?.id ?? ''
 		];
@@ -446,14 +531,12 @@
 			assetFinderTargets.find((entry) => entry.id === targetId) ?? assetFinderTargets[0] ?? null;
 
 		assetFinderTargetId = target?.id ?? '';
-		assetFinderDraftUrl = '';
 		assetFinderError = '';
 		assetFinderNotice = '';
-		assetFinderCandidates = target?.currentUrl.trim() ? [target.currentUrl.trim()] : [];
 	}
 
 	function openAssetFinder() {
-		if (!activeEvent || assetFinderTargets.length === 0) {
+		if (assetFinderTargets.length === 0) {
 			return;
 		}
 
@@ -463,9 +546,10 @@
 
 	function closeAssetFinder() {
 		isAssetFinderOpen = false;
-		assetFinderDraftUrl = '';
 		assetFinderError = '';
 		assetFinderNotice = '';
+		isInternalAssetMatchOpen = false;
+		isMissingAssetsOpen = false;
 		closeAssetPreview();
 	}
 
@@ -473,26 +557,12 @@
 		resetAssetFinderForTarget(targetId);
 	}
 
-	function parseCandidateUrls(value: string) {
-		const lineCandidates = value
-			.split(/[\n,]+/)
-			.map((entry) => entry.trim())
-			.filter(Boolean);
-
-		if (lineCandidates.length > 1) {
-			return lineCandidates;
-		}
-
-		return (
-			value.match(/https?:\/\/[^\s,]+|data:image\/[^\s,]+|\/[^\s,]+/gi) ??
-			lineCandidates
-		)
-			.map((entry) => entry.trim())
-			.filter(Boolean);
-	}
-
 	function isCandidateUrlFormat(url: string) {
 		const trimmed = url.trim();
+
+		if (!trimmed) {
+			return true;
+		}
 
 		return (
 			isAppLocalImagePath(trimmed) ||
@@ -501,36 +571,11 @@
 		);
 	}
 
-	function addAssetFinderCandidates() {
-		const parsedUrls = parseCandidateUrls(assetFinderDraftUrl);
-
-		if (parsedUrls.length === 0) {
-			assetFinderError = 'Paste at least one image URL.';
-			assetFinderNotice = '';
-			return;
-		}
-
-		const existingUrls = new Set(assetFinderCandidates.map((url) => url.trim()));
-		const nextCandidates = [...assetFinderCandidates];
-
-		for (const url of parsedUrls) {
-			if (!existingUrls.has(url)) {
-				existingUrls.add(url);
-				nextCandidates.push(url);
-			}
-		}
-
-		assetFinderCandidates = nextCandidates;
-		assetFinderDraftUrl = '';
-		assetFinderError = '';
-		assetFinderNotice = '';
-	}
-
-	function removeAssetFinderCandidate(url: string) {
-		assetFinderCandidates = assetFinderCandidates.filter((candidate) => candidate !== url);
-	}
-
 	function getAssetCandidateStatus(url: string): ImageStatus {
+		if (!url.trim()) {
+			return 'idle';
+		}
+
 		if (!isCandidateUrlFormat(url)) {
 			return 'failed';
 		}
@@ -564,21 +609,7 @@
 		assetPreviewUrl = '';
 	}
 
-	function applyAssetFinderCandidate(url: string) {
-		const target = activeAssetFinderTarget;
-
-		if (!target) {
-			assetFinderError = 'Select an asset target first.';
-			assetFinderNotice = '';
-			return;
-		}
-
-		if (getAssetCandidateStatus(url) !== 'valid') {
-			assetFinderError = 'Choose a URL that loads successfully before applying it.';
-			assetFinderNotice = '';
-			return;
-		}
-
+	function updateAssetFinderTargetUrl(target: AssetFinderTarget, url: string) {
 		const nextUrl = url.trim();
 
 		if (target.type === 'personPhoto' && target.personId) {
@@ -591,16 +622,287 @@
 		} else if (target.type === 'companyLogo' && target.personId) {
 			updatePersonField(target.personId, 'companyLogoUrl', nextUrl);
 		} else if (target.type === 'eventLogo') {
-			updateActiveThumbnailField('eventLogoUrl', nextUrl);
+			updateEvent(target.eventId, (event) => ({
+				...event,
+				thumbnail: { ...event.thumbnail, eventLogoUrl: nextUrl }
+			}));
 		} else if (target.type === 'locationLogo') {
-			updateActiveEventField('location_logo_url', nextUrl);
+			updateEvent(target.eventId, (event) => ({
+				...event,
+				location_logo_url: resolveAppImageUrl(nextUrl)
+			}));
 		} else if (target.type === 'backgroundImage') {
-			updateActiveThumbnailField('backgroundImageUrl', nextUrl);
+			updateEvent(target.eventId, (event) => ({
+				...event,
+				thumbnail: { ...event.thumbnail, backgroundImageUrl: nextUrl }
+			}));
 		}
 
+		if (nextUrl) {
+			ensureUrlStatus(nextUrl);
+		}
+	}
+
+	function updateActiveAssetFinderUrl(url: string) {
+		const target = activeAssetFinderTarget;
+
+		if (!target) {
+			assetFinderError = 'Select an asset first.';
+			assetFinderNotice = '';
+			return;
+		}
+
+		updateAssetFinderTargetUrl(target, url);
+		assetFinderError = isCandidateUrlFormat(url) ? '' : 'This does not look like an image URL or site path.';
+		assetFinderNotice = url.trim() ? `Saved ${target.label}.` : `Cleared ${target.label}.`;
+	}
+
+	function selectAssetFromCoverage(targetId: string) {
+		selectAssetFinderTarget(targetId);
+		isMissingAssetsOpen = false;
+		const target = assetFinderTargets.find((entry) => entry.id === targetId);
+		if (target?.eventId && target.eventId !== 'all') {
+			selectedEventId = target.eventId;
+		}
+	}
+
+	function getAssetKindForTarget(target: AssetFinderTarget): InternalAssetKind | 'all' {
+		if (target.type === 'personPhoto') {
+			return 'photo';
+		}
+
+		if (target.type === 'companyLogo' || target.type === 'eventLogo' || target.type === 'locationLogo') {
+			return 'logo';
+		}
+
+		return 'all';
+	}
+
+	function normalizeFuzzyText(value: string) {
+		return value
+			.toLowerCase()
+			.replace(/\.[a-z0-9]+$/i, '')
+			.replace(/[^a-z0-9]+/g, ' ')
+			.split(/\s+/)
+			.filter((part) => part && part !== 'the')
+			.join(' ')
+			.trim();
+	}
+
+	function assetMatchText(asset: InternalAsset) {
+		return normalizeFuzzyText(`${asset.label} ${asset.filename}`);
+	}
+
+	function scoreFuzzyMatch(searchText: string, candidateText: string) {
+		const search = normalizeFuzzyText(searchText);
+		const candidate = normalizeFuzzyText(candidateText);
+
+		if (!search || !candidate) {
+			return 0;
+		}
+
+		if (search === candidate) {
+			return 100;
+		}
+
+		const compactSearch = search.replace(/\s+/g, '');
+		const compactCandidate = candidate.replace(/\s+/g, '');
+
+		if (compactSearch === compactCandidate) {
+			return 96;
+		}
+
+		if (candidate.includes(search) || search.includes(candidate)) {
+			return 88;
+		}
+
+		if (compactCandidate.includes(compactSearch) || compactSearch.includes(compactCandidate)) {
+			return 82;
+		}
+
+		const searchParts = search.split(' ');
+		const candidateParts = new Set(candidate.split(' '));
+		const matchedParts = searchParts.filter((part) => candidateParts.has(part)).length;
+		const coverage = matchedParts / searchParts.length;
+
+		if (coverage >= 0.8) {
+			return 74;
+		}
+
+		if (coverage >= 0.5) {
+			return 58;
+		}
+
+		return 0;
+	}
+
+	function findBestInternalAssetMatch(text: string, assets: InternalAsset[]): ScoredInternalAsset | null {
+		let bestMatch: ScoredInternalAsset | null = null;
+
+		for (const asset of assets) {
+			const score = scoreFuzzyMatch(text, assetMatchText(asset));
+			if (score > (bestMatch?.score ?? 0)) {
+				bestMatch = { asset, score };
+			}
+		}
+
+		return bestMatch && bestMatch.score >= 58 ? bestMatch : null;
+	}
+
+	function searchInternalAssets(text: string, assets: InternalAsset[]): ScoredInternalAsset[] {
+		const normalizedText = normalizeFuzzyText(text);
+
+		if (!normalizedText) {
+			return [];
+		}
+
+		return assets
+			.map((asset) => ({
+				asset,
+				score: scoreFuzzyMatch(normalizedText, assetMatchText(asset))
+			}))
+			.filter((result) => result.score > 0)
+			.sort((left, right) => right.score - left.score || left.asset.label.localeCompare(right.asset.label));
+	}
+
+	function getInternalSearchAssets() {
+		if (internalAssetSearchKind === 'photo') {
+			return internalPhotoAssets;
+		}
+
+		if (internalAssetSearchKind === 'logo') {
+			return internalLogoAssets;
+		}
+
+		return internalImageAssets;
+	}
+
+	function buildInternalMatchRow(target: AssetFinderTarget, assets: InternalAsset[]): InternalMatchRow {
+		const match = findBestInternalAssetMatch(target.matchText || target.label, assets);
+
+		return {
+			key: target.id,
+			label: target.label,
+			detail: target.detail,
+			currentUrl: target.currentUrl,
+			isHandled: target.isHandled,
+			matchText: target.matchText || target.label,
+			targetId: target.id,
+			asset: match?.asset ?? null,
+			score: match?.score ?? 0
+		};
+	}
+
+	function buildPeopleInternalMatches(): InternalMatchRow[] {
+		return assetFinderTargets
+			.filter((target) => target.type === 'personPhoto')
+			.map((target) => buildInternalMatchRow(target, internalPhotoAssets));
+	}
+
+	function buildLogoInternalMatches(): InternalMatchRow[] {
+		return assetFinderTargets
+			.filter((target) => target.type === 'companyLogo')
+			.map((target) => buildInternalMatchRow(target, internalLogoAssets));
+	}
+
+	function openInternalAssetMatch() {
+		replaceExistingInternalAssets = false;
+		internalAssetSearchText = activeAssetFinderTarget?.matchText ?? '';
+		internalAssetSearchKind = activeAssetFinderTarget
+			? getAssetKindForTarget(activeAssetFinderTarget)
+			: 'all';
+		isInternalAssetMatchOpen = true;
 		assetFinderError = '';
-		assetFinderNotice = `Applied ${target.label}.`;
-		ensureUrlStatus(nextUrl);
+		assetFinderNotice = '';
+	}
+
+	function closeInternalAssetMatch() {
+		isInternalAssetMatchOpen = false;
+	}
+
+	function applyInternalMatch(row: InternalMatchRow, forceReplace = true) {
+		if (!row.asset || (!forceReplace && row.isHandled)) {
+			return false;
+		}
+
+		const target = assetFinderTargets.find((entry) => entry.id === row.targetId);
+		if (!target) {
+			return false;
+		}
+
+		updateAssetFinderTargetUrl(target, row.asset.path);
+		ensureUrlStatus(row.asset.path);
+		return true;
+	}
+
+	function applyFoundInternalMatches() {
+		const rows = [...peopleInternalMatches, ...logoInternalMatches];
+		let appliedCount = 0;
+
+		for (const row of rows) {
+			if (applyInternalMatch(row, replaceExistingInternalAssets)) {
+				appliedCount += 1;
+			}
+		}
+
+		assetFinderNotice = `Applied ${appliedCount} internal ${appliedCount === 1 ? 'asset' : 'assets'}.`;
+		assetFinderError = '';
+	}
+
+	function applyInternalAssetToActiveTarget(asset: InternalAsset) {
+		const target = activeAssetFinderTarget;
+
+		if (!target) {
+			assetFinderError = 'Select an asset first.';
+			assetFinderNotice = '';
+			return;
+		}
+
+		updateAssetFinderTargetUrl(target, asset.path);
+		assetFinderNotice = `Saved ${asset.path} to ${target.label}.`;
+		assetFinderError = '';
+		ensureUrlStatus(asset.path);
+	}
+
+	function openMissingAssets() {
+		isMissingAssetsOpen = true;
+	}
+
+	function closeMissingAssets() {
+		isMissingAssetsOpen = false;
+	}
+
+	function buildMissingAssetGroups(): MissingAssetGroup[] {
+		const groups: MissingAssetGroup[] = [
+			{
+				label: 'People without photos',
+				targets: assetFinderTargets.filter(
+					(target) => target.type === 'personPhoto' && !target.isHandled
+				)
+			},
+			{
+				label: 'Companies without logos',
+				targets: assetFinderTargets.filter(
+					(target) => target.type === 'companyLogo' && !target.isHandled
+				)
+			},
+			{
+				label: 'Other missing images',
+				targets: assetFinderTargets.filter(
+					(target) =>
+						(target.type === 'eventLogo' ||
+							target.type === 'locationLogo' ||
+							target.type === 'backgroundImage') &&
+						!target.isHandled
+				)
+			}
+		];
+
+		return groups.filter((group) => group.targets.length > 0);
+	}
+
+	function getAssetTargetStatusLabel(target: AssetFinderTarget) {
+		return target.isHandled ? 'Set' : 'Missing';
 	}
 
 	function setPreviewImageUrl(nextUrl: string) {
@@ -726,6 +1028,16 @@
 
 		const handleKeydown = (event: KeyboardEvent) => {
 			if (event.key === 'Escape') {
+				if (isInternalAssetMatchOpen) {
+					closeInternalAssetMatch();
+					return;
+				}
+
+				if (isMissingAssetsOpen) {
+					closeMissingAssets();
+					return;
+				}
+
 				if (isAssetPreviewOpen) {
 					closeAssetPreview();
 					return;
@@ -751,18 +1063,6 @@
 
 		if (!assetFinderTargets.some((target) => target.id === assetFinderTargetId)) {
 			resetAssetFinderForTarget(assetFinderTargets[0]?.id ?? '');
-		}
-	});
-
-	$effect(() => {
-		if (!isAssetFinderOpen) {
-			return;
-		}
-
-		for (const url of assetFinderCandidates) {
-			if (isCandidateUrlFormat(url)) {
-				ensureUrlStatus(url);
-			}
 		}
 	});
 
@@ -1686,7 +1986,7 @@
 										class="menu-button"
 										type="button"
 										onclick={() => runMenuAction(openAssetFinder)}
-										disabled={!activeEvent || assetFinderTargets.length === 0}
+										disabled={assetFinderTargets.length === 0}
 									>
 										Find asset URLs
 									</button>
@@ -2490,7 +2790,7 @@
 					<div class="asset-finder-grid">
 						<section class="asset-finder-panel">
 							<label class="field-block field-block-full">
-								<span>Target</span>
+								<span>Asset to update</span>
 								<select
 									value={activeAssetFinderTarget.id}
 									onchange={(event) =>
@@ -2498,25 +2798,16 @@
 								>
 									{#each assetFinderTargets as target}
 										<option value={target.id}>
-											{target.label}{target.detail ? ` · ${target.detail}` : ''}
+											{target.isHandled ? '[Set]' : '[Missing]'} {target.label}{target.detail ? ` · ${target.detail}` : ''}
 										</option>
 									{/each}
 								</select>
 							</label>
 
 							<div class="asset-current-block">
-								<p class="panel-label">Current URL</p>
-								{#if activeAssetFinderTarget.currentUrl}
-									<code>{activeAssetFinderTarget.currentUrl}</code>
-									<small>{statusLabel[getAssetCandidateStatus(activeAssetFinderTarget.currentUrl)]}</small>
-								{:else}
-									<small>No URL set</small>
-								{/if}
-							</div>
-
-							<div class="asset-current-block">
 								<p class="panel-label">JSON field</p>
 								<code>{activeAssetFinderTarget.jsonPath}</code>
+								<small>{getAssetTargetStatusLabel(activeAssetFinderTarget)}</small>
 							</div>
 
 							<div class="asset-search-links" aria-label="Search links">
@@ -2533,23 +2824,31 @@
 							</div>
 
 							<label class="field-block field-block-full">
-								<span>Candidate URL</span>
+								<span>URL or site path</span>
 								<textarea
-									value={assetFinderDraftUrl}
+									value={activeAssetFinderTarget.currentUrl}
 									rows="4"
-									placeholder="https://example.com/image.png"
+									placeholder="/images/speakers/photos/name.png"
 									oninput={(event) =>
-										(assetFinderDraftUrl = (event.currentTarget as HTMLTextAreaElement).value)}
+										updateActiveAssetFinderUrl((event.currentTarget as HTMLTextAreaElement).value)}
 								></textarea>
+								<small>{statusLabel[getAssetCandidateStatus(activeAssetFinderTarget.currentUrl)]}</small>
 							</label>
 
 							<div class="asset-finder-actions">
 								<button
 									class="primary-button compact-button"
 									type="button"
-									onclick={addAssetFinderCandidates}
+									onclick={openInternalAssetMatch}
 								>
-									Add candidate
+									Find existing site assets
+								</button>
+								<button
+									class="secondary-button compact-button"
+									type="button"
+									onclick={openMissingAssets}
+								>
+									Review missing ({missingAssetCount})
 								</button>
 							</div>
 						</section>
@@ -2557,8 +2856,8 @@
 						<section class="asset-finder-panel">
 							<div class="asset-finder-panel-head">
 								<div>
-									<p class="panel-label">Candidates</p>
-									<h4>{assetFinderCandidates.length} URLs</h4>
+									<p class="panel-label">Current asset</p>
+									<h4>{activeAssetFinderTarget.label}</h4>
 								</div>
 							</div>
 
@@ -2568,77 +2867,295 @@
 								<p class="asset-finder-notice">{assetFinderNotice}</p>
 							{/if}
 
-							{#if assetFinderCandidates.length > 0}
-								<div class="asset-candidate-list">
-									{#each assetFinderCandidates as candidateUrl (candidateUrl)}
-										<article
-											class="asset-candidate-card"
-											data-status={getAssetCandidateStatus(candidateUrl)}
+							{#if activeAssetFinderTarget.currentUrl}
+								<article
+									class="asset-candidate-card"
+									data-status={getAssetCandidateStatus(activeAssetFinderTarget.currentUrl)}
+								>
+									<div class="asset-candidate-preview">
+										{#if getAssetCandidateImageUrl(activeAssetFinderTarget.currentUrl)}
+											<img
+												src={getAssetCandidateImageUrl(activeAssetFinderTarget.currentUrl)}
+												alt=""
+												crossorigin="anonymous"
+												onload={() => markUrl(activeAssetFinderTarget.currentUrl, 'valid')}
+												onerror={() => markUrl(activeAssetFinderTarget.currentUrl, 'failed')}
+											/>
+										{:else}
+											<span>Invalid URL</span>
+										{/if}
+									</div>
+									<div class="asset-candidate-copy">
+										<code>{activeAssetFinderTarget.currentUrl}</code>
+										<small>{statusLabel[getAssetCandidateStatus(activeAssetFinderTarget.currentUrl)]}</small>
+									</div>
+									<div class="asset-candidate-actions">
+										{#if getAssetCandidateOpenUrl(activeAssetFinderTarget.currentUrl)}
+											<a
+												class="secondary-button compact-button"
+												href={getAssetCandidateOpenUrl(activeAssetFinderTarget.currentUrl)}
+												target="_blank"
+												rel="noopener noreferrer"
+											>
+												Open
+											</a>
+										{/if}
+										<button
+											class="secondary-button compact-button"
+											type="button"
+											onclick={() => openAssetPreview(activeAssetFinderTarget.currentUrl)}
+											disabled={getAssetCandidateStatus(activeAssetFinderTarget.currentUrl) !== 'valid'}
 										>
-											<div class="asset-candidate-preview">
-												{#if getAssetCandidateImageUrl(candidateUrl)}
-													<img
-														src={getAssetCandidateImageUrl(candidateUrl)}
-														alt=""
-														crossorigin="anonymous"
-														onload={() => markUrl(candidateUrl, 'valid')}
-														onerror={() => markUrl(candidateUrl, 'failed')}
-													/>
-												{:else}
-													<span>Invalid URL</span>
-												{/if}
-											</div>
-											<div class="asset-candidate-copy">
-												<code>{candidateUrl}</code>
-												<small>{statusLabel[getAssetCandidateStatus(candidateUrl)]}</small>
-											</div>
-											<div class="asset-candidate-actions">
-												{#if getAssetCandidateOpenUrl(candidateUrl)}
-													<a
-														class="secondary-button compact-button"
-														href={getAssetCandidateOpenUrl(candidateUrl)}
-														target="_blank"
-														rel="noopener noreferrer"
-													>
-														Open
-													</a>
-												{/if}
-												<button
-													class="secondary-button compact-button"
-													type="button"
-													onclick={() => openAssetPreview(candidateUrl)}
-													disabled={getAssetCandidateStatus(candidateUrl) !== 'valid'}
-												>
-													Preview
-												</button>
-												<button
-													class="primary-button compact-button"
-													type="button"
-													onclick={() => applyAssetFinderCandidate(candidateUrl)}
-													disabled={getAssetCandidateStatus(candidateUrl) !== 'valid'}
-												>
-													Use URL
-												</button>
-												<button
-													class="ghost-button compact-button"
-													type="button"
-													onclick={() => removeAssetFinderCandidate(candidateUrl)}
-												>
-													Remove
-												</button>
-											</div>
-										</article>
-									{/each}
-								</div>
+											Preview
+										</button>
+										<button
+											class="ghost-button compact-button"
+											type="button"
+											onclick={() => updateActiveAssetFinderUrl('')}
+										>
+											Clear
+										</button>
+									</div>
+								</article>
 							{:else}
 								<div class="editor-empty-state asset-finder-empty">
-									<p>No candidate URLs yet.</p>
+									<p>No URL set for this JSON field.</p>
 								</div>
 							{/if}
 						</section>
 					</div>
 				{:else}
-					<div class="modal-status">No editable asset targets are available for this theme.</div>
+					<div class="modal-status">No editable JSON asset fields are available.</div>
+				{/if}
+			</div>
+		</div>
+	</div>
+{/if}
+
+{#if isInternalAssetMatchOpen}
+	<div class="modal-backdrop asset-preview-backdrop">
+		<button
+			type="button"
+			class="modal-scrim"
+			onclick={closeInternalAssetMatch}
+			aria-label="Close internal asset matching"
+		></button>
+		<div
+			class="modal-dialog asset-finder-dialog"
+			role="dialog"
+			aria-modal="true"
+			aria-label="Match existing site assets"
+			tabindex="-1"
+		>
+			<div class="modal-head">
+				<div>
+					<p class="panel-label">Existing Site Assets</p>
+					<h3>Match photos and logos</h3>
+				</div>
+				<div class="modal-head-actions">
+					<button class="ghost-button compact-button" type="button" onclick={closeInternalAssetMatch}>
+						Close
+					</button>
+				</div>
+			</div>
+
+			<div class="modal-body asset-finder-body">
+				<div class="asset-match-toolbar">
+					<label class="checkbox-field">
+						<input
+							type="checkbox"
+							checked={replaceExistingInternalAssets}
+							onchange={(event) =>
+								(replaceExistingInternalAssets = (event.currentTarget as HTMLInputElement).checked)}
+						/>
+						<span>Replace existing URLs</span>
+					</label>
+					<button class="primary-button compact-button" type="button" onclick={applyFoundInternalMatches}>
+						Apply found matches
+					</button>
+				</div>
+
+				<div class="asset-manual-search">
+					<label class="field-block field-block-full">
+						<span>Search existing images</span>
+						<input
+							type="search"
+							value={internalAssetSearchText}
+							placeholder="Type a person or company name"
+							oninput={(event) =>
+								(internalAssetSearchText = (event.currentTarget as HTMLInputElement).value)}
+						/>
+					</label>
+					<label class="field-block asset-kind-field">
+						<span>Kind</span>
+						<select
+							value={internalAssetSearchKind}
+							onchange={(event) =>
+								(internalAssetSearchKind = (event.currentTarget as HTMLSelectElement)
+									.value as InternalAssetKind | 'all')}
+						>
+							<option value="all">Photos and logos</option>
+							<option value="photo">Photos</option>
+							<option value="logo">Logos</option>
+						</select>
+					</label>
+				</div>
+
+				{#if internalAssetSearchResults.length > 0}
+					<div class="asset-search-result-list" aria-label="Internal image search results">
+						{#each internalAssetSearchResults as result (result.asset.path)}
+							<button
+								class="asset-search-result"
+								type="button"
+								onclick={() => applyInternalAssetToActiveTarget(result.asset)}
+							>
+								<img src={resolveAppImageUrl(result.asset.path)} alt="" />
+								<span>{result.asset.label}</span>
+								<code>{result.asset.path}</code>
+							</button>
+						{/each}
+					</div>
+				{/if}
+
+				<div class="asset-match-grid">
+					<section class="asset-match-section">
+						<div class="asset-finder-panel-head">
+							<div>
+								<p class="panel-label">People matches</p>
+								<h4>{peopleInternalMatches.filter((row) => row.asset).length} found / {peopleInternalMatches.length}</h4>
+							</div>
+						</div>
+						<div class="asset-match-list">
+							{#each peopleInternalMatches as row (row.key)}
+								<article class="asset-match-row" data-found={row.asset ? 'true' : 'false'}>
+									<div>
+										<strong>{row.label}</strong>
+										<small>{row.detail}</small>
+									</div>
+									<div>
+										{#if row.asset}
+											<code>{row.asset.path}</code>
+											<small>Score {row.score}</small>
+										{:else}
+											<small>Not found</small>
+										{/if}
+									</div>
+									<button
+										class="secondary-button compact-button"
+										type="button"
+										onclick={() => applyInternalMatch(row)}
+										disabled={!row.asset}
+									>
+										Apply
+									</button>
+								</article>
+							{/each}
+						</div>
+					</section>
+
+					<section class="asset-match-section">
+						<div class="asset-finder-panel-head">
+							<div>
+								<p class="panel-label">Logo matches</p>
+								<h4>{logoInternalMatches.filter((row) => row.asset).length} found / {logoInternalMatches.length}</h4>
+							</div>
+						</div>
+						<div class="asset-match-list">
+							{#each logoInternalMatches as row (row.key)}
+								<article class="asset-match-row" data-found={row.asset ? 'true' : 'false'}>
+									<div>
+										<strong>{row.label}</strong>
+										<small>{row.detail}</small>
+									</div>
+									<div>
+										{#if row.asset}
+											<code>{row.asset.path}</code>
+											<small>Score {row.score}</small>
+										{:else}
+											<small>Not found</small>
+										{/if}
+									</div>
+									<button
+										class="secondary-button compact-button"
+										type="button"
+										onclick={() => applyInternalMatch(row)}
+										disabled={!row.asset}
+									>
+										Apply
+									</button>
+								</article>
+							{/each}
+						</div>
+					</section>
+				</div>
+			</div>
+		</div>
+	</div>
+{/if}
+
+{#if isMissingAssetsOpen}
+	<div class="modal-backdrop asset-preview-backdrop">
+		<button
+			type="button"
+			class="modal-scrim"
+			onclick={closeMissingAssets}
+			aria-label="Close missing assets review"
+		></button>
+		<div
+			class="modal-dialog asset-finder-dialog"
+			role="dialog"
+			aria-modal="true"
+			aria-label="Review missing assets"
+			tabindex="-1"
+		>
+			<div class="modal-head">
+				<div>
+					<p class="panel-label">Missing Assets</p>
+					<h3>{missingAssetCount} JSON fields need images</h3>
+				</div>
+				<div class="modal-head-actions">
+					<button class="ghost-button compact-button" type="button" onclick={closeMissingAssets}>
+						Close
+					</button>
+				</div>
+			</div>
+
+			<div class="modal-body asset-finder-body">
+				{#if missingAssetGroups.length > 0}
+					<div class="asset-missing-groups">
+						{#each missingAssetGroups as group}
+							<section class="asset-match-section">
+								<div class="asset-finder-panel-head">
+									<div>
+										<p class="panel-label">{group.label}</p>
+										<h4>{group.targets.length} missing</h4>
+									</div>
+								</div>
+								<div class="asset-match-list">
+									{#each group.targets as target (target.id)}
+										<article class="asset-match-row" data-found="false">
+											<div>
+												<strong>{target.label}</strong>
+												<small>{target.detail}</small>
+											</div>
+											<code>{target.jsonPath}</code>
+											<button
+												class="secondary-button compact-button"
+												type="button"
+												onclick={() => selectAssetFromCoverage(target.id)}
+											>
+												Select
+											</button>
+										</article>
+									{/each}
+								</div>
+							</section>
+						{/each}
+					</div>
+				{:else}
+					<div class="editor-empty-state asset-finder-empty">
+						<p>All JSON image fields have URLs.</p>
+					</div>
 				{/if}
 			</div>
 		</div>
