@@ -129,6 +129,52 @@
 		valid: 'Ready',
 		failed: 'Failed'
 	};
+	const sourceSchemaSample = [
+		{
+			id: 'workshop-001',
+			day: 1,
+			title: 'AI Agents for Revenue Teams',
+			type: 'workshop',
+			location: 'AI Collective Studio',
+			location_logo_url: '/images/speakers/logos/the-ai-collective.png',
+			moderators: [
+				{
+					name: 'Catherine McMillan',
+					company: 'The AI Collective',
+					photo_url: '/images/speakers/photos/catherine-mcmillan.png',
+					company_logo_url: '/images/speakers/logos/the-ai-collective.png'
+				}
+			],
+			confirmed_speakers: [
+				{
+					name: 'Maya Chen',
+					company: 'OpenAI',
+					photo_url:
+						'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=900&q=80',
+					company_logo_url:
+						'https://upload.wikimedia.org/wikipedia/commons/4/4d/OpenAI_Logo.svg'
+				},
+				{
+					name: 'Jordan Lee',
+					company: 'Data Phoenix',
+					photo_url: '/images/speakers/photos/dmytro-spodarets.jpg',
+					company_logo_url: '/images/speakers/logos/data-phoenix.png'
+				}
+			]
+		}
+	];
+	const speakerAssetFolderUrl =
+		'https://github.com/BillRaymond/ai-collective-video-thumbnails/tree/main/static/images/speakers';
+	const sourceSchemaJson = JSON.stringify(sourceEventsSchema, null, 2);
+	const sourceSchemaSampleJson = JSON.stringify(sourceSchemaSample, null, 2);
+	const sourceSchemaAiPrompt = `Create valid JSON for AI Collective Thumbnail Studio using the provided source-events.schema.json schema.
+
+Return only a JSON array. Each event must include id, title, and type. Include day, location, location_logo_url, moderators, and confirmed_speakers when available. Use photo_url and company_logo_url for people.
+
+First try to match people photos and company logos from this folder:
+${speakerAssetFolderUrl}
+
+When there is a match, use local site paths like /images/speakers/photos/name.jpg or /images/speakers/logos/company.png. If no match exists, use public https URLs.`;
 
 	let project = $state<ThumbnailProject>(cloneProject(sampleProject));
 	let selectedEventId = $state<string>(initialSelectedEventId);
@@ -172,6 +218,9 @@
 	let internalAssetSearchText = $state('');
 	let internalAssetSearchKind = $state<InternalAssetKind | 'all'>('all');
 	let isMissingAssetsOpen = $state(false);
+	let isSourceSchemaGuideOpen = $state(false);
+	let copiedSchemaGuideTarget = $state('');
+	let copiedSchemaGuideTimeout: ReturnType<typeof setTimeout> | null = null;
 
 	function getActiveEvent() {
 		return project.events.find((event) => `${event.id}` === selectedEventId) ?? project.events[0] ?? null;
@@ -1696,9 +1745,39 @@
 	}
 
 	function downloadSourceSchema() {
-		const schemaJson = JSON.stringify(sourceEventsSchema, null, 2);
-		const blob = new Blob([schemaJson], { type: 'application/schema+json' });
+		const blob = new Blob([sourceSchemaJson], { type: 'application/schema+json' });
 		triggerDownload(blob, 'source-events.schema.json');
+	}
+
+	function downloadSourceSchemaSample() {
+		const blob = new Blob([sourceSchemaSampleJson], { type: 'application/json' });
+		triggerDownload(blob, 'source-events.sample.json');
+	}
+
+	function openSourceSchemaGuide() {
+		isSourceSchemaGuideOpen = true;
+	}
+
+	function closeSourceSchemaGuide() {
+		isSourceSchemaGuideOpen = false;
+	}
+
+	async function copySchemaGuideText(target: string, text: string) {
+		if (!browser || !navigator.clipboard) {
+			return;
+		}
+
+		await navigator.clipboard.writeText(text);
+		copiedSchemaGuideTarget = target;
+
+		if (copiedSchemaGuideTimeout) {
+			clearTimeout(copiedSchemaGuideTimeout);
+		}
+
+		copiedSchemaGuideTimeout = setTimeout(() => {
+			copiedSchemaGuideTarget = '';
+			copiedSchemaGuideTimeout = null;
+		}, 1400);
 	}
 
 	async function exportCurrent(format: ExportFormat) {
@@ -1993,7 +2072,7 @@
 									<button class="menu-button" type="button" onclick={() => runMenuAction(saveProjectJson)}>
 										Save JSON
 									</button>
-									<button class="menu-button" type="button" onclick={() => runMenuAction(downloadSourceSchema)}>
+									<button class="menu-button" type="button" onclick={() => runMenuAction(openSourceSchemaGuide)}>
 										Download schema
 									</button>
 								</div>
@@ -2755,6 +2834,153 @@
 				<activeTheme.component event={activeEvent} />
 			</div>
 		{/key}
+	</div>
+{/if}
+
+{#if isSourceSchemaGuideOpen}
+	<div class="modal-backdrop">
+		<button
+			type="button"
+			class="modal-scrim"
+			onclick={closeSourceSchemaGuide}
+			aria-label="Close schema guide"
+		></button>
+		<div
+			class="modal-dialog schema-guide-dialog"
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="schema-guide-title"
+			tabindex="-1"
+		>
+			<div class="modal-head">
+				<div>
+					<p class="panel-label">Source Events Schema</p>
+					<h3 id="schema-guide-title">Build upload-ready event JSON</h3>
+				</div>
+				<div class="modal-head-actions">
+					<button class="secondary-button compact-button" type="button" onclick={downloadSourceSchemaSample}>
+						<svg aria-hidden="true" viewBox="0 0 24 24" focusable="false">
+							<path d="M12 3v11m0 0 4-4m-4 4-4-4M5 17v3h14v-3" />
+						</svg>
+						Download sample
+					</button>
+					<button class="primary-button compact-button" type="button" onclick={downloadSourceSchema}>
+						<svg aria-hidden="true" viewBox="0 0 24 24" focusable="false">
+							<path d="M12 3v11m0 0 4-4m-4 4-4-4M5 17v3h14v-3" />
+						</svg>
+						Download schema
+					</button>
+					<button class="ghost-button compact-button" type="button" onclick={closeSourceSchemaGuide}>
+						Close
+					</button>
+				</div>
+			</div>
+
+			<div class="modal-body schema-guide-body">
+				<section class="schema-guide-panel schema-guide-copy">
+					<p>
+						The schema describes the source JSON this studio can import from the Actions menu.
+						Use it when you are preparing an event list by hand, exporting from another system,
+						or asking AI to turn notes into uploadable data.
+					</p>
+					<p>
+						Each file should be a JSON array of events. Every event needs an
+						<code>id</code>, <code>title</code>, and <code>type</code>. People belong in
+						<code>moderators</code> or <code>confirmed_speakers</code>, with optional
+						<code>photo_url</code> and <code>company_logo_url</code> fields.
+					</p>
+					<p>
+						Image fields accept public URLs such as <code>https://...</code> and local site
+						paths such as <code>/images/speakers/photos/name.jpg</code>.
+						Existing people and logo assets live in
+						<a href={speakerAssetFolderUrl} target="_blank" rel="noopener noreferrer">static/images/speakers</a>.
+					</p>
+				</section>
+
+				<section class="schema-guide-panel schema-guide-prompt">
+					<div class="schema-guide-panel-head">
+						<p class="panel-label">AI Prompt</p>
+						<div class="schema-guide-tools">
+							<span>Paste this with your agenda or speaker notes</span>
+							<button
+								class:copied={copiedSchemaGuideTarget === 'prompt'}
+								class="icon-action-button"
+								type="button"
+								onclick={() => copySchemaGuideText('prompt', sourceSchemaAiPrompt)}
+								aria-label="Copy AI prompt"
+								title="Copy AI prompt"
+							>
+								<span aria-hidden="true">{copiedSchemaGuideTarget === 'prompt' ? 'Copied' : 'Copy'}</span>
+							</button>
+						</div>
+					</div>
+					<pre class="schema-guide-code"><code>{sourceSchemaAiPrompt}</code></pre>
+				</section>
+
+				<div class="schema-guide-columns">
+					<section class="schema-guide-panel">
+						<div class="schema-guide-panel-head">
+							<p class="panel-label">Schema</p>
+							<div class="schema-guide-tools">
+								<button
+									class:copied={copiedSchemaGuideTarget === 'schema'}
+									class="icon-action-button"
+									type="button"
+									onclick={() => copySchemaGuideText('schema', sourceSchemaJson)}
+									aria-label="Copy schema"
+									title="Copy schema"
+								>
+									<span aria-hidden="true">{copiedSchemaGuideTarget === 'schema' ? 'Copied' : 'Copy'}</span>
+								</button>
+								<button
+									class="icon-action-button"
+									type="button"
+									onclick={downloadSourceSchema}
+									aria-label="Download schema"
+									title="Download schema"
+								>
+									<svg aria-hidden="true" viewBox="0 0 24 24" focusable="false">
+										<path d="M12 3v11m0 0 4-4m-4 4-4-4M5 17v3h14v-3" />
+									</svg>
+								</button>
+							</div>
+						</div>
+						<pre class="schema-guide-code"><code>{sourceSchemaJson}</code></pre>
+					</section>
+
+					<section class="schema-guide-panel">
+						<div class="schema-guide-panel-head">
+							<p class="panel-label">Sample JSON</p>
+							<div class="schema-guide-tools">
+								<span>Public URLs and local paths</span>
+								<button
+									class:copied={copiedSchemaGuideTarget === 'sample'}
+									class="icon-action-button"
+									type="button"
+									onclick={() => copySchemaGuideText('sample', sourceSchemaSampleJson)}
+									aria-label="Copy sample JSON"
+									title="Copy sample JSON"
+								>
+									<span aria-hidden="true">{copiedSchemaGuideTarget === 'sample' ? 'Copied' : 'Copy'}</span>
+								</button>
+								<button
+									class="icon-action-button"
+									type="button"
+									onclick={downloadSourceSchemaSample}
+									aria-label="Download sample JSON"
+									title="Download sample JSON"
+								>
+									<svg aria-hidden="true" viewBox="0 0 24 24" focusable="false">
+										<path d="M12 3v11m0 0 4-4m-4 4-4-4M5 17v3h14v-3" />
+									</svg>
+								</button>
+							</div>
+						</div>
+						<pre class="schema-guide-code"><code>{sourceSchemaSampleJson}</code></pre>
+					</section>
+				</div>
+			</div>
+		</div>
 	</div>
 {/if}
 
