@@ -6,6 +6,7 @@
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
+		"prepreview": "npm run build",
 		"preview": "vite preview",
 		"docker:dev:build": "sh ./scripts/docker-dev-build.sh",
 		"docker:dev:run": "sh ./scripts/docker-dev-run.sh",
