@@ -208,7 +208,7 @@ When there is a match, use local site paths like /images/speakers/photos/name.jp
 	let previewImageUrl = $state('');
 	let previewImageKind = $state<PreviewRenderResult['kind']>('raster');
 	let previewImageLoaded = $state(false);
-	let previewModalEventId = $state('');
+	let previewModalRenderKey = $state('');
 	let draggedPersonId = $state('');
 	let dragOverPersonId = $state('');
 	let dragOverPlacement = $state<DropPlacement>('before');
@@ -1943,7 +1943,7 @@ When there is a match, use local site paths like /images/speakers/photos/name.jp
 			return;
 		}
 
-		previewModalEventId = `${activeEvent.id}`;
+		previewModalRenderKey = getPreviewModalRenderKey();
 		isPreviewModalLoading = true;
 		previewModalError = '';
 		previewImageLoaded = false;
@@ -1962,8 +1962,12 @@ When there is a match, use local site paths like /images/speakers/photos/name.jp
 		}
 	}
 
+	function getPreviewModalRenderKey() {
+		return activeEvent && activeTheme ? `${activeTheme.meta.id}:${activeEvent.id}` : '';
+	}
+
 	$effect(() => {
-		if (!isPreviewModalOpen || !activeEvent || previewModalEventId === `${activeEvent.id}`) {
+		if (!isPreviewModalOpen || !activeEvent || previewModalRenderKey === getPreviewModalRenderKey()) {
 			return;
 		}
 
@@ -1983,7 +1987,7 @@ When there is a match, use local site paths like /images/speakers/photos/name.jp
 		isPreviewModalLoading = false;
 		previewModalError = '';
 		previewImageLoaded = false;
-		previewModalEventId = '';
+		previewModalRenderKey = '';
 		setPreviewImageUrl('');
 	}
 </script>
