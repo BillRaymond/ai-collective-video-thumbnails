@@ -27,7 +27,8 @@
 		createEmptyPerson,
 		ProjectImportError,
 		parseProjectImport,
-		projectToJson
+		projectToJson,
+		shouldUseLogoBackground
 	} from '$lib/project';
 	import { getThemeById, thumbnailThemes } from '$lib/themes';
 	import {
@@ -187,6 +188,11 @@ When there is a match, use local site paths like /images/speakers/photos/name.jp
 	let openAppMenu = $state<AppMenu>('none');
 	let importError = $state('');
 	let importErrorDetails = $state<string[]>([]);
+	let isPasteJsonOpen = $state(false);
+	let pasteJsonText = $state('');
+	let pasteJsonName = $state('pasted-events');
+	let pasteJsonError = $state('');
+	let pasteJsonErrorDetails = $state<string[]>([]);
 	let exportError = $state('');
 	let exportMessage = $state('');
 	let isExporting = $state(false);
@@ -678,7 +684,12 @@ When there is a match, use local site paths like /images/speakers/photos/name.jp
 		} else if (target.type === 'locationLogo') {
 			updateEvent(target.eventId, (event) => ({
 				...event,
-				location_logo_url: resolveAppImageUrl(nextUrl)
+				location_logo_url: resolveAppImageUrl(nextUrl),
+				thumbnail: {
+					...event.thumbnail,
+					locationLogoHasBackground:
+						shouldUseLogoBackground(nextUrl) || event.thumbnail.locationLogoHasBackground
+				}
 			}));
 		} else if (target.type === 'backgroundImage') {
 			updateEvent(target.eventId, (event) => ({
@@ -1101,6 +1112,21 @@ When there is a match, use local site paths like /images/speakers/photos/name.jp
 	});
 
 	$effect(() => {
+		if (!browser || !isPasteJsonOpen) {
+			return;
+		}
+
+		const handleKeydown = (event: KeyboardEvent) => {
+			if (event.key === 'Escape') {
+				closePasteJson();
+			}
+		};
+
+		window.addEventListener('keydown', handleKeydown);
+		return () => window.removeEventListener('keydown', handleKeydown);
+	});
+
+	$effect(() => {
 		if (!isAssetFinderOpen) {
 			return;
 		}
@@ -1183,6 +1209,7 @@ When there is a match, use local site paths like /images/speakers/photos/name.jp
 		project = nextProject;
 		project.exportedAt = new Date().toISOString();
 		importError = '';
+		importErrorDetails = [];
 		exportError = '';
 	}
 
@@ -1380,7 +1407,15 @@ When there is a match, use local site paths like /images/speakers/photos/name.jp
 						? value.trim() === ''
 							? undefined
 							: value.trim()
-						: value
+						: value,
+			thumbnail:
+				field === 'location_logo_url'
+					? {
+							...event.thumbnail,
+							locationLogoHasBackground:
+								shouldUseLogoBackground(value) || event.thumbnail.locationLogoHasBackground
+						}
+					: event.thumbnail
 		}));
 	}
 
@@ -1695,6 +1730,30 @@ When there is a match, use local site paths like /images/speakers/photos/name.jp
 		return urlStatuses[url] ?? 'idle';
 	}
 
+	function applyImportedProject(normalized: ThumbnailProject, nextProjectName: string) {
+		setProject(normalized);
+		projectName = nextProjectName || 'ai-collective-events';
+		selectedEventId = `${normalized.events[0]?.id ?? ''}`;
+		selectedThemeId = thumbnailThemes[0]?.meta.id ?? '';
+		openPersonId = normalized.events[0]?.thumbnail.people[0]?.id ?? '';
+		openEditorSection = 'content';
+		openEditorSubsection = 'title';
+	}
+
+	function getImportErrorMessage(error: unknown, fallback: string) {
+		if (error instanceof ProjectImportError) {
+			return {
+				headline: error.headline,
+				details: error.details
+			};
+		}
+
+		return {
+			headline: error instanceof Error ? error.message : fallback,
+			details: []
+		};
+	}
+
 	async function importJsonFile(event: Event) {
 		closeMenus();
 		const input = event.currentTarget as HTMLInputElement;
@@ -1708,23 +1767,49 @@ When there is a match, use local site paths like /images/speakers/photos/name.jp
 			const text = await file.text();
 			const parsed = JSON.parse(text);
 			const normalized = parseProjectImport(parsed);
-			setProject(normalized);
-			projectName = file.name.replace(/\.json$/i, '') || 'ai-collective-events';
-			selectedEventId = `${normalized.events[0]?.id ?? ''}`;
-			selectedThemeId = thumbnailThemes[0]?.meta.id ?? '';
-			openPersonId = normalized.events[0]?.thumbnail.people[0]?.id ?? '';
-			openEditorSection = 'content';
-			openEditorSubsection = 'title';
+			applyImportedProject(normalized, file.name.replace(/\.json$/i, '') || 'ai-collective-events');
 		} catch (error) {
-			if (error instanceof ProjectImportError) {
-				importError = error.headline;
-				importErrorDetails = error.details;
-			} else {
-				importError = error instanceof Error ? error.message : 'The JSON file could not be parsed.';
-				importErrorDetails = [];
-			}
+			const parsedError = getImportErrorMessage(error, 'The JSON file could not be parsed.');
+			importError = parsedError.headline;
+			importErrorDetails = parsedError.details;
 		} finally {
 			input.value = '';
+		}
+	}
+
+	function openPasteJson() {
+		closeMenus();
+		pasteJsonText = '';
+		pasteJsonName = 'pasted-events';
+		pasteJsonError = '';
+		pasteJsonErrorDetails = [];
+		isPasteJsonOpen = true;
+	}
+
+	function closePasteJson() {
+		isPasteJsonOpen = false;
+		pasteJsonError = '';
+		pasteJsonErrorDetails = [];
+	}
+
+	function importPastedJson() {
+		const trimmedJson = pasteJsonText.trim();
+
+		if (!trimmedJson) {
+			pasteJsonError = 'Paste JSON before importing.';
+			pasteJsonErrorDetails = [];
+			return;
+		}
+
+		try {
+			const parsed = JSON.parse(trimmedJson);
+			const normalized = parseProjectImport(parsed);
+			applyImportedProject(normalized, pasteJsonName.trim() || 'pasted-events');
+			closePasteJson();
+		} catch (error) {
+			const parsedError = getImportErrorMessage(error, 'The pasted JSON could not be parsed.');
+			pasteJsonError = parsedError.headline;
+			pasteJsonErrorDetails = parsedError.details;
 		}
 	}
 
@@ -2055,6 +2140,9 @@ When there is a match, use local site paths like /images/speakers/photos/name.jp
 										<input type="file" accept=".json,application/json" onchange={importJsonFile} />
 										<span>Upload JSON</span>
 									</label>
+									<button class="menu-button" type="button" onclick={openPasteJson}>
+										Paste JSON
+									</button>
 									<button class="menu-button" type="button" onclick={() => runMenuAction(addBlankEvent)}>
 										New event
 									</button>
@@ -2834,6 +2922,75 @@ When there is a match, use local site paths like /images/speakers/photos/name.jp
 				<activeTheme.component event={activeEvent} />
 			</div>
 		{/key}
+	</div>
+{/if}
+
+{#if isPasteJsonOpen}
+	<div class="modal-backdrop">
+		<button
+			type="button"
+			class="modal-scrim"
+			onclick={closePasteJson}
+			aria-label="Close pasted JSON import"
+		></button>
+		<div
+			class="modal-dialog paste-json-dialog"
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="paste-json-title"
+			tabindex="-1"
+		>
+			<div class="modal-head">
+				<div>
+					<p class="panel-label">JSON Import</p>
+					<h3 id="paste-json-title">Paste Event JSON</h3>
+				</div>
+				<div class="modal-head-actions">
+					<button class="ghost-button compact-button" type="button" onclick={closePasteJson}>
+						Cancel
+					</button>
+					<button class="primary-button compact-button" type="button" onclick={importPastedJson}>
+						Import JSON
+					</button>
+				</div>
+			</div>
+
+			<div class="modal-body paste-json-body">
+				<label class="field-block">
+					<span>Project name</span>
+					<input
+						value={pasteJsonName}
+						placeholder="pasted-events"
+						oninput={(event) => (pasteJsonName = (event.currentTarget as HTMLInputElement).value)}
+					/>
+				</label>
+
+				<label class="field-block field-block-full paste-json-field">
+					<span>JSON</span>
+					<textarea
+						class="paste-json-input"
+						value={pasteJsonText}
+						placeholder={sourceSchemaSampleJson}
+						spellcheck="false"
+						oninput={(event) => (pasteJsonText = (event.currentTarget as HTMLTextAreaElement).value)}
+					></textarea>
+					<small>Accepts the same raw event array or saved thumbnail project JSON as file upload.</small>
+				</label>
+
+				{#if pasteJsonError}
+					<div class="error-panel" role="alert" aria-live="polite">
+						<p class="error-text">{pasteJsonError}</p>
+						{#if pasteJsonErrorDetails.length > 0}
+							<ul class="error-list">
+								{#each pasteJsonErrorDetails as detail}
+									<li>{detail}</li>
+								{/each}
+							</ul>
+						{/if}
+					</div>
+				{/if}
+			</div>
+		</div>
 	</div>
 {/if}
 

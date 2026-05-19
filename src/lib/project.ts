@@ -6,6 +6,7 @@ import sourceEventsSchema from './schemas/source-events.schema.json';
 import thumbnailProjectSchema from './schemas/thumbnail-project.schema.json';
 
 const LEGACY_ASSET_URLS = getThemeLegacyAssetUrlMap();
+const LOGO_URLS_REQUIRING_BACKGROUND = new Set(['/images/speakers/logos/aws.png']);
 const ajv = new Ajv({ allErrors: true, strict: false });
 const validateSourceEventsSchema = ajv.compile(sourceEventsSchema);
 const validateThumbnailProjectSchema = ajv.compile(thumbnailProjectSchema);
@@ -40,6 +41,10 @@ function withFallback(value: unknown, fallback = '') {
 
 function resolveLegacyAssetUrl(value: string) {
 	return resolveAppImageUrl(LEGACY_ASSET_URLS[value] ?? value);
+}
+
+export function shouldUseLogoBackground(url: string) {
+	return LOGO_URLS_REQUIRING_BACKGROUND.has(resolveAppImageUrl(url).split('?')[0] ?? '');
 }
 
 function asPeople(value: unknown): EventPersonSource[] {
@@ -124,7 +129,7 @@ export function buildPeopleFromSource(event: EventSource): ThumbnailPerson[] {
 		company: person.company,
 		photoUrl: person.photo_url,
 		companyLogoUrl: person.company_logo_url,
-		companyLogoHasBackground: false,
+		companyLogoHasBackground: shouldUseLogoBackground(person.company_logo_url),
 		photoPositionX: 50,
 		photoPositionY: 50,
 		logoScale: 100
@@ -137,7 +142,7 @@ export function buildPeopleFromSource(event: EventSource): ThumbnailPerson[] {
 		company: person.company,
 		photoUrl: person.photo_url,
 		companyLogoUrl: person.company_logo_url,
-		companyLogoHasBackground: false,
+		companyLogoHasBackground: shouldUseLogoBackground(person.company_logo_url),
 		photoPositionX: 50,
 		photoPositionY: 50,
 		logoScale: 100
@@ -159,7 +164,7 @@ function normalizePerson(eventId: EventSource['id'], value: unknown, index: numb
 		companyLogoHasBackground:
 			typeof safePerson.companyLogoHasBackground === 'boolean'
 				? safePerson.companyLogoHasBackground
-				: false,
+				: shouldUseLogoBackground(asString(safePerson.companyLogoUrl)),
 		photoPositionX:
 			typeof safePerson.photoPositionX === 'number' ? safePerson.photoPositionX : 50,
 		photoPositionY:
@@ -231,7 +236,8 @@ function normalizeThumbnail(event: EventSource, thumbnailValue: unknown): Thumbn
 		locationLogoHasBackground:
 			typeof safeThumbnail.locationLogoHasBackground === 'boolean'
 				? safeThumbnail.locationLogoHasBackground
-				: (themeDefaults.locationLogoHasBackground ?? false),
+				: (shouldUseLogoBackground(event.location_logo_url ?? '') ||
+					(themeDefaults.locationLogoHasBackground ?? false)),
 		capitalizePersonNames:
 			typeof safeThumbnail.capitalizePersonNames === 'boolean'
 				? safeThumbnail.capitalizePersonNames

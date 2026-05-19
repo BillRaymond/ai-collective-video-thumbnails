@@ -16,6 +16,7 @@ const INTERNAL_PHOTO_PATHS = [
 	'/images/speakers/photos/bill-raymond.jpg',
 	'/images/speakers/photos/carl-fritjofsson.jpg',
 	'/images/speakers/photos/catherine-mcmillan.png',
+	'/images/speakers/photos/chappy-asel.jpg',
 	'/images/speakers/photos/clarey-zhu.jpg',
 	'/images/speakers/photos/craig-mcluckie.jpg',
 	'/images/speakers/photos/dan-pechi.jpg',
@@ -61,6 +62,7 @@ const INTERNAL_PHOTO_PATHS = [
 
 const INTERNAL_LOGO_PATHS = [
 	'/images/speakers/logos/agentic-fabriq.jpg',
+	'/images/speakers/logos/aws.png',
 	'/images/speakers/logos/broadcom.jpg',
 	'/images/speakers/logos/bubble.svg',
 	'/images/speakers/logos/cambermast.png',
