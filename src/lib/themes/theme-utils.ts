@@ -17,6 +17,8 @@ type FitTitleFontSizeOptions = {
 	max: number;
 	heightRatio?: number;
 	heightOffset?: number;
+	widthInset?: number;
+	heightInset?: number;
 };
 
 export function splitTitleAccent(title: string): TitleAccentParts {
@@ -73,14 +75,16 @@ export function fitTitleFontSize({
 	min,
 	max,
 	heightRatio = 1,
-	heightOffset = 0
+	heightOffset = 0,
+	widthInset = 0,
+	heightInset = 0
 }: FitTitleFontSizeOptions) {
 	if (!box || !element) {
 		return;
 	}
 
-	const availableWidth = Math.floor(box.clientWidth);
-	const availableHeight = Math.floor(box.clientHeight * heightRatio) - heightOffset;
+	const availableWidth = Math.floor(box.clientWidth) - widthInset;
+	const availableHeight = Math.floor(box.clientHeight * heightRatio) - heightOffset - heightInset;
 
 	if (availableWidth <= 0 || availableHeight <= 0) {
 		return;

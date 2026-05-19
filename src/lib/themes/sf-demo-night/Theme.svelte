@@ -15,6 +15,7 @@
 	const DEFAULT_VARIANT_LABEL = 'Panel Discussion';
 	const TITLE_MAX_FONT_SIZE = 84;
 	const TITLE_MIN_FONT_SIZE = 24;
+	const TITLE_GLOW_HEIGHT_INSET = 44;
 
 	let { event }: { event: ThumbnailEvent } = $props();
 	let titleBox: HTMLDivElement | null = null;
@@ -142,7 +143,8 @@
 			cssVariableName: '--thumbnail-title-size',
 			min: TITLE_MIN_FONT_SIZE,
 			max: TITLE_MAX_FONT_SIZE,
-			heightOffset: eyebrowOffset
+			heightOffset: eyebrowOffset,
+			heightInset: TITLE_GLOW_HEIGHT_INSET
 		});
 	}
 
