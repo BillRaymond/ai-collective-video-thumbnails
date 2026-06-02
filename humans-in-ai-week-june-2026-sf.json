@@ -1,0 +1,120 @@
+{
+  "version": "1.0",
+  "generatedBy": "ai-collective-thumbnail-studio",
+  "exportedAt": "2026-06-02T00:00:00.000Z",
+  "events": [
+    {
+      "id": "aws-the-ai-collective",
+      "day": null,
+      "title": "The AI Collective",
+      "type": "THE AI COLLECTIVE",
+      "location": "AWS",
+      "location_logo_url": "/images/speakers/logos/aws.png",
+      "moderators": [
+        {
+          "name": "Ash Kumra",
+          "company": "SF Chapter Co-leader",
+          "photo_url": "/images/speakers/photos/ash-kumra.webp",
+          "company_logo_url": "/images/speakers/logos/the-ai-collective.png"
+        }
+      ],
+      "confirmed_speakers": [
+        {
+          "name": "Chappy Asel",
+          "company": "AIC Co-Founder & Chairman",
+          "photo_url": "/images/speakers/photos/chappy-asel.jpg",
+          "company_logo_url": "/images/speakers/logos/the-ai-collective.png"
+        },
+        {
+          "name": "AJ Green",
+          "company": "AIC EXECUTIVE DIRECTOR",
+          "photo_url": "/images/speakers/photos/aj-green.jpg",
+          "company_logo_url": "/images/speakers/logos/the-ai-collective.png"
+        },
+        {
+          "name": "My Luu",
+          "company": "AIC Chief Culture Officer",
+          "photo_url": "/images/speakers/photos/my-luu.jpg",
+          "company_logo_url": "/images/speakers/logos/the-ai-collective.png"
+        },
+        {
+          "name": "Vik Ghai",
+          "company": "VC Partner G2C Ventures",
+          "photo_url": "/images/speakers/photos/vik-ghai.jpg",
+          "company_logo_url": "/images/speakers/logos/g2c-ventures.jpg"
+        }
+      ],
+      "thumbnail": {
+        "eventLogoUrl": "/images/speakers/logos/aws.png",
+        "backgroundImageUrl": "",
+        "producerCredit": "KROK PRODUCTIONS by Data Phoenix",
+        "ctaText": "",
+        "locationLogoHasBackground": true,
+        "capitalizePersonNames": true,
+        "capitalizeCompanyNames": true,
+        "people": [
+          {
+            "id": "aws-the-ai-collective-moderator-1",
+            "role": "Moderator",
+            "name": "Ash Kumra",
+            "company": "SF Chapter Co-leader",
+            "photoUrl": "/images/speakers/photos/ash-kumra.webp",
+            "companyLogoUrl": "/images/speakers/logos/the-ai-collective.png",
+            "companyLogoHasBackground": false,
+            "photoPositionX": 50,
+            "photoPositionY": 50,
+            "logoScale": 100
+          },
+          {
+            "id": "aws-the-ai-collective-speaker-1",
+            "role": "Speaker",
+            "name": "Chappy Asel",
+            "company": "AIC Co-Founder & Chairman",
+            "photoUrl": "/images/speakers/photos/chappy-asel.jpg",
+            "companyLogoUrl": "/images/speakers/logos/the-ai-collective.png",
+            "companyLogoHasBackground": false,
+            "photoPositionX": 50,
+            "photoPositionY": 50,
+            "logoScale": 100
+          },
+          {
+            "id": "aws-the-ai-collective-speaker-2",
+            "role": "Speaker",
+            "name": "AJ Green",
+            "company": "AIC EXECUTIVE DIRECTOR",
+            "photoUrl": "/images/speakers/photos/aj-green.jpg",
+            "companyLogoUrl": "/images/speakers/logos/the-ai-collective.png",
+            "companyLogoHasBackground": false,
+            "photoPositionX": 50,
+            "photoPositionY": 50,
+            "logoScale": 100
+          },
+          {
+            "id": "aws-the-ai-collective-speaker-3",
+            "role": "Speaker",
+            "name": "My Luu",
+            "company": "AIC Chief Culture Officer",
+            "photoUrl": "/images/speakers/photos/my-luu.jpg",
+            "companyLogoUrl": "/images/speakers/logos/the-ai-collective.png",
+            "companyLogoHasBackground": false,
+            "photoPositionX": 50,
+            "photoPositionY": 50,
+            "logoScale": 100
+          },
+          {
+            "id": "aws-the-ai-collective-speaker-4",
+            "role": "Speaker",
+            "name": "Vik Ghai",
+            "company": "VC Partner G2C Ventures",
+            "photoUrl": "/images/speakers/photos/vik-ghai.jpg",
+            "companyLogoUrl": "/images/speakers/logos/g2c-ventures.jpg",
+            "companyLogoHasBackground": false,
+            "photoPositionX": 50,
+            "photoPositionY": 50,
+            "logoScale": 100
+          }
+        ]
+      }
+    }
+  ]
+}

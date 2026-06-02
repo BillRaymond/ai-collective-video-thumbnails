@@ -1,10 +1,12 @@
 <script lang="ts">
 	import backgroundImageUrl from './assets/humans-in-ai-week-background.png';
+	import wordmarkUrl from '../ai-collective-panel-default/assets/Wordmark-White.png';
 	import { resolveRenderableImageUrl } from '$lib/image';
 	import { createImageFailureTracker, hasImageUrl } from '$lib/themes/theme-utils';
 	import type { ThumbnailEvent, ThumbnailPerson } from '$lib/types';
 
 	const THEME_ID = 'humans-in-ai-week';
+	const DEFAULT_VARIANT_LABEL = 'Panel Discussion';
 
 	let { event }: { event: ThumbnailEvent } = $props();
 	let failedPhotoKeys = $state<Record<string, boolean>>({});
@@ -98,6 +100,10 @@
 		return event.location ?? '';
 	}
 
+	function getTypeLabel() {
+		return event.type || DEFAULT_VARIANT_LABEL;
+	}
+
 	function getLogoBackgroundPadding(logoScale: number) {
 		return 100 / Math.max(logoScale, 1);
 	}
@@ -111,9 +117,12 @@
 	<div class="thumbnail-content">
 		<div class="thumbnail-top">
 			<div class="brand-lockup">
-				<div class="brand-mark" aria-hidden="true">C</div>
+				<img class="brand-wordmark" src={wordmarkUrl} alt="The AI Collective" />
 			</div>
-			<div class="brand-wordmark">The AI Collective</div>
+			<div class="badge-pill">
+				<div class="badge-pill-dot"></div>
+				<span>{getTypeLabel()}</span>
+			</div>
 		</div>
 
 			<div class="thumbnail-main">

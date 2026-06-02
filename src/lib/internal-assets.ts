@@ -38,6 +38,7 @@ const INTERNAL_PHOTO_PATHS = [
 	'/images/speakers/photos/matthew-zeiler.jpg',
 	'/images/speakers/photos/mohammad-islam.jpg',
 	'/images/speakers/photos/murray-newlands.jpg',
+	'/images/speakers/photos/my-luu.jpg',
 	'/images/speakers/photos/nathalie-criou.jpg',
 	'/images/speakers/photos/nikhil-choudhary.png',
 	'/images/speakers/photos/nikhil-gupta.jpg',
