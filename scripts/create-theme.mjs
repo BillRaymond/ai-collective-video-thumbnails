@@ -116,7 +116,6 @@ export function build${themeName.replace(/\s+/g, '')}Defaults(
 \tborder: 1px solid rgba(255, 255, 255, 0.14);
 \tborder-radius: 32px;
 \tbackground: rgba(15, 23, 42, 0.72);
-\tbackdrop-filter: blur(18px);
 }
 
 .${rawThemeId}-title {

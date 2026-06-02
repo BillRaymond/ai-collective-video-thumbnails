@@ -210,20 +210,19 @@
 	align-self: stretch;
 	min-height: 0;
 	gap: 12px;
-	overflow: hidden;
+	overflow: visible;
 }
 
 .sf-demo-night-theme .speaker-card{
+	position: relative;
 	display: flex;
 	align-items: center;
 	gap: 14px;
 	padding: 12px 18px 12px 12px;
 	border-radius: 999px;
-	background: linear-gradient(100deg, rgba(255, 250, 237, 0.94), rgba(226, 245, 247, 0.88));
+	background: #fffdf5;
 	border: 1px solid rgba(255, 255, 255, 0.72);
-	box-shadow:
-		inset 0 1px 0 rgba(255, 255, 255, 0.72),
-		inset 0 -1px 0 rgba(7, 43, 58, 0.16);
+	box-shadow: none;
 	flex: 0 0 auto;
 	color: #092236;
 	text-shadow: none;
@@ -324,12 +323,6 @@
 	max-width: 120px;
 	max-height: 30px;
 	object-fit: contain;
-}
-
-.sf-demo-night-theme .speaker-logo-has-background{
-	padding: var(--logo-bg-padding, 1px);
-	background: #ffffff;
-	box-sizing: content-box;
 }
 
 .sf-demo-night-theme .speaker-logo-fallback{

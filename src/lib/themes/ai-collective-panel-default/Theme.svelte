@@ -259,7 +259,6 @@
 									>
 										<img
 											class="speaker-logo"
-											class:speaker-logo-has-background={person.companyLogoHasBackground}
 											src={getImageSrc(person.companyLogoUrl)}
 											alt={person.company || 'Company logo'}
 											crossorigin="anonymous"

@@ -407,7 +407,8 @@ export function applyThemeToThumbnail(event: EventSource, thumbnail: ThumbnailCo
 				name: themePerson?.name ?? p.name,
 				companyLogoUrl: resolveAppImageUrl(
 					themePerson ? themePerson.companyLogoUrl : p.companyLogoUrl
-				)
+				),
+				companyLogoHasBackground: themePerson?.companyLogoHasBackground ?? false
 			};
 		})
 	} satisfies ThumbnailConfig;

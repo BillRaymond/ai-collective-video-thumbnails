@@ -65,7 +65,6 @@ export const theme: ThumbnailThemeDefinition = {
 			'company',
 			'photoUrl',
 			'companyLogoUrl',
-			'companyLogoHasBackground',
 			'photoPosition',
 			'logoScale'
 		]

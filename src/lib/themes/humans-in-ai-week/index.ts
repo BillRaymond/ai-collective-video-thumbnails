@@ -1,28 +1,30 @@
 import Theme from './Theme.svelte';
-import backgroundImageUrl from './assets/sf-demo-night-background.png';
+import backgroundImageUrl from './assets/humans-in-ai-week-background.png';
 import eventLogoUrl from './assets/HumanX-white-logo-cropped.png';
-import wordmarkUrl from './assets/Wordmark-White.png';
-import { buildSfDemoNightDefaults } from './defaults';
+import {
+	buildHumansInAiWeekDefaults,
+	DEFAULT_BACKGROUND_URL_LEGACY,
+	DEFAULT_EVENT_LOGO_URL_LEGACY
+} from './defaults';
 import type { ThumbnailThemeDefinition } from '$lib/types';
 import './theme.css';
 
 export const assets = {
 	backgroundImageUrl,
-	eventLogoUrl,
-	wordmarkUrl
+	eventLogoUrl
 };
 
 export const theme: ThumbnailThemeDefinition = {
 	meta: {
-		id: 'sf-demo-night',
-		name: 'SF Demo Night',
-		description: 'SF Demo Night layout using the AI Collective panel background.',
-		order: 30
+		id: 'humans-in-ai-week',
+		name: 'Humans in AI Week',
+		description: 'Light editorial AI Collective panel layout with fingerprint and signal-wave artwork.',
+		order: 12
 	},
 	component: Theme,
 	requiresImageProxy: true,
 	defaults: (event) => {
-		const base = buildSfDemoNightDefaults(event);
+		const base = buildHumansInAiWeekDefaults(event);
 		const createId = (role: string, i: number) => `${event.id}-${role}-${i + 1}`;
 
 		return {
@@ -69,5 +71,9 @@ export const theme: ThumbnailThemeDefinition = {
 			'logoScale'
 		]
 	},
-	assets
+	assets,
+	legacyAssetUrls: {
+		[DEFAULT_BACKGROUND_URL_LEGACY]: backgroundImageUrl,
+		[DEFAULT_EVENT_LOGO_URL_LEGACY]: eventLogoUrl
+	}
 };

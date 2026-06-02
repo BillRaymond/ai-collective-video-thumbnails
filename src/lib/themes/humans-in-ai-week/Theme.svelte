@@ -1,32 +1,15 @@
 <script lang="ts">
-	import { onMount, tick } from 'svelte';
-	import backgroundImageUrl from './assets/sf-demo-night-background.png';
-	import wordmarkUrl from './assets/Wordmark-White.png';
+	import backgroundImageUrl from './assets/humans-in-ai-week-background.png';
 	import { resolveRenderableImageUrl } from '$lib/image';
-	import {
-		createImageFailureTracker,
-		fitTitleFontSize,
-		hasImageUrl,
-		splitTitleAccent
-	} from '$lib/themes/theme-utils';
+	import { createImageFailureTracker, hasImageUrl } from '$lib/themes/theme-utils';
 	import type { ThumbnailEvent, ThumbnailPerson } from '$lib/types';
 
-	const THEME_ID = 'sf-demo-night';
-	const DEFAULT_VARIANT_LABEL = 'Panel Discussion';
-	const TITLE_MAX_FONT_SIZE = 84;
-	const TITLE_MIN_FONT_SIZE = 24;
-	const TITLE_GLOW_HEIGHT_INSET = 44;
+	const THEME_ID = 'humans-in-ai-week';
 
 	let { event }: { event: ThumbnailEvent } = $props();
-	let titleBox: HTMLDivElement | null = null;
-	let titleElement: HTMLHeadingElement | null = null;
-	let eyebrowElement: HTMLParagraphElement | null = $state(null);
-	let resizeObserver: ResizeObserver | null = null;
-	let fitRequest = 0;
 	let failedPhotoKeys = $state<Record<string, boolean>>({});
 	let failedCompanyLogoKeys = $state<Record<string, boolean>>({});
 	let eventLogoFailed = $state(false);
-	let titleParts = $derived(splitTitleAccent(event.title));
 	const photoFailureTracker = createImageFailureTracker({
 		getFailures: () => failedPhotoKeys,
 		setFailures: (next) => (failedPhotoKeys = next),
@@ -111,82 +94,16 @@
 		return event.location_logo_url || event.thumbnail.eventLogoUrl;
 	}
 
-	function getTypeLabel() {
-		return event.type || DEFAULT_VARIANT_LABEL;
-	}
-
 	function getLocationLabel() {
 		return event.location ?? '';
-	}
-
-	function getEyebrow(day: ThumbnailEvent['day']) {
-		const loc = getLocationLabel();
-		const hasDay = day !== undefined && day !== null && `${day}`.trim() !== '';
-		const hasLoc = loc.trim() !== '';
-		if (!hasDay && !hasLoc) return '';
-		if (hasDay) return `Day ${day}${hasLoc ? ` · ${loc}` : ''}`;
-		return loc;
 	}
 
 	function getLogoBackgroundPadding(logoScale: number) {
 		return 100 / Math.max(logoScale, 1);
 	}
-
-	function fitTitleToBounds() {
-		const eyebrowOffset = eyebrowElement
-			? eyebrowElement.offsetHeight +
-				parseFloat(getComputedStyle(eyebrowElement).marginBottom || '0')
-			: 0;
-		fitTitleFontSize({
-			box: titleBox,
-			element: titleElement,
-			cssVariableName: '--thumbnail-title-size',
-			min: TITLE_MIN_FONT_SIZE,
-			max: TITLE_MAX_FONT_SIZE,
-			heightOffset: eyebrowOffset,
-			heightInset: TITLE_GLOW_HEIGHT_INSET
-		});
-	}
-
-	function scheduleTitleFit() {
-		cancelAnimationFrame(fitRequest);
-		fitRequest = requestAnimationFrame(() => {
-			fitTitleToBounds();
-		});
-	}
-
-	onMount(() => {
-		resizeObserver = new ResizeObserver(() => {
-			scheduleTitleFit();
-		});
-
-		if (titleBox) {
-			resizeObserver.observe(titleBox);
-		}
-
-		scheduleTitleFit();
-
-		document.fonts?.ready.then(() => {
-			scheduleTitleFit();
-		});
-
-		return () => {
-			cancelAnimationFrame(fitRequest);
-			resizeObserver?.disconnect();
-		};
-	});
-
-	$effect(() => {
-		event.title;
-		event.day;
-		event.location;
-		tick().then(() => {
-			scheduleTitleFit();
-		});
-	});
 </script>
 
-<div class="thumbnail-frame sf-demo-night-theme">
+<div class="thumbnail-frame humans-in-ai-week-theme">
 	<div class="thumbnail-bg">
 		<img src={backgroundImageUrl} alt="" crossorigin="anonymous" />
 	</div>
@@ -194,28 +111,13 @@
 	<div class="thumbnail-content">
 		<div class="thumbnail-top">
 			<div class="brand-lockup">
-				<img class="brand-wordmark" src={wordmarkUrl} alt="The AI Collective" />
+				<div class="brand-mark" aria-hidden="true">C</div>
 			</div>
-			<div class="badge-pill">
-				<div class="badge-pill-dot"></div>
-				<span>{getTypeLabel()}</span>
-			</div>
+			<div class="brand-wordmark">The AI Collective</div>
 		</div>
 
 			<div class="thumbnail-main">
-			<div class="title-column">
-				<div class="thumbnail-title-box" bind:this={titleBox}>
-					{#if getEyebrow(event.day)}
-						<p class="thumbnail-eyebrow" bind:this={eyebrowElement}>{getEyebrow(event.day)}</p>
-					{/if}
-					<h1 class="thumbnail-title" bind:this={titleElement}>
-						{titleParts.prefix}
-						{#if titleParts.accent}
-							<span class="thumbnail-title-accent">{titleParts.accent}</span>
-						{/if}
-					</h1>
-				</div>
-			</div>
+			<div class="title-column" aria-hidden="true"></div>
 
 			<div class={`people-column ${personCountClass(event.thumbnail.people)}`}>
 				{#if event.thumbnail.people.length === 0}
